@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no"
+          name="viewport" id="viewport">
+    <title>车票预订</title>
+    <link rel="stylesheet" type="text/css" href="/sell/css/yuding.css">
+    <script type="text/javascript" src="/sell/js/jquery-1.7.2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#route,#time").change(function () {
+                var q = document.getElementById("route").value;
+                var w = document.getElementById("time").value;
+                //$('#txtHint').load("chepiaoyuding_show", {a: q, s: w});
+                $('#txtHint').html('');
+            });
+            var q = document.getElementById("route").value;
+            var w = document.getElementById("time").value;
+           // $('#txtHint').load("chepiaoyuding_show", {a: q, s: w});
+        });
+
+        function jianyan() {
+            var r = $('#route').val();
+            var t = $('#time').val();
+            var y = $('#moment').val();
+            if (r !== '') {
+                if (t !== '') {
+                    if (y !== '') {
+                        return true;
+                    } else {
+                        alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
+                        return false;
+                    }
+                } else {
+                    alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
+                    return false;
+                }
+            } else {
+                alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
+                return false;
+            }
+        }
+    </script>
+    <link type="text/css" rel="stylesheet" charset="UTF-8" href="/sell/css/translateelement.css">
+</head>
+
+
+<body>
+<div class="content">
+
+    <div class="main">
+        <form name="form" action="/sell/cseat"
+              onsubmit="return jianyan(this)" method="get">
+            <select name="route" id="route" class="address">
+                <option value="">请选择乘车路线</option>
+
+                <option value="北部万科城（交通中心）-越秀公园地铁站">北部万科城（交通中心）---&gt;越秀公园地铁站</option>
+
+                <option value="以太广场（越秀公园地铁A出口）-北部万科城">以太广场（越秀公园地铁A出口）---&gt;北部万科城</option>
+
+                <option value="北部万科城（交通中心）-广州嘉禾">北部万科城（交通中心）---&gt;广州嘉禾</option>
+
+                <option value="广州嘉禾（动物卫生监督所对面）-北部万科城">广州嘉禾（动物卫生监督所对面）---&gt;北部万科城</option>
+
+
+            </select>
+            <select name="time" id="time" class="address">
+                <option value="">请选择乘车日期</option>
+                <!--	<option value="">乘车日期</option>-->
+                <option value="2018-12-13 ">2018-12-13</option>
+                <option value="2018-12-14 ">2018-12-14</option>
+            </select>
+            <br>
+            <div id="txtHint"><select name="moment" class="address">
+                <option value="">今天已经没有班车了，请选择明天的车。</option>
+            </select></div>
+            <br>
+            <div class="button"><input type="submit" name="submit"
+                                       style=" background:none; border:none; color:#fff; width:100%; height:100%;"
+                                       value="下一步"></div>
+            <div style="color:red; padding:10px;">
+                <!--   北万班车业主票价为12元/次、非业主20元/次，不设退换（业主是指已在万客会绑定房产的业主及家属） -->
+            </div>
+        </form>
+
+    </div>
+
+</div>
+
+
+</body>
+</html>

@@ -568,7 +568,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         MonthTicketUserDO mtud =
                 monthTicketUserRepository.findByCreateUserAndMonth(uid,month_val);
         if (!ComUtil.isEmpty(mtud)&&"1".equals(mtud.getRemark())){
-            throw new SellException(500,"月票不可重复购买！");
+            throw new BusinessException("500","月票不可重复购买！");
         }
         MonthTicketDO mtd = monthTicketRepository.findById(new Long(id));
         if (ComUtil.isEmpty(mtud)){

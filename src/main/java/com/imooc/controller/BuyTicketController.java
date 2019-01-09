@@ -137,20 +137,6 @@ public class BuyTicketController {
 
     }
 
-    /**
-     * 订票微信异步通知
-     * @param notifyData
-     */
-    @PostMapping("/notify")
-    public ModelAndView notify(@RequestBody String notifyData){
-
-        log.info("notifyData:{}",notifyData);
-        buyTicketService.notify(notifyData);
-
-        //返回给微信处理结果
-//        String string="";
-        return new ModelAndView("pay/success");
-    }
 
 
 
@@ -308,6 +294,20 @@ public class BuyTicketController {
 
 
 
+    /**
+     * 订票微信异步通知
+     * @param notifyData
+     */
+    @PostMapping("/notify")
+    public ModelAndView notify(@RequestBody String notifyData){
+
+        log.info("notifyData:{}",notifyData);
+        buyTicketService.notify(notifyData);
+
+        //返回给微信处理结果
+//        String string="";
+        return new ModelAndView("pay/success");
+    }
 
     /**
      * 月票微信异步通知

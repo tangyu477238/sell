@@ -31,9 +31,10 @@ public class SellerAuthorizeAspect {
     private StringRedisTemplate redisTemplate;
 
     @Pointcut("(execution(public * com.imooc.controller.Seller*.*(..))"
-            +"|| execution(public * com.imooc.controller.Buy*.*(..))"
-            +")&& !execution(public * com.imooc.controller.Buy*.notify*(..))"
-            +" && !execution(public * com.imooc.controller.SellerUserController.*(..))"
+            +"|| execution(public * com.imooc.controller.Buy*.*(..)))"
+            +"&& !execution(public * com.imooc.controller.Buy*.notify*(..))"
+            +"&& !execution(public * com.imooc.controller.Buy*.queryOrder*(..))"
+            +"&& !execution(public * com.imooc.controller.SellerUserController.*(..))"
 
             )
 

@@ -12,9 +12,9 @@ import java.util.Map;
  */
 public interface BuyTicketService {
 
-     Map<String,Object>  findAll();
+    Map<String,Object>  findAll();
 
-    public Map<String,Object>  bupiao();
+    Map<String,Object>  bupiao();
 
     Map<String,Object>  listSeatDetail(String route,String time, String moment);
 
@@ -38,11 +38,13 @@ public interface BuyTicketService {
 
     String queryBanci(String route, String time);
 
-    void saveInfo(String name, String phone, String uid);
+    void saveInfo(String name, String phone, String uid,String verify);
 
     Map<String, Object> queryOrder(String orderId, String uid);
 
     String queryBanci(String route);
 
-    public Map<String,Object> addBupiao(String route, String moment,String uid);
+    Map<String,Object> addBupiao(String route, String moment,String uid);
+
+    void sendYzm(String name, String phone, String uid);
 }

@@ -86,6 +86,29 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
 
 
 
+    @Query(value = "SELECT s.seller_id,case when v.id is null then -1 else v.id end as id ,case when v.num is null then 0 else v.num end num "
+            +" from seller_info s "
+            +" left join biz_verify v on v.uid = s.seller_id "
+            +" and v.ptype = 1 and date_format(v.create_time,'%Y%m%d') = date_format(NOW(),'%Y%m%d') "
+            +" where  1=1  and s.seller_id =?1 ", nativeQuery = true)
+    List<Object[]> checkVerifyNum(String uid);
+
+
+    //checkVerify
+    @Query(value = "SELECT v.verify FROM biz_verify v "
+            +" where  1=1 and v.ptype = 1 "
+            +" and DATE_ADD(v.create_time,INTERVAL 5 MINUTE)>NOW() "
+            +" and uid =?1 and  v.mobile=?2 and v.verify=?3  " , nativeQuery = true)
+    List<Integer> checkVerify(String uid, String mobile, String verify);
+
+
+
+
+
+
+
+
+
 
 }
 

@@ -139,17 +139,17 @@
     <div id="sendMsg"></div>
 </div>
 <div class="message">
-    <div class="qupiao">取票密码没有收到？</div>
-    <a href="javascript:location.reload();">再次发送</a>
+    <div class="qupiao">购票信息没有收到？</div>
+    <#--<a href="javascript:location.reload();">再次发送</a>-->
     <br>
     <div class="clear"></div>
-    <span>1.完成订票后，您将收到短信提示，包括本次订购信息和收费密码</span>
+    <span>1.完成订票后，您将收到微信提示，包括本次购票信息</span>
     <br>
-    <span>2.取材密码是您取材时唯一的凭证，请妥善保存</span>
+    <span>2.取票信息是您取材时唯一的凭证，请妥善保存</span>
 </div>
 <div class="shuoming">
     <h3>取票说明</h3>
-    <span>1.前往乘车现场，在班车所在地自动取票终端输入购买的取票密码，即可完成取票</span>
+    <span>1.前往乘车现场，即可完成取票</span>
     <br>
     <span>2.如现场终端无法打印车票，确定订票信息无误后，联系现场工作人员，协助取票</span>
     <br>
@@ -159,7 +159,18 @@
     <#--<a href="index">完成预约</a>-->
 </div>
 <script>
-    $('#sendMsg').load('sendMsgx' + location.search);
+
+pushHistory();
+window.addEventListener("popstate", function(e) {
+    WeixinJSBridge.invoke('closeWindow',{},function(res){});
+}, false);
+function pushHistory() {
+    var state = {
+        title: "title",
+        url: "#"
+    };
+    window.history.pushState(state, "title", "#");
+}
 </script>
 </body>
 </html>

@@ -28,6 +28,7 @@ public class BuyTicketController {
     @Autowired
     private SellerInfoRepository userRepository;
 
+    //进入选线路
     @GetMapping("/ticket")
     public ModelAndView ticketIndex(@RequestParam("uid") String uid, Map<String,Object> map){
         log.info("进入TicketIndex方法......." + uid);
@@ -40,6 +41,7 @@ public class BuyTicketController {
         return new ModelAndView("mobile/index", map);
     }
 
+    //进入补票
     @GetMapping("/bupiao")
     public ModelAndView ticketBupiao(@RequestParam("uid") String uid, Map<String,Object> map){
         log.info("ticketBupiao......." + uid);
@@ -52,6 +54,7 @@ public class BuyTicketController {
         return new ModelAndView("mobile/bupiao", map);
     }
 
+    //选择座位
     @GetMapping("/cseat")
     public ModelAndView  cseat(@RequestParam("route") String route,
                                @RequestParam("time") String time,
@@ -74,6 +77,7 @@ public class BuyTicketController {
 
     }
 
+    //订单确认
     @GetMapping("/cord")
     public ModelAndView cord(@RequestParam("route") String route,
                              @RequestParam("time") String time,
@@ -91,7 +95,7 @@ public class BuyTicketController {
 
     }
 
-
+    //补票确认
     @GetMapping("/cordBupiao")
     public ModelAndView cordBupiao(@RequestParam("route") String route,
                              @RequestParam("moment") String moment,
@@ -108,7 +112,7 @@ public class BuyTicketController {
 
 
 
-
+    //订单明细
     @GetMapping("/queryOrder")
     public ModelAndView queryOrder(
                              @RequestParam("orderId") String orderId,
@@ -123,7 +127,7 @@ public class BuyTicketController {
 
     }
 
-
+    //支付订单
     @GetMapping("/payOrder")
     public ModelAndView payOrder(
                              @RequestParam("orderId") String orderId,
@@ -182,15 +186,31 @@ public class BuyTicketController {
     @ResponseBody
     @GetMapping("/saveInfo")
     public ResultVO saveInfo(@RequestParam("name") String name,
+                                @RequestParam("verify") String verify,
                                 @RequestParam("phone") String phone,
-                                 @RequestParam("uid") String uid,
+                                @RequestParam("uid") String uid,
                                  Map<String,Object> map){
         log.info("saveInfo.......");
 
-        buyTicketService.saveInfo( name, phone, uid);
+        buyTicketService.saveInfo( name, phone, uid, verify);
         return ResultVOUtil.success();
 
     }
+
+    //个人信息补充
+    @ResponseBody
+    @GetMapping("/sendYzm")
+    public ResultVO sendYzm(@RequestParam("name") String name,
+                             @RequestParam("phone") String phone,
+                             @RequestParam("uid") String uid,
+                             Map<String,Object> map){
+        log.info("saveInfo.......");
+
+        buyTicketService.sendYzm( name, phone, uid);
+        return ResultVOUtil.success();
+
+    }
+
 
 
 
@@ -256,7 +276,7 @@ public class BuyTicketController {
     }
 
 
-    //我的订单/月票/次票
+    //我的订单列表/月票/次票
     @GetMapping("/queryMonthTicket")
     public ModelAndView queryMonthTicket(@RequestParam("uid") String uid,Map<String,Object> map){
         log.info("queryMonthTicket.......");

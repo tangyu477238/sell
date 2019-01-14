@@ -1,6 +1,7 @@
 package com.imooc.service.impl;
 
 import com.imooc.config.ProjectUrlConfig;
+import com.imooc.config.SimpleSMSSender;
 import com.imooc.config.WechatAccountConfig;
 import com.imooc.dataobject.*;
 import com.imooc.exception.BusinessException;
@@ -83,6 +84,50 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     @Autowired
     private BestPayServiceImpl bestPayService;
+
+    @Autowired
+    private VerifyRepository verifyRepository;
+
+
+    @Override
+    public void sendYzm(String name, String phone, String uid) {
+
+        List<Object[]> listVerify = repository.checkVerifyNum(uid);
+        String info = null;
+        int num = 0 ;
+        int verifyid = 0;
+        for (Object[] obj: listVerify ) {
+            info = obj[0].toString();
+            verifyid = Integer.parseInt(obj[1].toString());
+            num = Integer.parseInt(obj[2].toString());
+        }
+        if (ComUtil.isEmpty(info)){
+            throw new SellException(500,"用户不存在！");
+        }
+        if (num>2){ //每天超过5次以后即不在发短信
+            throw new SellException(500,"短信已达最多次数限制！");
+        }
+
+        SimpleSMSSender.SMS sms = SimpleSMSSender.newSMS();
+        String randNum = GenerationSequenceUtil.getRandNum(4);
+        sms.setPhoneNumbers(phone);
+        sms.setTemplateParam("{\"code\":"+randNum+"}");
+        sms.setTemplateCode("SMS_155425089");
+
+        Verify verify = new Verify();
+        verify.setMobile(phone);
+        verify.setUid(uid);
+        verify.setCreateTime(new Date());
+        verify.setPtype(1);
+        verify.setVerify(randNum);
+        verify.setNum(1);
+        if(verifyid > 0 ){
+            verify.setId(verifyid);
+            verify.setNum(num + 1);
+        }
+        verifyRepository.save(verify);
+        SimpleSMSSender.send(sms);
+    }
 
     //买票
     @Override
@@ -403,7 +448,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         SellerInfo sellerInfo = userRepository.findOne(uid);
 
-        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod));
+        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
+                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
 
 
 
@@ -479,7 +525,6 @@ public class BuyTicketServiceImpl implements BuyTicketService {
                     payResponse.getOrderId(),
                     payResponse.getOrderAmount(),
                     sod.getAmout());
-            //throw new SellException(ResultEnum.WXPAY_NOTIFY_MONEY_VERIFY);
             return payResponse;
         }
 
@@ -489,7 +534,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         sod.setState(1);
         seatOrderRepository.save(sod);
         SellerInfo sellerInfo = userRepository.findOne(sod.getCreateUser());
-        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod));
+        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
+                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
 
         return payResponse;
     }
@@ -527,12 +573,13 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
 
-    private void sendMessage(String openid,String moban,List<WxMpTemplateData> data ){
+    private void sendMessage(String openid,String moban,List<WxMpTemplateData> data,String url){
 
         WxMpTemplateMessage templateMessage=new WxMpTemplateMessage();
         templateMessage.setTemplateId(accountConfig.getTemplateId().get(moban));//模板id:"GoCullfix05R-rCibvoyI87ZUg50cyieKA5AyX7pPzo"
         templateMessage.setToUser(openid);//openid:"ozswp1Ojl2rA57ZK97ntGw2WQ2CA
         templateMessage.setData(data);
+        templateMessage.setUrl(url);
         try {
             wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);
             wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);
@@ -616,11 +663,12 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     @Override
     public Map<String, Object> queryMonthTicket(String uid) {
 
-        List<MonthTicketUserDO> mtulist = monthTicketUserRepository.findByCreateUser(uid);
+        List<MonthTicketUserDO> mtulist =
+                monthTicketUserRepository.findByCreateUserAndRemarkOrderByIdDesc(uid,MONTH_STATE_1);
         Map map = new HashMap();
         map.put("mtulist",mtulist);
 
-        List<SeatOrderDO> sodlist = seatOrderRepository.findByStateAndCreateUser(ORDER_STATE_1,uid);
+        List<SeatOrderDO> sodlist = seatOrderRepository.findByStateAndCreateUserOrderByIdDesc(ORDER_STATE_1,uid);
         map.put("sodlist",sodlist);
 
         return map;
@@ -655,7 +703,12 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
     @Override
-    public void saveInfo(String name, String phone, String uid) {
+    public void saveInfo(String name, String phone, String uid,String verify) {
+
+        List verinum =  repository.checkVerify(uid,phone,verify);
+        if(verinum == null ||verinum.size() == 0 || ComUtil.isEmpty(verinum.get(0))){
+            throw new SellException(500,"验证码错误或已过期！");
+        }
         SellerInfo sellerInfo = userRepository.findOne(uid);
         sellerInfo.setName(name);
         sellerInfo.setMobile(phone);
@@ -709,7 +762,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         monthTicketUserRepository.save(mtu);
         SellerInfo sellerInfo = userRepository.findOne(mtu.getCreateUser());
 
-        sendMessage(sellerInfo.getOpenid(),"orderMonthStatus",getOrderMonthTemplateData(mtu));
+        sendMessage(sellerInfo.getOpenid(),"orderMonthStatus",getOrderMonthTemplateData(mtu),
+                null);
         return payResponse;
     }
 

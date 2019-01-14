@@ -13,7 +13,7 @@ public interface MonthTicketUserRepository extends JpaRepository<MonthTicketUser
 
     MonthTicketUserDO findByCreateUserAndMonthAndRemark(String uid,String month,String remark);
 
-    List<MonthTicketUserDO> findByCreateUser(String uid);
+    List<MonthTicketUserDO> findByCreateUserAndRemarkOrderByIdDesc(String uid,String remark);
 
     MonthTicketUserDO findByCreateUserAndMonth(String uid,String month);
 

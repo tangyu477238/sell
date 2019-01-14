@@ -20,8 +20,8 @@
         .header {
             width: 100%;
             height: 50px;
-            background: #F3F3F3;
-            text-align: center;
+
+            text-align: left;
         }
 
         .header a {
@@ -78,7 +78,15 @@
             color: #A9A9A9;
             background: #F3F3F3;
         }
-
+        .verify {
+            width: 40%;
+            height: 42px;
+            margin-top: 10px;
+            border: 1px solid #E0E0E0;
+            border-radius: 3px;
+            color: #A9A9A9;
+            background: #F3F3F3;
+        }
         .zhifu {
             display: block;
             width: 100%;
@@ -129,6 +137,13 @@
                 return ;
             }
 
+            var verify = $('#verify').val();
+            if (verify == '') {
+                alert("请填入验证码");
+                return ;
+            }
+
+
             if (!confirm('确认要提交吗?')) {
                 return;
             }
@@ -137,7 +152,7 @@
             window.is__jfzf = true;
 
             var uid = $('#uid').val();
-            $.get('/sell/ticket/saveInfo?uid=' + uid + '&name=' + name + '&phone=' + phonenum, function (res) {
+            $.get('/sell/ticket/saveInfo?uid=' + uid + '&verify=' + verify + '&name=' + name + '&phone=' + phonenum, function (res) {
                
                 window.is__jfzf = false;
                 
@@ -146,6 +161,32 @@
                     location.replace( '/sell/ticket/ticket?uid=' + uid)  ;
                 } else {
                     alert('提交失败:' + res.msg);
+                }
+            })
+        }
+
+
+        function sendyzm() {
+
+            var name = $('#name').val();
+            var phonenum = $('#phonenum').val();
+            var uid = $('#uid').val();
+
+            if (window.is__jfzf) return;
+            window.is__jfzf = true;
+
+
+            $.get('/sell/ticket/sendYzm?uid=' + uid + '&name=' + name + '&phone=' + phonenum, function (res) {
+
+                window.is__jfzf = false;
+
+                if (res.msg=='成功') {
+                    //alert('短信已发送，请注意查收!');
+                    //location.replace( '/sell/ticket/ticket?uid=' + uid)  ;
+                    var obj = $("#btn");
+                    settime(obj);
+                } else {
+                    alert('发送失败:' + res.msg);
                 }
             })
         }
@@ -162,12 +203,61 @@
         
         <input type="text" class="phone"  name="name" id="name" placeholder="真实姓名">
         <input type="text" class="phone"  name="mobile" id="phonenum" placeholder="手机号">
-		
+
+
+        <div class="header">
+            <input type="text" class="verify"  name="verify" id="verify" placeholder="验证码">
+            <#--<a class="btn" href="javascript:sendyzm()">获取验证码</a>-->
+            <input type="button" id="btn"  value="获取验证码" onclick="sendemail()" />
+        </div>
 
         <a class="quxiao" href="javascript:jfzf()">提交</a>
    
 </div>
 <script>
+    var countdown=60;
+    function sendemail(){
+
+        var name = $('#name').val();
+        if (name == '') {
+            alert("请填入姓名");
+            return ;
+        }
+
+        var phonenum = $('#phonenum').val();
+        if (phonenum == '') {
+            alert("请填入正确的手机号");
+            return ;
+        } else if (typeof (phonenum) == 'undefined') {
+            alert("请填入正确的手机号");
+            return ;
+        } else if (phonenum.length != 11) {
+            alert("请填入正确的手机号");
+            return ;
+        }
+        //发短信
+        sendyzm();
+
+
+
+
+    }
+    function settime(obj) { //发送验证码倒计时
+        if (countdown == 0) {
+            obj.attr('disabled',false);
+            //obj.removeattr("disabled");
+            obj.val("获取验证码");
+            countdown = 60;
+            return;
+        } else {
+            obj.attr('disabled',true);
+            obj.val("重新发送(" + countdown + ")");
+            countdown--;
+        }
+        setTimeout(function() {
+                settime(obj) }
+            ,1000)
+    }
 </script>
 </body>
 </html>

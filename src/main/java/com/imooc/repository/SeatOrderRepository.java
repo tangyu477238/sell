@@ -16,5 +16,5 @@ public interface SeatOrderRepository extends JpaRepository<SeatOrderDO,Integer> 
 
     SeatOrderDO findByIdAndStateAndCreateUser(Long id,Integer state,String createUser);
 
-    List<SeatOrderDO> findByStateAndCreateUser(int state, String uid);
+    List<SeatOrderDO> findByStateAndCreateUserOrderByIdDesc(int state, String uid);
 }

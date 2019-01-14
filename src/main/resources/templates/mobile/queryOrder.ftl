@@ -34,7 +34,6 @@
             width: 88%;
             height: 250px;
             margin: 0 auto;
-            background: #F3F3F3;
             margin-top: 20px;
             border-radius: 4px;
         }
@@ -67,53 +66,22 @@
         .tableleft {
             color: #909090;
         }
+        .tableright {
+            font-size: 26px;
+            color: red;
+        }
 
         td {
             height: 25px;
         }
 
-        .read {
-            margin-top: 20px;
-        }
 
         .read span {
             font-size: 10px;
             color: red;
         }
 
-        .phone {
-            width: 100%;
-            height: 42px;
-            margin-top: 10px;
-            border: 1px solid #E0E0E0;
-            border-radius: 3px;
-            color: #A9A9A9;
-            background: #F3F3F3;
-        }
 
-        .zhifu {
-            display: block;
-            width: 100%;
-            height: 42px;
-            text-align: center;
-            line-height: 42px;
-            color: #fff;
-            background: #F66D22;
-            margin-top: 20px;
-            border-radius: 3px;
-        }
-
-        .quxiao {
-            display: block;
-            width: 100%;
-            height: 42px;
-            text-align: center;
-            line-height: 42px;
-            color: #fff;
-            background: #EA3931;
-            margin-top: 10px;
-            border-radius: 3px;
-        }
     </style>
     <script language="JavaScript">
         function check() {
@@ -149,9 +117,9 @@
 <div class="content">
     <div class="main">
         <div class="main_header">
-            <span style="float:left; margin-left:10px;">${sod.fromStation}</span>
+            <span style="float:left; margin-left:10px;font-size: 20px;">${sod.fromStation}</span>
             <img src="/sell/img/carlogo.png">
-            <span style="float:right;margin-right:10px;">${sod.toStation}</span>
+            <span style="float:right;margin-right:10px;font-size: 20px;">${sod.toStation}</span>
         </div>
         <div class="main_info">
             <table>
@@ -165,15 +133,15 @@
                 </tr>
                 <tr>
                     <td class="tableleft">乘车日期：</td>
-                    <td>${sod.bizDate} ${sod.bizTime}</td>
+                    <td class="tableright">${sod.bizDate} ${sod.bizTime}</td>
                 </tr>
                 <tr>
                     <td class="tableleft">预订时间：</td>
-                    <td>${createTime}</td>
+                    <td >${createTime}</td>
                 </tr>
                 <tr>
                     <td class="tableleft">已选座位：</td>
-                    <td>${sod.info}</td>
+                    <td class="tableright">${sod.info}</td>
                 </tr>
                 <tr>
                     <td class="tableleft">单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价：</td>
@@ -181,7 +149,7 @@
                 </tr>
                 <tr>
                     <td class="tableleft">乘客人数：</td>
-                    <td>${sod.num}人</td>
+                    <td class="tableright">${sod.num}人</td>
                 </tr>
                 <tr>
                     <td class="tableleft">应付金额：</td>

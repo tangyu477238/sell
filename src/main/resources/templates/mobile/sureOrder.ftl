@@ -229,29 +229,46 @@
     </div>
 </div>
 <script>
+
+pushHistory();
+window.addEventListener("popstate", function(e) {
+    postRuest();
+}, false);
+function pushHistory() {
+    var state = {
+        title: "title",
+        url: "#"
+    };
+    window.history.pushState(state, "title", "#");
+}
+
+
 function cancelOrder() {
     if(confirm('确实要取消该订单吗?')){
-       <#--var orderId = '${sod.id}';-->
-       <#--var uid = '${uid}';-->
 
-       var uid = $('#uid').val();
-       var order = $('#orderId').val();
-
-        if (window.is__jfzf) return;
-        window.is__jfzf = true;
-
-        $.get("/sell/ticket/delsorder?orderId=" + order + "&uid=" + uid,function(res){
-            window.is__jfzf = false;
-            //var str2 = JSON.stringify(res);
-            if (res.msg=='成功') {
-                alert('订单取消成功!');
-                WeixinJSBridge.invoke('closeWindow',{},function(res){});
-            } else {
-                alert('取消失败:' + res.msg);
-            }
-        });
+        postRuest();
 
     }
+}
+
+
+function postRuest(){
+    var uid = $('#uid').val();
+    var order = $('#orderId').val();
+
+    if (window.is__jfzf) return;
+    window.is__jfzf = true;
+
+    $.get("/sell/ticket/delsorder?orderId=" + order + "&uid=" + uid,function(res){
+        window.is__jfzf = false;
+        //var str2 = JSON.stringify(res);
+        if (res.msg=='成功') {
+            alert('订单取消成功!');
+            WeixinJSBridge.invoke('closeWindow',{},function(res){});
+        } else {
+            alert('取消失败:' + res.msg);
+        }
+    });
 }
 
 

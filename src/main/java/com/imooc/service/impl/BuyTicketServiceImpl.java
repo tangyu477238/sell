@@ -47,6 +47,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     private static String NotifyUrl = "/sell/ticket/notify"; //车票购买成功回调地址
 
+    private static String QRCODE_PATH = "/opt/app/apache-tomcat-8.5.37/webapps/ROOT/qrcode/";//二维码图片路径
+
+
     //订单锁定时间
     private static int ORDER_LOCK_5 = 5; //5分钟
 
@@ -194,7 +197,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     @Override
     synchronized
-    public Map<String,Object> addOrder(String route,String time, String moment,String seat,String num,String uid) {
+    public Map<String,Object> addOrder(String route,String time, String moment,
+                                       String seat,String num,String uid,String routeStation) {
 
         List<BigDecimal> numlist = repository.getBuyCarNum(route,time,moment,uid);
         BigDecimal carnum = new BigDecimal(num);
@@ -224,7 +228,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         so.setNum(new BigDecimal(num));
         so.setCreateTime(new Date());
 
-
+        so.setRouteStation(routeStation);//上车点
         so.setUpdateTime(DateTimeUtil.addMinutes(new Date(),ORDER_LOCK_5));//锁定5分钟
         so.setInfo(seat);
         so.setState(ORDER_STATE_0);//待付款
@@ -411,7 +415,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     //月票抵扣
     @Override
-    public void updateYuepiaoOrder(String uid, String orderId) {
+    public void updateYuepiaoOrder(String uid, String orderId) throws Exception{
 
         log.info("----------------updateYuepiaoOrder-------------------");
         SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(orderId),0,uid);
@@ -442,20 +446,21 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         monthTicketUserRepository.save(mtu);
         sod.setState(ORDER_STATE_1);
         sod.setRemark("月票抵扣");
+        sod.setCkstate(0);//未验票
         seatOrderRepository.save(sod);
 
 
 
         SellerInfo sellerInfo = userRepository.findOne(uid);
 
+        QRCodeUtil.encode(sellerInfo.getSellerId()+"_"+sod.getId(),QRCODE_PATH);
+        //显示详情
+//        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
+//                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
+        //显示二维码
         sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
+                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
 
-
-
-
-        //repository.deleteByOrderPid(orderId);//删除orderItem
-        //repository.deleteByOrdId(orderId);//删除order
 
     }
 
@@ -501,7 +506,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
     @Override
-    public PayResponse notify(String notifyData) {
+    public PayResponse notify(String notifyData) throws Exception {
         //1.验证签名
         //2.支付状态
         //3. 支付金额
@@ -532,11 +537,19 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         //修改订单的支付状态
         sod.setRemark("微信支付");
         sod.setState(1);
+        sod.setCkstate(0);//未验票
         seatOrderRepository.save(sod);
-        SellerInfo sellerInfo = userRepository.findOne(sod.getCreateUser());
-        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
 
+        SellerInfo sellerInfo = userRepository.findOne(sod.getCreateUser());
+
+        QRCodeUtil.encode(sellerInfo.getSellerId()+"_"+sod.getId(),QRCODE_PATH);
+
+//        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
+//                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
+
+        //显示二维码
+        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
+                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
         return payResponse;
     }
 
@@ -550,12 +563,12 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     private List<WxMpTemplateData> getOrderTemplateData(SeatOrderDO sod ){
         //发送通知
         List<WxMpTemplateData> data= Arrays.asList(
-                new WxMpTemplateData("first","您好，您已成功消费。"),
+                new WxMpTemplateData("first","您好，您已成功购票。"),
                 new WxMpTemplateData("keyword1",sod.getBizDate()+" "+sod.getBizTime(),"#B5B5B5"),
                 new WxMpTemplateData("keyword2",sod.getOrderNo() + ",请提前至少10分钟取票上车","#B5B5B5"),
                 new WxMpTemplateData("keyword3",sod.getInfo(),"#B5B5B5"),
-                new WxMpTemplateData("keyword4",sod.getNum().toString(),"#B5B5B5"),
-                new WxMpTemplateData("remark","欢迎再次购买。\r\n如需帮助请致电135XXX。","#173177"));
+                new WxMpTemplateData("keyword4",sod.getNum()+"人","#B5B5B5"),
+                new WxMpTemplateData("remark","为避免超载，请主动为小朋友购买车票。\r\n欢迎再次购买。\r\n如需帮助请致电13922700093。","#173177"));
 
         return data;
     }
@@ -567,7 +580,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
                 new WxMpTemplateData("keyword1",mtu.getPtypeName()+"(总共"+mtu.getTotalNum()+"张)","#B5B5B5"),
                 new WxMpTemplateData("keyword2",mtu.getPrice()+"元","#B5B5B5"),
                 new WxMpTemplateData("keyword3",mtu.getMonth()+"月","#B5B5B5"),
-                new WxMpTemplateData("remark","欢迎再次购买。\r\n如需帮助请致电135XXX。","#173177"));
+                new WxMpTemplateData("remark","欢迎再次购买。\r\n如需帮助请致电13922700093。","#173177"));
 
         return data;
     }
@@ -765,6 +778,36 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         sendMessage(sellerInfo.getOpenid(),"orderMonthStatus",getOrderMonthTemplateData(mtu),
                 null);
         return payResponse;
+    }
+
+    @Override
+    public Map<String,Object> cktikcet(String uid) {
+        Map map = new HashMap();
+        int flag = 0;
+        map.put("state",flag);//验票失败
+        if (ComUtil.isEmpty(uid)){
+            return map;
+        }
+        String strs[] = uid.split("_");
+        if (ComUtil.isEmpty(strs)||strs.length!=2||strs[0].length()!=32){
+            return map;
+        }
+
+        SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(strs[1]),ORDER_STATE_1,strs[0]);
+        if (ComUtil.isEmpty(sod)){
+            return map;
+        }
+        if (sod.getCkstate()==1){
+            flag = -1;
+            map.put("state",flag);//重复验票
+            return map;
+        }
+        sod.setCkstate(1);//更新验票状态
+        sod.setUpdateTime(new Date());
+        seatOrderRepository.save(sod);//更新状态
+        flag = sod.getNum().intValue();
+        map.put("state",flag);//验票ok
+        return map;
     }
 
     public static void main (String str []){

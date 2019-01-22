@@ -30,7 +30,7 @@ public class BuyTicketController {
 
     //进入选线路
     @GetMapping("/ticket")
-    public ModelAndView ticketIndex(@RequestParam("uid") String uid, Map<String,Object> map){
+    public ModelAndView ticketIndex(@RequestParam("uid") String uid,Map<String,Object> map){
         log.info("进入TicketIndex方法......." + uid);
         SellerInfo sellerInfo = userRepository.findOne(uid);
         map.put("uid",uid);
@@ -59,6 +59,7 @@ public class BuyTicketController {
     public ModelAndView  cseat(@RequestParam("route") String route,
                                @RequestParam("time") String time,
                                @RequestParam("moment") String moment,
+                               @RequestParam("routeStation") String routeStation,
                                @RequestParam("uid") String uid){
         log.info("进入选座方法.......");
         log.info("----route-----" + route);
@@ -73,6 +74,7 @@ public class BuyTicketController {
         }
 
         maplist.put("uid",uid);
+        maplist.put("routeStation",routeStation);
         return new ModelAndView("mobile/chooseSeat",maplist);
 
     }
@@ -85,10 +87,11 @@ public class BuyTicketController {
                              @RequestParam("seat") String seat,
                              @RequestParam("num") String num,
                              @RequestParam("uid") String uid,
+                             @RequestParam("routeStation") String routeStation,
                              Map<String,Object> map){
         log.info("-------------进入确认订单方法.......");
 
-        map = buyTicketService.addOrder(route,time,moment,seat,num,uid);
+        map = buyTicketService.addOrder(route,time,moment,seat,num,uid,routeStation);
 
         map.put("uid",uid);
         return new ModelAndView("mobile/sureOrder",map);
@@ -221,7 +224,7 @@ public class BuyTicketController {
     @GetMapping("/yuepiaoOrder")
     public ResultVO updateYuepiaoOrder(@RequestParam("orderId") String orderId,
                                  @RequestParam("uid") String uid,
-                                 Map<String,Object> map){
+                                 Map<String,Object> map) throws Exception{
         log.info("进入updateYuepiaoOrder订单方法.......");
         buyTicketService.updateYuepiaoOrder(uid,orderId);
 
@@ -319,7 +322,7 @@ public class BuyTicketController {
      * @param notifyData
      */
     @PostMapping("/notify")
-    public ModelAndView notify(@RequestBody String notifyData){
+    public ModelAndView notify(@RequestBody String notifyData) throws Exception {
 
         log.info("notifyData:{}",notifyData);
         buyTicketService.notify(notifyData);
@@ -342,6 +345,18 @@ public class BuyTicketController {
         //返回给微信处理结果
 //        String string="";
         return new ModelAndView("pay/success");
+    }
+
+
+    //cktikcet
+    @ResponseBody
+    @GetMapping("/ckticket")
+    public Map cktikcet(@RequestParam("uid") String uid,
+                               Map<String,Object> map){
+        log.info("进入cktikcet订单方法.......");
+        map = buyTicketService.cktikcet(uid);
+
+        return map;
     }
 
 }

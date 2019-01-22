@@ -55,7 +55,14 @@ public class GenerationSequenceUtil {
 
     public static void main(String[] args) {
 //        System.out.println(GenerationSequenceUtil.SnowflakeIdWorker.getNextValue());
-        System.out.println(generateUUID("menu"));
+//        System.out.println(generateUUID("menu"));
+        for (int i = 0; i < 1000000; i++) {
+            String r =getRandNum(4) ;
+            if (r.length()!=4){
+                System.out.println("-------"+r);
+            }
+        }
+
     }
 
     /** 机器码 加 进程号 会导致生成的序列号很长, 基于这两个值做一些截取 */

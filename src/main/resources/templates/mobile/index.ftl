@@ -17,13 +17,24 @@
                 var q = document.getElementById("route").value;
                 var w = document.getElementById("time").value;
                 var uid = $('#uid').val();
+
+                $("#routeStation").empty();
+                if(q==1){
+                    $("#routeStation").append("<option value=''>请选择上车点</option><option value='宏发'>宏发</option>");
+
+                }else{
+                    $("#routeStation").append("<option value=''>请选择上车点</option><option value='幸福誉第一期'>幸福誉第一期</option><option value='幸福誉第三期'>幸福誉第三期</option><option value='绿地城'>绿地城</option>");
+                }
+
+                $('#txtHint').html('');//先清空再重新加载
                 $('#txtHint').load("/sell/ticket/queryBanci", {uid: uid, route: q, time: w});
-                $('#txtHint').html('');
+
+
             });
             var q = document.getElementById("route").value;
             var w = document.getElementById("time").value;
             var uid = $('#uid').val();
-
+            $("#routeStation").append("<option value=''>请选择上车点</option><option value='宏发'>宏发</option>");
             $('#txtHint').load("/sell/ticket/queryBanci", {uid: uid, route: q, time: w});
 
 
@@ -33,22 +44,27 @@
             var r = $('#route').val();
             var t = $('#time').val();
             var y = $('#moment').val();
-            if (r !== '') {
-                if (t !== '') {
-                    if (y !== '') {
-                        return true;
-                    } else {
-                        alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
-                        return false;
-                    }
-                } else {
-                    alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
-                    return false;
-                }
-            } else {
+            var routeStation = $('#routeStation').val();
+
+            if (r==''){
                 alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
                 return false;
             }
+
+            if (t==''){
+                alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
+                return false;
+            }
+            if (y==''){
+                alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
+                return false;
+            }
+            if (routeStation==''){
+                alert('亲，上车点，一定要选哦（笑脸）');
+                return false;
+            }
+
+            return true;
         }
     </script>
 
@@ -70,30 +86,31 @@
                 </#list>
             </select>
             <select name="time" id="time" class="address">
-                <#--<option value="">请选择乘车日期</option>-->
-                <!--	<option value="">乘车日期</option>-->
-                <#--<option value="${day1}">${day1}</option>-->
-                <#--<option value="${day2}">${day2}</option>-->
-                <#--<option value="${day3}">${day3}</option>-->
-
                 <#list daylist as day>
                     <option value="${day}">${day}</option>
                 </#list>
-
             </select>
-            <br>
 
-
-            <br>
             <div id="txtHint">
 
             </div>
+
+            <div id="station">
+                <select name="routeStation" id="routeStation" class="address">
+
+                </select>
+            </div>
+
+
+
 
 
             <div class="button">
                 <input type="submit" name="submit" style=" background:none; border:none; color:#fff; width:100%; height:100%;" value="下一步"></div>
             <div style="color:red; padding:10px;">
-                   温馨提示：班次如购买错误，系统无法实现退还，请您注意选择正确的班次！
+                   温馨提示：
+                <br/>班次如购买错误，系统无法实现退还，请您注意选择正确的班次！
+                <br/>为避免超载，请主动为小朋友购买车票，谢谢！
             </div>
         </form>
 

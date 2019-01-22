@@ -117,9 +117,9 @@
 <div class="content">
     <div class="main">
         <div class="main_header">
-            <span style="float:left; margin-left:10px;font-size: 20px;">${sod.fromStation}</span>
+            <span style="float:left; margin-left:10px;font-size: 26px;">${sod.fromStation}</span>
             <img src="/sell/img/carlogo.png">
-            <span style="float:right;margin-right:10px;font-size: 20px;">${sod.toStation}</span>
+            <span style="float:right;margin-right:10px;font-size: 26px;">${sod.toStation}</span>
         </div>
         <div class="main_info">
             <table>

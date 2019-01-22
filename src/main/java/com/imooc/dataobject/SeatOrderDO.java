@@ -69,6 +69,34 @@ public class SeatOrderDO implements Serializable {
 	//订单号
 	private String orderNo;
 
+	//上车点
+	private String routeStation;
+
+
+	//是否验票
+	private Integer ckstate;
+
+
+
+
+
+
+	public Integer getCkstate() {
+		return ckstate;
+	}
+
+	public void setCkstate(Integer ckstate) {
+		this.ckstate = ckstate;
+	}
+
+	public String getRouteStation() {
+		return routeStation;
+	}
+
+	public void setRouteStation(String routeStation) {
+		this.routeStation = routeStation;
+	}
+
 	public String getOrderNo() {
 		return orderNo;
 	}

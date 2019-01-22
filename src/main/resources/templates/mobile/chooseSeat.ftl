@@ -74,6 +74,8 @@
             <input type="hidden" name="moment" value="${moment}">
             <input type="hidden" id="num" name="num">
             <input type="hidden" name="uid"  value="${uid}">
+            <input type="hidden" name="routeStation"  value="${routeStation}">
+
             <div class="bottom_a">
                 <font style="vertical-align: inherit;">
                     <font style="vertical-align: inherit;">

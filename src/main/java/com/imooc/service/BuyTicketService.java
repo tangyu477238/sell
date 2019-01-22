@@ -12,19 +12,21 @@ import java.util.Map;
  */
 public interface BuyTicketService {
 
+    Map<String,Object> cktikcet(String uid);
+
     Map<String,Object>  findAll();
 
     Map<String,Object>  bupiao();
 
     Map<String,Object>  listSeatDetail(String route,String time, String moment);
 
-    Map<String,Object> addOrder(String route, String time, String moment, String seat, String num,String uid);
+    Map<String,Object> addOrder(String route, String time, String moment, String seat, String num,String uid,String routeStation);
 
     void deleteSorder (String uid,String orderId);
 
     Map<String,Object> payOrder(String orderId, String uid);
 
-    PayResponse notify(String notifyData);
+    PayResponse notify(String notifyData) throws Exception;
 
     PayResponse notifyMonth(String notifyData);
 
@@ -32,7 +34,7 @@ public interface BuyTicketService {
 
     Map<String, Object> payMonthTick(String id, String uid,String month_val);
 
-    void updateYuepiaoOrder(String uid, String orderId);
+    void updateYuepiaoOrder(String uid, String orderId) throws Exception;
 
     Map<String, Object> queryMonthTicket(String uid);
 

@@ -284,7 +284,7 @@ function jfzf() {
         var num = $('#num').val();
         var sysl = $('#sysl').val();
 
-        if(num>sysl){
+        if(parseInt(num)>parseInt(sysl)){
             alert("月票不足！")
             return ;
         }

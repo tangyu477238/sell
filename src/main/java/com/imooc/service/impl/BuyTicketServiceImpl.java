@@ -51,7 +51,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
     //订单锁定时间
-    private static int ORDER_LOCK_5 = 5; //5分钟
+    private static int ORDER_LOCK_5_ = 5; //5分钟
 
     @Autowired
     private ProjectUrlConfig projectUrlConfig;
@@ -229,7 +229,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         so.setCreateTime(new Date());
 
         so.setRouteStation(routeStation);//上车点
-        so.setUpdateTime(DateTimeUtil.addMinutes(new Date(),ORDER_LOCK_5));//锁定5分钟
+
+        List<Object[]> list = repository.getDayTimeFlag();
+        int orderlock = Integer.parseInt(list.get(0)[2].toString());
+        so.setUpdateTime(DateTimeUtil.addMinutes(new Date(),orderlock));//锁定2分钟
         so.setInfo(seat);
         so.setState(ORDER_STATE_0);//待付款
         so.setRemark("");
@@ -298,7 +301,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         so.setNum(new BigDecimal(1));
         so.setCreateTime(new Date());
 
-        so.setUpdateTime(DateTimeUtil.addMinutes(new Date(),ORDER_LOCK_5));//锁定5分钟(补票)
+        List<Object[]> list = repository.getDayTimeFlag();
+        int orderlock = Integer.parseInt(list.get(0)[2].toString());
+
+        so.setUpdateTime(DateTimeUtil.addMinutes(new Date(),orderlock));//锁定2分钟(补票)
         so.setState(ORDER_STATE_0);//待付款(补票)
         so.setRemark("");
         so.setInfo("补票");
@@ -338,6 +344,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     @Override
     public Map<String,Object>  listSeatDetail(String route,String time, String moment) {
 
+        String carId = "";
         List<Object[]> seatlist = repository.listSeatDetail(route, time, moment);
         if (seatlist==null||seatlist.size()==0){
             return null ;
@@ -347,6 +354,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         for (int j = 0; seatlist != null && j < seatlist.size(); j++) {
             if (seatlist.get(j)[0]!=null){
                 set.add(Integer.parseInt(seatlist.get(j)[0].toString()));
+                carId = seatlist.get(j)[4].toString();
             }
         }
 
@@ -368,11 +376,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
                     String col = seatlist.get(i)[1].toString();//列(座位)
                     m.put("colIndex", col);
                     m.put("seatType", seatlist.get(i)[2].toString());
-                    if(Integer.parseInt(col)>2){
-                        col = "" + (Integer.parseInt(col)-1);
-                    }
-                    String seatName =
-                            new StringBuilder(rows.toString()).append("排").append(col).append("座").toString();
+//                    if(Integer.parseInt(col)>2){
+//                        col = "" + (Integer.parseInt(col)-1);
+//                    }
+                    String seatName = seatlist.get(i)[5].toString();
+//                            new StringBuilder(rows.toString()).append("排").append(col).append("座").toString();
                     m.put("name",seatName);
                     list.add(m);
                     //存放已经选完的座位
@@ -386,8 +394,13 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             }
             map.put(rows,list);
         }
-        map.put("total",51);
-        map.put("rows",13);
+
+
+
+        List<Object[]> carInfo = repository.getCarInfo(carId);
+
+        map.put("total",carInfo.get(0)[1]);
+        map.put("rows",carInfo.get(0)[0]);
         map.put("cols",5);
         map.put("left",2);
         map.put("right",2);
@@ -543,13 +556,13 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         SellerInfo sellerInfo = userRepository.findOne(sod.getCreateUser());
 
         QRCodeUtil.encode(sellerInfo.getSellerId()+"_"+sod.getId(),QRCODE_PATH);
-
-//        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-//                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
-
-        //显示二维码
+        //显示订单详情
         sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
+                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
+
+//        //只显示二维码
+//        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
+//                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
         return payResponse;
     }
 

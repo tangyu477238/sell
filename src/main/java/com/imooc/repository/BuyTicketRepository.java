@@ -23,7 +23,7 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
             +"  GROUP BY pp.id,r.from_Station,r.to_Station ", nativeQuery = true)
     List<Object[]> listRoute();
 
-    @Query(value = "select e.row_Index,e.col_Index,e.seat_Type,o.seat_id from biz_car_datetime_seat e "
+    @Query(value = "select e.row_Index,e.col_Index,e.seat_Type,o.seat_id,e.car_id,e.name from biz_car_datetime_seat e "
             +" left join biz_seat_order_item o on o.seat_id=e.id "
             +"  where e.plan_id = ?1 and e.biz_date = ?2 and e.biz_time = ?3 order by e.row_index,e.col_index", nativeQuery = true)
     List<Object[]> listSeatDetail(String route,String time, String moment);
@@ -58,8 +58,8 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
             +" where plan_id =?1  and  biz_date = DATE_FORMAT(now(),'%Y-%m-%d') and str_to_date(CONCAT(biz_date,biz_time), '%Y-%m-%d %H:%i:%s')<NOW() ) t" , nativeQuery = true)
     List<String> getBuyTimeBp(String route);
 
-    //放票天数、放票时间
-    @Query(value = "select days,case when NOW()>str_to_date(CONCAT(date_format(now(),'%Y-%m-%d'),time), '%Y-%m-%d %H:%i:%s') then 1 else 0 end as flag "
+    //放票天数、放票时间,订单锁单时间，月票可提前购买天数
+    @Query(value = "select days,case when NOW()>str_to_date(CONCAT(date_format(now(),'%Y-%m-%d'),time), '%Y-%m-%d %H:%i:%s') then 1 else 0 end as flag,locktime,monthticketdays "
             +"  from biz_sellday " , nativeQuery = true)
     List<Object[]> getDayTimeFlag();
 
@@ -75,7 +75,10 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
             +" from biz_car_datetime_seat p "
             +" inner join biz_plan_price  pp on p.plan_id=pp.id "
             +" inner join biz_route r on r.id = pp.route_id "
-            +" where biz_date=DATE_FORMAT(now(),'%Y-%m-%d')  and str_to_date(CONCAT(biz_date,biz_time), '%Y-%m-%d %H:%i:%s')<NOW() "
+            +" inner join biz_sellday s on 1=1 "
+            +" where biz_date=DATE_FORMAT(now(),'%Y-%m-%d')   "
+            +" and str_to_date(CONCAT(biz_date,biz_time), '%Y-%m-%d %H:%i:%s')<date_add(NOW() , interval CONCAT(s.bubeforetime,':00') hour_second) "
+            +" and str_to_date(CONCAT(biz_date,biz_time), '%Y-%m-%d %H:%i:%s')>date_sub(NOW() , interval CONCAT(s.buaftertime,':00') hour_second) "
             +" GROUP BY biz_date,pp.id,r.from_Station,r.to_Station  ) t" , nativeQuery = true)
     List<Object[]> listBupiao();
 
@@ -104,6 +107,8 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
 
 
 
+    @Query(value = "select nrow,num from biz_car where id = ?1 ", nativeQuery = true)
+    List<Object[]> getCarInfo(String id);
 
 
 

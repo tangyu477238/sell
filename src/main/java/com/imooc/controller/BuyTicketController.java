@@ -1,7 +1,10 @@
 package com.imooc.controller;
 
 import com.imooc.VO.ResultVO;
+import com.imooc.config.ProjectUrlConfig;
+import com.imooc.dataobject.SeatOrderDO;
 import com.imooc.dataobject.SellerInfo;
+import com.imooc.repository.BuyTicketRepository;
 import com.imooc.repository.SellerInfoRepository;
 import com.imooc.service.BuyTicketService;
 import com.imooc.utils.DateTimeUtil;
@@ -14,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -27,6 +31,12 @@ public class BuyTicketController {
 
     @Autowired
     private SellerInfoRepository userRepository;
+
+    @Autowired
+    private BuyTicketRepository repository;
+
+    @Autowired
+    private ProjectUrlConfig projectUrlConfig;
 
     //进入选线路
     @GetMapping("/ticket")
@@ -125,7 +135,9 @@ public class BuyTicketController {
 
         map = buyTicketService.queryOrder(orderId,uid);
 
+        SeatOrderDO sod =(SeatOrderDO) map.get("sod");
         map.put("uid",uid);
+        map.put("qrcode",projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+ uid +"_"+sod.getId()+".jpg");
         return new ModelAndView("mobile/queryOrder",map);
 
     }
@@ -267,12 +279,15 @@ public class BuyTicketController {
         map = buyTicketService.buyTicket();
         map.put("uid",uid);
 
-        if(DateTimeUtil.getDayOfMonth(new Date())<=20){
-            map.put("month_name", DateTimeUtil.getMonthDay(1)+"～"+DateTimeUtil.getMonthDay(2));
-            map.put("month_val",DateTimeUtil.getMonthDay(5));
-        } else {
+        List<Object[]> list = repository.getDayTimeFlag();
+        int monthticketdays = Integer.parseInt(list.get(0)[3].toString());
+
+        if(DateTimeUtil.getDaysOfTwoDate(DateTimeUtil.getMonthOfLastDayDate(0),new Date())<monthticketdays){
             map.put("month_name", DateTimeUtil.getMonthDay(3)+"～"+DateTimeUtil.getMonthDay(4));
             map.put("month_val",DateTimeUtil.getMonthDay(6));
+        } else {
+            map.put("month_name", DateTimeUtil.getMonthDay(1)+"～"+DateTimeUtil.getMonthDay(2));
+            map.put("month_val",DateTimeUtil.getMonthDay(5));
         }
 
         return new ModelAndView("mobile/buyMonth",map);

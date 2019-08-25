@@ -980,12 +980,12 @@ public class DateTimeUtil {
      *            日期对象
      * @return 两日期之间相差的天数
      */
-    public static double getDaysOfTwoDate(Date d1, Date d2) {
+    public static int getDaysOfTwoDate(Date d1, Date d2) {
         if (d1 == null || d2 == null) {
             throw new IllegalArgumentException("参数d1或d2不能是null对象！");
         }
         long millions = getMillisecondsOfTwoDate(d1, d2);
-        return (double) millions / 24 / 60 / 60 / 1000;
+        return (int) millions / 24 / 60 / 60 / 1000;
     }
 
     /**
@@ -1754,15 +1754,18 @@ public class DateTimeUtil {
     }
 
 
-    ///获取当前月最后一天
-    public static String getMonthOfLastDay(int monthNum) {
-
+    ///获取当前月最后一天 date
+    public static Date getMonthOfLastDayDate(int monthNum) {
         Calendar ca = Calendar.getInstance();
         ca.add(Calendar.MONTH, monthNum);
         ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
-        String last = new SimpleDateFormat("yyyy-MM-dd").format(ca.getTime());
-        System.out.println("===============last:"+last);
+        return ca.getTime();
+    }
 
+    ///获取当前月最后一天 String
+    public static String getMonthOfLastDay(int monthNum) {
+        String last = new SimpleDateFormat("yyyy-MM-dd").format(getMonthOfLastDayDate(monthNum));
+        System.out.println("===============last:"+last);
         return last;
     }
 
@@ -1789,9 +1792,13 @@ public class DateTimeUtil {
 //        System.out.println(DateTimeUtil.getMonthOfLastDay(2).substring(5,10));
 //        System.out.println(DateTimeUtil.getSecondsOfTwoDate(new Date(),DateTimeUtil.addHours(new Date(),1)));
 
-        SimpleDateFormat formater = new SimpleDateFormat("H:mm");
-        String strCurrentTime = formater.format(new Date());
-        System.out.print(strCurrentTime);
+//        SimpleDateFormat formater = new SimpleDateFormat("H:mm");
+//        String strCurrentTime = formater.format(new Date());
+//        System.out.print(strCurrentTime);
+
+        System.out.println(DateTimeUtil.addDays(new Date(),7));
+        System.out.println(getDaysOfTwoDate(getMonthOfLastDayDate(0),new Date()));
+        System.out.println(getDaysOfTwoDate(getMonthOfLastDayDate(0),DateTimeUtil.addDays(new Date(),-1)));
     }
 
 }

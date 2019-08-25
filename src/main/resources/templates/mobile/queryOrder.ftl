@@ -58,6 +58,8 @@
             margin-top: 10px;
         }
 
+
+
         .main_info {
             padding: 5px;
             font-size: 13px;
@@ -116,11 +118,16 @@
 </form>
 <div class="content">
     <div class="main">
+        <div style="width: 100%;height: 20em;margin-bottom: 20px; text-align: center;">
+            <img src="${qrcode}" style="height: 20em;">
+        </div>
+
         <div class="main_header">
             <span style="float:left; margin-left:10px;font-size: 26px;">${sod.fromStation}</span>
             <img src="/sell/img/carlogo.png">
             <span style="float:right;margin-right:10px;font-size: 26px;">${sod.toStation}</span>
         </div>
+
         <div class="main_info">
             <table>
                 <tr>

@@ -34,9 +34,10 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     List<Object[]> listSeatOder(String route,String time, String moment,String seatNames []);
 
     @Query(value = "select r.from_station, r.to_station,p.price from  biz_plan_price p "
+            +" inner join (select DISTINCT plan_id from biz_car_datetime_seat where biz_date = ?2 and biz_time = ?3) s on s.plan_id = p.id "
             +" inner join biz_route r on r.id = p.route_id "
-            +"  where p.id = ?1 ", nativeQuery = true)
-    List<Object[]> getPlanPrice(String route);
+            +" where r.id = ?1 ", nativeQuery = true)
+    List<Object[]> getPlanPrice(String route,String bizDate,String bizTime);
 
     @Modifying
     @Transactional
@@ -50,12 +51,18 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
 
     //班次
     @Query(value = "select distinct biz_time  from  biz_car_datetime_seat v  "
-            +" where plan_id =?1  and  biz_date = ?2 and str_to_date(CONCAT(biz_date,biz_time), '%Y-%m-%d %H:%i:%s')>NOW() " , nativeQuery = true)
+            +" inner join biz_plan_price p on p.id= v.plan_id "
+            +" where p.route_id =?1  and  v.biz_date = ?2 and str_to_date(CONCAT(v.biz_date,v.biz_time), '%Y-%m-%d %H:%i:%s')>NOW()  order by biz_time" , nativeQuery = true)
     List<String> getBuyTime(String route, String time);
 
     //补票班次
-    @Query(value = "select DATE_FORMAT(bizTime,'%H:%i') as bizTime  from (select MAX(str_to_date(CONCAT(biz_date, biz_time),'%Y-%m-%d %H:%i:%s')) AS bizTime  from  biz_car_datetime_seat v  "
-            +" where plan_id =?1  and  biz_date = DATE_FORMAT(now(),'%Y-%m-%d') and str_to_date(CONCAT(biz_date,biz_time), '%Y-%m-%d %H:%i:%s')<NOW() ) t" , nativeQuery = true)
+    @Query(value = "select DATE_FORMAT(bizTime,'%H:%i') as bizTime  from (select MAX(str_to_date(CONCAT(v.biz_date, v.biz_time),'%Y-%m-%d %H:%i:%s')) AS bizTime  from  biz_car_datetime_seat v  "
+            +" inner join biz_plan_price p on p.id= v.plan_id "
+            +" inner join biz_sellday s on 1=1 "
+            +" where p.route_id =?1  and  v.biz_date = DATE_FORMAT(now(),'%Y-%m-%d') and str_to_date(CONCAT(v.biz_date,v.biz_time), '%Y-%m-%d %H:%i:%s')<NOW() "
+            +" and str_to_date(CONCAT(v.biz_date,v.biz_time), '%Y-%m-%d %H:%i:%s')<date_add(NOW() , interval CONCAT(s.bubeforetime,':00') hour_second) "
+            +" and str_to_date(CONCAT(v.biz_date,v.biz_time), '%Y-%m-%d %H:%i:%s')>date_sub(NOW() , interval CONCAT(s.buaftertime,':00') hour_second) "
+            +" ) t  order by bizTime" , nativeQuery = true)
     List<String> getBuyTimeBp(String route);
 
     //放票天数、放票时间,订单锁单时间，月票可提前购买天数
@@ -103,7 +110,6 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
             +" and DATE_ADD(v.create_time,INTERVAL 5 MINUTE)>NOW() "
             +" and uid =?1 and  v.mobile=?2 and v.verify=?3  " , nativeQuery = true)
     List<Integer> checkVerify(String uid, String mobile, String verify);
-
 
 
 

@@ -245,7 +245,7 @@ public class BuyTicketController {
     }
 
 
-    //班次查询
+    //购票班次查询
     @ResponseBody
     @PostMapping("/queryBanci")
     public String queryBanci(@RequestParam("route") String route,
@@ -259,7 +259,7 @@ public class BuyTicketController {
     }
 
 
-    //班次查询
+    //补票班次查询
     @ResponseBody
     @PostMapping("/queryBanciBp")
     public String queryBanciBp(@RequestParam("route") String route,

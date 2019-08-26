@@ -142,13 +142,12 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         RouteDO cds ;
         for (Object[] obj: plList ) {
             cds = new RouteDO();
-            cds.setFromStation(obj[0].toString());
-            cds.setToStation(obj[1].toString());
-            cds.setId(Long.parseLong(obj[2].toString()));
+            cds.setId(Long.parseLong(obj[0].toString()));
+            cds.setFromStation(obj[1].toString());
+            cds.setToStation(obj[2].toString());
             plist.add(cds);
         }
         map.put("plList",plist);
-
 
 
 
@@ -174,21 +173,18 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     @Override
     public Map<String,Object>  bupiao() {
         Map<String,Object> map = new HashMap();
-        List<Object[]> plList = repository.listBupiao();
+        List<Object[]> plList = repository.getRouteInfo();
 
-        List<CarDatetimeSeatDO> list = new ArrayList();
-        CarDatetimeSeatDO cds ;
+        List<RouteDO> list = new ArrayList();
+        RouteDO cds ;
         for (Object[] obj: plList ) {
-             cds = new CarDatetimeSeatDO();
-             cds.setFromStation(obj[0].toString());
-             cds.setToStation(obj[1].toString());
-             cds.setBizDate(obj[2].toString());
-             cds.setId(Long.parseLong(obj[3].toString()));
-             cds.setBizTime(obj[4].toString());
-            list.add(cds);
+             cds = new RouteDO();
+             cds.setFromStation(obj[1].toString());
+             cds.setId(Long.parseLong(obj[0].toString()));
+             cds.setToStation(obj[2].toString());
+             list.add(cds);
         }
         map.put("plList",list);
-
 
         map.put("day",DateTimeUtil.getBeforeDay(0));
         return map;
@@ -237,7 +233,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         so.setState(ORDER_STATE_0);//待付款
         so.setRemark("");
 
-        List<Object[]> objs = repository.getPlanPrice(route);
+        List<Object[]> objs = repository.getPlanPrice(route,so.getBizDate(),so.getBizTime());
+        if (ComUtil.isEmpty(objs)||objs.size()<1||objs.get(0)==null){
+            throw new SellException(500,"网络加载失败，请重新操作！");
+        }
         if (!ComUtil.isEmpty(objs) && objs.size()>0) {
             so.setFromStation(objs.get(0)[0].toString());
             so.setToStation(objs.get(0)[1].toString());
@@ -309,7 +308,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         so.setRemark("");
         so.setInfo("补票");
 
-        List<Object[]> objs = repository.getPlanPrice(route);
+        List<Object[]> objs = repository.getPlanPrice(route,so.getBizDate(),so.getBizTime());
+        if (ComUtil.isEmpty(objs)||objs.size()<1||objs.get(0)==null){
+            throw new SellException(500,"网络加载失败，请重新操作！");
+        }
+
         if (!ComUtil.isEmpty(objs) && objs.size()>0) {
             so.setFromStation(objs.get(0)[0].toString());
             so.setToStation(objs.get(0)[1].toString());
@@ -714,18 +717,37 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         List<String> timelist = repository.getBuyTimeBp(route);
 
-        return getSelectStr(timelist);
+        return getSelectStrBupiao(timelist);
     }
+
+
+    private String getSelectStrBupiao(List<String> timelist) {
+        String str = "";
+        if(ComUtil.isEmpty(timelist) || timelist.get(0)==null || "null".equals(timelist.get(0))){
+            str = "<option value=\"\">当前时间没有可补票的班次。</option>";
+        } else {
+            for (String timestr : timelist){
+                str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+            }
+        }
+
+        return "<select id='moment' name='moment' class='address'>" + str + "</select>";
+    }
+
+
+
 
     private String getSelectStr(List<String> timelist) {
         String str = "";
-        if(ComUtil.isEmpty(timelist)){
+        if(ComUtil.isEmpty(timelist)  || timelist.get(0)==null || "null".equals(timelist.get(0)) ){
             str = "<option value=\"\">今天已经没有班车了，请选择明天的车。</option>";
+        } else {
+            for (String timestr : timelist){
+                str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+            }
         }
-        for (String timestr : timelist){
-            str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
-        }
-        return "<select name='moment' class='address'>" + str + "</select>";
+
+        return "<select id='moment' name='moment' class='address'>" + str + "</select>";
     }
 
     @Override

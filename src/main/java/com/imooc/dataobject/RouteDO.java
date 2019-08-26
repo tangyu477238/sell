@@ -23,7 +23,8 @@ import java.math.BigDecimal;
 @Table(name = "biz_route")
 public class RouteDO implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
+
 	//id
 	@Id
 	@GeneratedValue

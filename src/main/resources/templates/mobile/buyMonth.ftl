@@ -158,7 +158,7 @@
     </div>
 
     <div style=" color: red;font-weight:600; padding: 15px 0; width: 100%">
-        <div class="orderList-tab" style="font-size: 12px;">月票仅限购买人本人当月使用，每班次仅能支付1次，当月未使用完车票讲不计入下月继续使用!</div>
+        <div class="orderList-tab" style="font-size: 12px;">每月月底最后7天可以购买下个月月票，每个班次可以使用月票支付4次，当月未使用完的车票不能在下月继续使用！</div>
     </div>
 
     </form>

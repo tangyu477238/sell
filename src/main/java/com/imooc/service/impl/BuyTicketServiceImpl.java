@@ -47,7 +47,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     private static String NotifyUrl = "/sell/ticket/notify"; //车票购买成功回调地址
 
-    private static String QRCODE_PATH = "/opt/app/apache-tomcat-8.5.37/webapps/ROOT/qrcode/";//二维码图片路径
+    private static String QRCODE_PATH = "/opt/app/photos/qrcode/";//二维码图片路径
 
 
     //订单锁定时间
@@ -137,11 +137,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     public Map<String,Object>  findAll() {
         Map<String,Object> map = new HashMap();
 
-        List<Object[]> plList = repository.listRoute();
-        List<CarDatetimeSeatDO> plist = new ArrayList();
-        CarDatetimeSeatDO cds ;
+        List<Object[]> plList = repository.getRouteInfo();
+        List<RouteDO> plist = new ArrayList();
+        RouteDO cds ;
         for (Object[] obj: plList ) {
-            cds = new CarDatetimeSeatDO();
+            cds = new RouteDO();
             cds.setFromStation(obj[0].toString());
             cds.setToStation(obj[1].toString());
             cds.setId(Long.parseLong(obj[2].toString()));

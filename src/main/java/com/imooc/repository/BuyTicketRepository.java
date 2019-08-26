@@ -111,7 +111,8 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     List<Object[]> getCarInfo(String id);
 
 
-
+    @Query(value = "select id,from_Station,to_Station from biz_route ", nativeQuery = true)
+    List<Object[]> getRouteInfo();
 
 
 

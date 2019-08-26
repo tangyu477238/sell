@@ -47,20 +47,20 @@
             var routeStation = $('#routeStation').val();
 
             if (r==''){
-                alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
+                alert('亲，日期（或时间或路线）一定要选哦');
                 return false;
             }
 
             if (t==''){
-                alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
+                alert('亲，日期（或时间或路线）一定要选哦');
                 return false;
             }
             if (y==''){
-                alert('亲，日期（或时间或路线）一定要选哦（笑脸）');
+                alert('亲，日期（或时间或路线）一定要选哦');
                 return false;
             }
             if (routeStation==''){
-                alert('亲，上车点，一定要选哦（笑脸）');
+                alert('亲，上车点，一定要选哦');
                 return false;
             }
 

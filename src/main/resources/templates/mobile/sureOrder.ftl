@@ -201,7 +201,7 @@
         <div class="read">
             <span>1.请仔细核对订单信息，车票一旦售出，无法退换</span>
             <br>
-            <span>2.请您在5分钟内完成支付;如果尚未完成支付，您选择的座位将被取消</span>
+            <span>2.请您在2分钟内完成支付;如果尚未完成支付，您选择的座位将被取消</span>
         </div>
         <#--短信通知-->
         <#--<input type="text" class="phone" value="13552379492" name="mobile" id="phonenum" placeholder="手机号">-->

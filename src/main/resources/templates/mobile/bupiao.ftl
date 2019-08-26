@@ -55,7 +55,7 @@
 
             <br>
             <input name="act" type="hidden" value="confirm">
-            <p style="color:red;">温馨提示：发车前20分钟至发车后40分钟可补票，如购买错误，系统无法实现退还，请确认当班次是否有空位。</p>
+            <p style="color:red;">温馨提示：发车前后10分钟可以补票，如购买错误，系统无法实现退还，请向当值司机确认有空位后才补票。</p>
             <div class="button">
                 <input type="submit" name="submit"  style=" background:none; border:none; color:#fff; width:100%; height:100%;"
                        value="下一步">

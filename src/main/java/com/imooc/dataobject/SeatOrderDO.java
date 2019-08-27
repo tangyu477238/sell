@@ -36,7 +36,7 @@ public class SeatOrderDO implements Serializable {
 	private String bizTime;
 	//路线
 	private Long routeId;
-	//路线
+	//班次计划设置
 	private Long planId;
 	//座位信息
 	private String info;

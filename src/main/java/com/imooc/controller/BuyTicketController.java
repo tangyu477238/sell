@@ -374,4 +374,12 @@ public class BuyTicketController {
         return map;
     }
 
+
+    @GetMapping("/yueche")
+    public String yueche(){
+        log.info("进入我的yueche方法.......");
+
+        return "/yuechetemp.html" ;
+
+    }
 }

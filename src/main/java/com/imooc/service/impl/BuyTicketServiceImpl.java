@@ -444,8 +444,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         if (!ComUtil.isEmpty(numlist)&&numlist.size()>0 && !ComUtil.isEmpty(numlist.get(0))){
             yuepnum = numlist.get(0).add(yuepnum);
         }
-        if (yuepnum.intValue()>3){
-            throw new SellException(500,"同一班车月票最多只能抵扣3张！");
+        if (yuepnum.intValue()>4){
+            throw new SellException(500,"同一班车月票最多只能抵扣4张！");
         }
 //        List<SeatOrderItemDO> sodilist = seatOrderItemRepository.findByOrderId(sod.getId());
 //        SeatOrderItemDO sodi = null ;

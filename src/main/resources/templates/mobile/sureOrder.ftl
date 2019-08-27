@@ -289,8 +289,8 @@ function jfzf() {
             return ;
         }
 
-        if(num>3){
-            alert("同一班车最多只能3张月票！")
+        if(num>4){
+            alert("同一班车最多只能4张月票！")
             return ;
         }
 

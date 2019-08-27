@@ -220,7 +220,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         SeatOrderDO so = new SeatOrderDO();
         so.setBizDate(time);
         so.setBizTime(moment);
-        so.setPlanId(new Long(route));
+        so.setRouteId(new Long(route));
         so.setNum(new BigDecimal(num));
         so.setCreateTime(new Date());
 
@@ -296,7 +296,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         SeatOrderDO so = new SeatOrderDO();
         so.setBizDate(DateTimeUtil.getBeforeDay(0));
         so.setBizTime(moment);
-        so.setPlanId(new Long(route));
+        so.setRouteId(new Long(route));
         so.setNum(new BigDecimal(1));
         so.setCreateTime(new Date());
 
@@ -471,11 +471,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         QRCodeUtil.encode(sellerInfo.getSellerId()+"_"+sod.getId(),QRCODE_PATH);
         //显示详情
-//        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-//                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
-        //显示二维码
         sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
+                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
+//        //显示二维码
+//        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
+//                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
 
 
     }

@@ -24,20 +24,22 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     List<Object[]> listRoute();
 
     @Query(value = "select e.row_Index,e.col_Index,e.seat_Type,o.seat_id,e.car_id,e.name from biz_car_datetime_seat e "
+            +" inner join biz_plan_price p on p.id= e.plan_id "
             +" left join biz_seat_order_item o on o.seat_id=e.id "
-            +"  where e.plan_id = ?1 and e.biz_date = ?2 and e.biz_time = ?3 order by e.row_index,e.col_index", nativeQuery = true)
-    List<Object[]> listSeatDetail(String route,String time, String moment);
+            +"  where p.route_id = ?1 and e.biz_date = ?2 and e.biz_time = ?3 order by e.row_index,e.col_index", nativeQuery = true)
+    List<Object[]> listSeatDetail(String route, String time, String moment);
 
     @Query(value = "select  e.id,e.name,o.seat_id  FROM biz_car_datetime_seat  e "
+            +" inner join biz_plan_price p on p.id= e.plan_id "
             +" left join biz_seat_order_item o on o.seat_id=e.id "
-            +" where e.plan_id = ?1 and e.biz_date = ?2 and e.biz_time = ?3  and e.name in (?4)", nativeQuery = true)
-    List<Object[]> listSeatOder(String route,String time, String moment,String seatNames []);
+            +" where p.route_id = ?1 and e.biz_date = ?2 and e.biz_time = ?3  and e.name in (?4)", nativeQuery = true)
+    List<Object[]> listSeatOder(String route, String time, String moment, String seatNames[]);
 
     @Query(value = "select r.from_station, r.to_station,p.price from  biz_plan_price p "
             +" inner join (select DISTINCT plan_id from biz_car_datetime_seat where biz_date = ?2 and biz_time = ?3) s on s.plan_id = p.id "
             +" inner join biz_route r on r.id = p.route_id "
             +" where r.id = ?1 ", nativeQuery = true)
-    List<Object[]> getPlanPrice(String route,String bizDate,String bizTime);
+    List<Object[]> getPlanPrice(String route, String bizDate, String bizTime);
 
     @Modifying
     @Transactional
@@ -56,13 +58,13 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     List<String> getBuyTime(String route, String time);
 
     //补票班次
-    @Query(value = "select DATE_FORMAT(bizTime,'%H:%i') as bizTime  from (select MAX(str_to_date(CONCAT(v.biz_date, v.biz_time),'%Y-%m-%d %H:%i:%s')) AS bizTime  from  biz_car_datetime_seat v  "
+    @Query(value = "select DATE_FORMAT(bizTime,'%H:%i') as bizTime  from (select str_to_date(CONCAT(v.biz_date, v.biz_time),'%Y-%m-%d %H:%i:%s') AS bizTime  from  biz_car_datetime_seat v  "
             +" inner join biz_plan_price p on p.id= v.plan_id "
             +" inner join biz_sellday s on 1=1 "
-            +" where p.route_id =?1  and  v.biz_date = DATE_FORMAT(now(),'%Y-%m-%d') and str_to_date(CONCAT(v.biz_date,v.biz_time), '%Y-%m-%d %H:%i:%s')<NOW() "
+            +" where p.route_id =?1  and  v.biz_date = DATE_FORMAT(now(),'%Y-%m-%d')   "
             +" and str_to_date(CONCAT(v.biz_date,v.biz_time), '%Y-%m-%d %H:%i:%s')<date_add(NOW() , interval CONCAT(s.bubeforetime,':00') hour_second) "
             +" and str_to_date(CONCAT(v.biz_date,v.biz_time), '%Y-%m-%d %H:%i:%s')>date_sub(NOW() , interval CONCAT(s.buaftertime,':00') hour_second) "
-            +" ) t  order by bizTime" , nativeQuery = true)
+            +" group by v.biz_date, v.biz_time ) t  order by bizTime" , nativeQuery = true)
     List<String> getBuyTimeBp(String route);
 
     //放票天数、放票时间,订单锁单时间，月票可提前购买天数
@@ -74,7 +76,7 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     @Query(value = "select SUM(num) as num from biz_seat_order  "
             +" where remark='月票抵扣' and state ='1' and create_user =?1 "
             +" and biz_date =?2 and biz_time =?3 and plan_id =?4 " , nativeQuery = true)
-    List<BigDecimal> getBuyMonthNum(String createUser, String bizDate, String bizTime,Long planId);
+    List<BigDecimal> getBuyMonthNum(String createUser, String bizDate, String bizTime, Long planId);
 
     //补票线路
     @Query(value = "select fromStation,toStation,bizDate,id,DATE_FORMAT(bizTime,'%H:%i') as bizTime  from (select  r.from_Station as fromStation,r.to_Station as toStation," +
@@ -91,7 +93,7 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
 
     //查询车票预定量
     @Query(value = "SELECT SUM(num) as num  from biz_seat_order s "
-            + " where plan_id =?1 and biz_date =?2 and biz_time=?3  and create_user =?4 " , nativeQuery = true)
+            + " where s.route_id =?1 and s.biz_date =?2 and s.biz_time=?3  and s.create_user =?4 " , nativeQuery = true)
     List<BigDecimal> getBuyCarNum(String route, String time, String moment, String uid);
 
 

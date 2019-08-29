@@ -209,7 +209,7 @@
             <tr>
                 <td>
                     <a style="font-size:12pt; background:none; border:none; color:#fff; width:100%; height:100%;"
-                       href="javascript:location.href='/sell/ticket/payOrder?orderId=${sod.id}&uid=${uid}'">
+                       href="javascript:location.href='/sell/ticket/payOrder?orderId=${orderNewId}&uid=${uid}'">
                         <div class="zhifu">微信支付</div>
                     </a>
                 </td>

@@ -104,6 +104,7 @@ public class BuyTicketController {
         map = buyTicketService.addOrder(route,time,moment,seat,num,uid,routeStation);
 
         map.put("uid",uid);
+        log.info("--------进入确认订单方法-----"+map.toString());
         return new ModelAndView("mobile/sureOrder",map);
 
     }

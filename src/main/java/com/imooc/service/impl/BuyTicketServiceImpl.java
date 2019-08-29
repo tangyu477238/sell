@@ -263,10 +263,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         }
 
         Map map = new HashMap();
-
+        log.info("----------确认订单界面id值----------------"+so.getId());
         map.put("sod",so);
         map.put("createTime",DateTimeUtil.formatDateTimetoString(so.getCreateTime(),"yyy-MM-dd HH:mm:ss"));
-
+        map.put("orderNewId",String.valueOf(so.getId()));
         MonthTicketUserDO mtu =
                 monthTicketUserRepository.findByCreateUserAndMonthAndRemark(uid,time.substring(0,7),MONTH_STATE_1);
         if(ComUtil.isEmpty(mtu)){

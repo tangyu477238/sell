@@ -328,6 +328,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         log.info("order--bupiao--->id:"+so.getId()+"-----"+so.getOrderNo());
         Map map = new HashMap();
         map.put("sod",so);
+        map.put("orderNewId",so.getId().toString());
         map.put("createTime",DateTimeUtil.formatDateTimetoString(so.getCreateTime(),"yyy-MM-dd HH:mm:ss"));
 
         MonthTicketUserDO mtu =

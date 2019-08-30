@@ -230,88 +230,88 @@
 </div>
 <script>
 
-pushHistory();
-window.addEventListener("popstate", function(e) {
-    postRuest();
-}, false);
-function pushHistory() {
-    var state = {
-        title: "title",
-        url: "#"
-    };
-    window.history.pushState(state, "title", "#");
-}
-
-
-function cancelOrder() {
-    if(confirm('确实要取消该订单吗?')){
-
-        postRuest();
-
+    pushHistory();
+    window.addEventListener("popstate", function(e) {
+        cancelOrder();
+    }, false);
+    function pushHistory() {
+        var state = {
+            title: "title",
+            url: "#"
+        };
+        window.history.pushState(state, "title", "#");
     }
-}
 
 
-function postRuest(){
-    var uid = $('#uid').val();
-    var order = $('#orderId').val();
+    function cancelOrder() {
+        if(confirm('确实要取消该订单吗?')){
 
-    if (window.is__jfzf) return;
-    window.is__jfzf = true;
+            postRuest();
 
-    $.get("/sell/ticket/delsorder?orderId=" + order + "&uid=" + uid,function(res){
-        window.is__jfzf = false;
-        //var str2 = JSON.stringify(res);
-        if (res.msg=='成功') {
-            alert('订单取消成功!');
-            WeixinJSBridge.invoke('closeWindow',{},function(res){});
-        } else {
-            alert('取消失败:' + res.msg);
         }
-    });
-}
+    }
 
 
-function jfzf() {
-
-    if(confirm('确定月票抵扣吗?')){
-        <#--var orderId = '${sod.id}';-->
-        <#--var uid = '${uid}';-->
-
+    function postRuest(){
         var uid = $('#uid').val();
         var order = $('#orderId').val();
-
-        var num = $('#num').val();
-        var sysl = $('#sysl').val();
-
-        if(parseInt(num)>parseInt(sysl)){
-            alert("月票不足！")
-            return ;
-        }
-
-        if(num>4){
-            alert("同一班车最多只能4张月票！")
-            return ;
-        }
 
         if (window.is__jfzf) return;
         window.is__jfzf = true;
 
-        $.get("/sell/ticket/yuepiaoOrder?orderId=" + order + "&uid=" + uid,function(res){
+        $.get("/sell/ticket/delsorder?orderId=" + order + "&uid=" + uid,function(res){
             window.is__jfzf = false;
             //var str2 = JSON.stringify(res);
             if (res.msg=='成功') {
-                alert('恭喜您，购票成功!');
+                alert('订单取消成功!');
                 WeixinJSBridge.invoke('closeWindow',{},function(res){});
             } else {
-                alert('支付失败:' + res.msg);
+                alert('取消失败:' + res.msg);
             }
         });
-
     }
 
 
-}
+    function jfzf() {
+
+        if(confirm('确定月票抵扣吗?')){
+            <#--var orderId = '${sod.id}';-->
+            <#--var uid = '${uid}';-->
+
+            var uid = $('#uid').val();
+            var order = $('#orderId').val();
+
+            var num = $('#num').val();
+            var sysl = $('#sysl').val();
+
+            if(parseInt(num)>parseInt(sysl)){
+                alert("月票不足！")
+                return ;
+            }
+
+            if(num>4){
+                alert("同一班车最多只能4张月票！")
+                return ;
+            }
+
+            if (window.is__jfzf) return;
+            window.is__jfzf = true;
+
+            $.get("/sell/ticket/yuepiaoOrder?orderId=" + order + "&uid=" + uid,function(res){
+                window.is__jfzf = false;
+                //var str2 = JSON.stringify(res);
+                if (res.msg=='成功') {
+                    alert('恭喜您，购票成功!');
+                    WeixinJSBridge.invoke('closeWindow',{},function(res){});
+                } else {
+                    alert('支付失败:' + res.msg);
+                }
+            });
+
+        }
+
+
+    }
 
 </script>
 </body>

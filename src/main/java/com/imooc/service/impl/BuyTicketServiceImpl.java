@@ -164,7 +164,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
                 daylist.add(DateTimeUtil.getBeforeDay(i));
             }
         }
-
+        map.put("daysDate",DateTimeUtil.getBeforeDay(days-1));
         map.put("daylist",daylist);
         return map;
     }
@@ -251,15 +251,20 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         so.setUserMobile(sellerInfo.getMobile());
         so.setOrderNo(KeyUtil.genUniqueKey());
 
-        so = seatOrderRepository.save(so);
-        log.info("order----->id:"+so.getId());
-        for (int j = 0;  j < seatlist.size(); j++) {
-            if(seatlist.get(j)[0] != null){
-                SeatOrderItemDO sod = new SeatOrderItemDO();
-                sod.setSeatId(Long.parseLong(seatlist.get(j)[0].toString()));
-                sod.setOrderId(so.getId());
-                seatOrderItemRepository.save(sod); //占票
+        try {
+
+            so = seatOrderRepository.save(so);
+            log.info("order----->id:"+so.getId());
+            for (int j = 0;  j < seatlist.size(); j++) {
+                if(seatlist.get(j)[0] != null){
+                    SeatOrderItemDO sod = new SeatOrderItemDO();
+                    sod.setSeatId(Long.parseLong(seatlist.get(j)[0].toString()));
+                    sod.setOrderId(so.getId());
+                    seatOrderItemRepository.save(sod); //占票
+                }
             }
+        }catch (Exception e){
+            throw new BusinessException("500", "座位已被其他人预定！");
         }
 
         Map map = new HashMap();
@@ -709,7 +714,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         List<String> timelist = repository.getBuyTime(route,time);
 
-        return getSelectStr(timelist);
+        return getSelectStr(timelist,time);
     }
 
     //补票班次
@@ -738,18 +743,38 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
 
-    private String getSelectStr(List<String> timelist) {
+    private String getSelectStr(List<String> timelist, String time) {
         String str = "";
         if(ComUtil.isEmpty(timelist)  || timelist.get(0)==null || "null".equals(timelist.get(0)) ){
             str = "<option value=\"\">今天已经没有班车了，请选择明天的车。</option>";
         } else {
+
+            List<Object[]> list = repository.getDayTimeFlag();
+            int days = Integer.parseInt(list.get(0)[0].toString());
+
+
             for (String timestr : timelist){
-                str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+                if (DateTimeUtil.getBeforeDay(days-1).equals(time)){ //选的日期是最后一天
+
+                    if(DateTimeUtil.getHoursOfDay(new Date())>=21){
+                        str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+                    } else if(DateTimeUtil.getHoursOfDay(new Date())>=20 && timestr.compareTo("08:01")<0){
+                        log.info("--------"+DateTimeUtil.getHoursOfDay(new Date())+"----------"+time+"----------"+timestr);
+                        str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+                    } else if(DateTimeUtil.getHoursOfDay(new Date())>=19 && timestr.compareTo("07:01")<0){
+                        str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+                    }
+
+                } else {
+                    str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+                }
             }
         }
 
         return "<select id='moment' name='moment' class='address'>" + str + "</select>";
     }
+
+
 
     @Override
     public void saveInfo(String name, String phone, String uid,String verify) {
@@ -854,5 +879,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 //        tempList.addAll(treeSet);
 //        treeSet 默认的排序为升序，根据实际情况添加是否需要反排序
 //        Collections.reverse(tempList);
+
+
+        System.out.println("10:00".compareTo("09:01"));
+
     }
 }

@@ -144,7 +144,7 @@
     -->
 <form name="form" action="" onsubmit="yan(this)" method="get">
     <input type="hidden" id = "uid" name="uid"  value="${uid}">
-    <input type="hidden" id = "orderId" name="orderId"  value="${sod.id}">
+    <input type="hidden" id = "orderId" name="orderId"  value="${orderNewId}">
     <input type="hidden" id = "sysl" name="sysl"  value="${sysl}">
     <input type="hidden" id = "num" name="num"  value="${sod.num}">
 

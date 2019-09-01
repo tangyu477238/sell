@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -123,6 +124,35 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     List<Object[]> getRouteInfo();
 
 
+    @Modifying
+    @Transactional
+    @Query(value = "insert into biz_seat_order_log(order_no,biz_date,biz_time,plan_id,info" +
+            ",price,num,amout,create_time,update_time,create_user,state,remark,from_station" +
+            ",to_station,user_name,user_mobile,route_Station,ckstate,route_id) values" +
+            "(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20)",nativeQuery = true)
+    int addOrderLogs(String order_no, String biz_date, String biz_time, Long plan_id, String info
+            ,BigDecimal price, BigDecimal num, BigDecimal amout, Date create_time, Date update_time
+            , String create_user, Integer state, String remark, String from_station
+            , String to_station, String user_name, String user_mobile, String route_Station
+            , Integer ckstate, Long route_id);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "insert into biz_pay_log(order_no,amout,create_time,state) values(?1,?2,?3,?4)",nativeQuery = true)
+    int addPayLogs(String order_no,BigDecimal amout, Date create_time ,Integer state);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "update biz_pay_log set state = ?1 ",nativeQuery = true)
+    int updatePayLogs(Integer state);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "delete from  biz_verify where mobile = ?1 ",nativeQuery = true)
+    int delVerify(String mobile);
 
 }
 

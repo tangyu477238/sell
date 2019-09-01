@@ -4,6 +4,7 @@ import com.imooc.config.ProjectUrlConfig;
 import com.imooc.config.SimpleSMSSender;
 import com.imooc.config.WechatAccountConfig;
 import com.imooc.dataobject.*;
+import com.imooc.dto.OrderDTO;
 import com.imooc.exception.BusinessException;
 import com.imooc.exception.SellException;
 import com.imooc.repository.*;
@@ -13,6 +14,8 @@ import com.lly835.bestpay.config.WxPayH5Config;
 import com.lly835.bestpay.enums.BestPayTypeEnum;
 import com.lly835.bestpay.model.PayRequest;
 import com.lly835.bestpay.model.PayResponse;
+import com.lly835.bestpay.model.RefundRequest;
+import com.lly835.bestpay.model.RefundResponse;
 import com.lly835.bestpay.service.impl.BestPayServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
@@ -21,6 +24,7 @@ import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -38,6 +42,13 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     private static int ORDER_STATE_0 = 0; //订单待付款
 
     private static int ORDER_STATE_1 = 1; //订单已付款
+
+    private static int ORDER_STATE_2 = 2; //订单不存在但已付款，退款
+
+    private static int ORDER_STATE_3 = 3; //订单金额与支付金额不一致，退款
+
+    private static int ORDER_STATE_4 = 4; //重复支付，退款
+
 
     private static String MONTH_STATE_0 = "0"; //月票待付款
 
@@ -279,6 +290,14 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         }else {
             map.put("sysl",mtu.getTotalNum().subtract(mtu.getUseNum()).toString());
         }
+
+
+
+        repository.addOrderLogs(so.getOrderNo(),so.getBizDate(),so.getBizTime(),so.getPlanId(),so.getInfo()
+                ,so.getPrice(),so.getNum(),so.getAmout(),so.getCreateTime(),so.getUpdateTime()
+                ,so.getCreateUser(),so.getState(),so.getRemark(),so.getFromStation()
+                ,so.getToStation(),so.getUserName(),so.getUserMobile()
+                ,so.getRouteStation(),so.getCkstate(),so.getRouteId());
 
 
         return map;
@@ -536,18 +555,42 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         PayResponse payResponse=bestPayService.asyncNotify(notifyData);//可以完成1、2两步
         log.info("【微信支付 异步通知】，payResponse={}",JsonUtil.toJson(payResponse));
 
-        //查询订单
-        SeatOrderDO sod = seatOrderRepository.findByOrderNoAndState(payResponse.getOrderId(),0);
+        //增加支付成功记录
 
-        //判断订单是否存在
+
+
+        log.info("----------------增加支付成功记录日志----------");
+
+        //查询订单
+        SeatOrderDO sod = seatOrderRepository.findByOrderNo(payResponse.getOrderId());
+        //判断订单是否存在  不存在说明超时支付，需要发起退款操作，但目前不做直接退款，只做记录
         if(sod == null){
             log.error("【微信支付】 异步通知，订单不存在，orderId={}",payResponse.getOrderId());
+
+            repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_2);
+
+            log.error("【微信支付】-----待退款记录------- 异步通知，订单不存在，orderId={}",payResponse.getOrderId());
             return payResponse;
-            //throw new SellException(ResultEnum.ORDER_NOT_EXIST);
         }
+
+        if(sod.getState()==ORDER_STATE_1){
+            log.error("【微信支付】 异步通知，重复支付，orderId={}",payResponse.getOrderId());
+
+            repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_4);
+
+            log.error("【微信支付】-----待退款记录------- 异步通知，重复支付，orderId={}",payResponse.getOrderId());
+            return payResponse;
+        }
+
+
         //判断金额是否一致(0.10   0.1)
         log.info(payResponse.getOrderAmount().toString()+"-----判断金额是否一致--------"+sod.getAmout().toString());
         if(!MathUtil.equals(payResponse.getOrderAmount(),sod.getAmout().doubleValue())){
+            log.error("【微信支付】 异步通知，订单不存在，orderId={}",payResponse.getOrderId());
+
+
+            repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_3);//待退款记录
+
             log.error("【微信支付】 异步通知，订单金额不一致，orderId={},微信通知金额={}，系统金额={}",
                     payResponse.getOrderId(),
                     payResponse.getOrderAmount(),
@@ -558,7 +601,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         //修改订单的支付状态
         sod.setRemark("微信支付");
-        sod.setState(1);
+        sod.setState(ORDER_STATE_1);
         sod.setCkstate(0);//未验票
         seatOrderRepository.save(sod);
 
@@ -572,6 +615,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 //        //只显示二维码
 //        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
 //                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
+
+
+        repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_1);//付款成功
+
         return payResponse;
     }
 
@@ -655,8 +702,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         MonthTicketDO mtd = monthTicketRepository.findById(new Long(id));
         if (ComUtil.isEmpty(mtud)){
             mtud = new MonthTicketUserDO();
+            mtud.setCreateTime(new Date());
         }
-        mtud.setCreateTime(new Date());
         mtud.setCreateUser(uid);
         mtud.setMonth(month_val);
         mtud.setPtypeId(mtd.getId());
@@ -807,6 +854,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         PayResponse payResponse=bestPayService.asyncNotify(notifyData);//可以完成1、2两步
         log.info("【月票微信支付 异步通知】，payResponse={}",JsonUtil.toJson(payResponse));
 
+        //增加支付成功记录
+
 
 
         //查询订单
@@ -815,6 +864,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         //判断订单是否存在
         if(mtu == null){
+
+            repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_2);//退款
+
             log.error("【月票微信支付】 异步通知，订单不存在，orderId={}",payResponse.getOrderId());
             return payResponse;
             //throw new SellException(ResultEnum.ORDER_NOT_EXIST);
@@ -822,6 +874,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         //判断金额是否一致(0.10   0.1)
         log.info(payResponse.getOrderAmount().toString()+"-----月票判断金额是否一致--------"+mtu.getPrice().toString());
         if(!MathUtil.equals(payResponse.getOrderAmount(),mtu.getPrice().doubleValue())){
+            repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_3);//退款
+
             log.error("【月票微信支付】 异步通知，订单金额不一致，orderId={},微信通知金额={}，系统金额={}",
                     payResponse.getOrderId(),
                     payResponse.getOrderAmount(),
@@ -838,6 +892,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         sendMessage(sellerInfo.getOpenid(),"orderMonthStatus",getOrderMonthTemplateData(mtu),
                 null);
+
+
+        repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_1);;//付款成功
         return payResponse;
     }
 
@@ -870,6 +927,38 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         map.put("state",flag);//验票ok
         return map;
     }
+
+
+
+    @Override
+    public Map<String,Object> delVerify(String mobile) {
+        Map map = new HashMap();
+        int flag = repository.delVerify(mobile);
+
+        map.put("state",flag);//
+        return map;
+    }
+
+
+
+    /**
+     * 退款
+     * @param
+     */
+    @Override
+    public RefundResponse refund(String orderNO,double amount) {
+        RefundRequest refundRequest=new RefundRequest();
+        refundRequest.setOrderAmount(amount);
+        refundRequest.setOrderId(orderNO);
+        refundRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_H5);
+        log.info("【微信退款】 request={}",JsonUtil.toJson(refundRequest));
+        RefundResponse refundResponse = bestPayService.refund(refundRequest);
+        log.info("【微信退款】 response={}",JsonUtil.toJson(refundResponse));
+
+        return refundResponse;
+    }
+
+
 
     public static void main (String str []){
 

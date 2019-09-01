@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -274,7 +275,7 @@ public class BuyTicketController {
 
     //进入购买月票
     @GetMapping("/buyTicket")
-    public ModelAndView buyTicket(@RequestParam("uid") String uid,Map<String,Object> map){
+    public ModelAndView buyTicket(@RequestParam("uid") String uid,Map<String,Object> map)  throws ParseException {
         log.info("进入buyTicket方法.......");
 
         map = buyTicketService.buyTicket();
@@ -283,7 +284,10 @@ public class BuyTicketController {
         List<Object[]> list = repository.getDayTimeFlag();
         int monthticketdays = Integer.parseInt(list.get(0)[3].toString());
 
-        if(DateTimeUtil.getDaysOfTwoDate(DateTimeUtil.getMonthOfLastDayDate(0),new Date())<monthticketdays){
+        Date lastDate = DateTimeUtil.getMonthOfLastDayDate(0);
+        int subDay = DateTimeUtil.daysBetween(new Date(),lastDate);
+
+        if(subDay < monthticketdays){
             map.put("month_name", DateTimeUtil.getMonthDay(3)+"～"+DateTimeUtil.getMonthDay(4));
             map.put("month_val",DateTimeUtil.getMonthDay(6));
         } else {
@@ -364,13 +368,24 @@ public class BuyTicketController {
     }
 
 
-    //cktikcet
+    //cktikcet  验票系统
     @ResponseBody
     @GetMapping("/ckticket")
     public Map cktikcet(@RequestParam("uid") String uid,
                                Map<String,Object> map){
         log.info("进入cktikcet订单方法.......");
         map = buyTicketService.cktikcet(uid);
+
+        return map;
+    }
+
+    //cktikcet  删除验证码
+    @ResponseBody
+    @GetMapping("/cktikcetDelRand")
+    public Map cktikcetDelRand(@RequestParam("mobile") String mobile,
+                        Map<String,Object> map){
+        log.info("ckticketDelRand.......");
+        map = buyTicketService.delVerify(mobile);
 
         return map;
     }
@@ -383,4 +398,18 @@ public class BuyTicketController {
         return "/yuechetemp.html" ;
 
     }
+
+    //退款 cktikcet
+    @ResponseBody
+    @GetMapping("/cktikcetRefund")
+    public Map cktikcetRefund(@RequestParam() Map<String,Object> map){
+        log.info("--退款---ckticketRefund.......");
+
+
+        buyTicketService.refund(map.get("orderNo").toString(),
+                Double.parseDouble(map.get("amout").toString()));
+
+        return map;
+    }
+
 }

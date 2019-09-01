@@ -2,7 +2,9 @@ package com.imooc.service;
 
 import com.imooc.dataobject.Callplan;
 import com.imooc.dataobject.SeatOrderDO;
+import com.imooc.dto.OrderDTO;
 import com.lly835.bestpay.model.PayResponse;
+import com.lly835.bestpay.model.RefundResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,9 @@ import java.util.Map;
 public interface BuyTicketService {
 
     Map<String,Object> cktikcet(String uid);
+
+    Map<String,Object> delVerify(String mobile);
+
 
     Map<String,Object>  findAll();
 
@@ -49,4 +54,6 @@ public interface BuyTicketService {
     Map<String,Object> addBupiao(String route, String moment,String uid);
 
     void sendYzm(String name, String phone, String uid);
+
+    RefundResponse refund(String orderNO,double amount);
 }

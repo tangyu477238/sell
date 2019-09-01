@@ -107,10 +107,15 @@
 
             <div class="button">
                 <input type="submit" name="submit" style=" background:none; border:none; color:#fff; width:100%; height:100%;" value="下一步"></div>
-            <div style="color:red; padding:10px;">
+            <div style="color:red; padding:10px;font-size: 14px;">
                    温馨提示：
                 <br/>班次如购买错误，系统无法实现退还，请您注意选择正确的班次！
                 <br/>为避免超载，请主动为小朋友购买车票，谢谢！
+                <br/>
+                <br/>最新调整售票：
+                <br/>每天19点可以买第3天7点和7点之前的票
+                <br/>每天20点可以买第3天8点和8点之前的票
+                <br/>每天21点可以买第3天全天和之前的票
             </div>
         </form>
 

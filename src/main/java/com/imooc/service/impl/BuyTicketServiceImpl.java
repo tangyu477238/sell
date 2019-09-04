@@ -608,17 +608,18 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         SellerInfo sellerInfo = userRepository.findOne(sod.getCreateUser());
 
         QRCodeUtil.encode(sellerInfo.getSellerId()+"_"+sod.getId(),QRCODE_PATH);
-        //显示订单详情
-        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
-
-//        //只显示二维码
-//        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-//                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
 
 
-        repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_1);//付款成功
+        SeatOrderDO sod2 = seatOrderRepository.findByOrderNo(payResponse.getOrderId());
+        if(sod2.getState()==ORDER_STATE_1) {
 
+            //显示订单详情
+            sendMessage(sellerInfo.getOpenid(), "orderStatus", getOrderTemplateData(sod)
+                    , projectUrlConfig.getWechatMpAuthorize() + "/sell/ticket/queryOrder?orderId=" + sod.getId() + "&uid=" + sellerInfo.getSellerId());
+            repository.addPayLogs(payResponse.getOrderId(), new BigDecimal(payResponse.getOrderAmount()), new Date(), ORDER_STATE_1);//付款成功
+        } else {
+            repository.addPayLogs(payResponse.getOrderId(), new BigDecimal(payResponse.getOrderAmount()), new Date(), ORDER_STATE_0);//待退款
+        }
         return payResponse;
     }
 

@@ -134,7 +134,7 @@ public class BuyTicketController {
                              @RequestParam("uid") String uid,
                              Map<String,Object> map){
         log.info("-------------queryOrder.......");
-
+        orderId = orderId.replace(",","");
         map = buyTicketService.queryOrder(orderId,uid);
 
         SeatOrderDO sod =(SeatOrderDO) map.get("sod");

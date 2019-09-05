@@ -145,8 +145,8 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "update biz_pay_log set state = ?1 ",nativeQuery = true)
-    int updatePayLogs(Integer state);
+    @Query(value = "update biz_pay_log set state = ?1,update_time=now() where order_no =?2 ",nativeQuery = true)
+    int updatePayLogs(Integer state,String orderNo);
 
 
     @Modifying

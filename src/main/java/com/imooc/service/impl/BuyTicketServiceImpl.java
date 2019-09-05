@@ -573,12 +573,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             return payResponse;
         }
 
-        if(sod.getState()==ORDER_STATE_1){
+        if(sod.getState()!=ORDER_STATE_0){
             log.error("【微信支付】 异步通知，重复支付，orderId={}",payResponse.getOrderId());
-
-            repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_4);
-
-            log.error("【微信支付】-----待退款记录------- 异步通知，重复支付，orderId={}",payResponse.getOrderId());
+            //repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_4);
+            log.error("【微信支付】----异步通知，重复支付，getState={}",sod.getState());
             return payResponse;
         }
 
@@ -587,7 +585,6 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         log.info(payResponse.getOrderAmount().toString()+"-----判断金额是否一致--------"+sod.getAmout().toString());
         if(!MathUtil.equals(payResponse.getOrderAmount(),sod.getAmout().doubleValue())){
             log.error("【微信支付】 异步通知，订单不存在，orderId={}",payResponse.getOrderId());
-
 
             repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_3);//待退款记录
 
@@ -609,16 +606,12 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         QRCodeUtil.encode(sellerInfo.getSellerId()+"_"+sod.getId(),QRCODE_PATH);
 
-
         SeatOrderDO sod2 = seatOrderRepository.findByOrderNo(payResponse.getOrderId());
         if(sod2.getState()==ORDER_STATE_1) {
-
             //显示订单详情
             sendMessage(sellerInfo.getOpenid(), "orderStatus", getOrderTemplateData(sod)
                     , projectUrlConfig.getWechatMpAuthorize() + "/sell/ticket/queryOrder?orderId=" + sod.getId() + "&uid=" + sellerInfo.getSellerId());
             repository.addPayLogs(payResponse.getOrderId(), new BigDecimal(payResponse.getOrderAmount()), new Date(), ORDER_STATE_1);//付款成功
-        } else {
-            repository.addPayLogs(payResponse.getOrderId(), new BigDecimal(payResponse.getOrderAmount()), new Date(), ORDER_STATE_0);//待退款
         }
         return payResponse;
     }
@@ -893,9 +886,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         sendMessage(sellerInfo.getOpenid(),"orderMonthStatus",getOrderMonthTemplateData(mtu),
                 null);
-
-
-        repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_1);;//付款成功
+        repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_1);//付款成功
         return payResponse;
     }
 
@@ -956,6 +947,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         RefundResponse refundResponse = bestPayService.refund(refundRequest);
         log.info("【微信退款】 response={}",JsonUtil.toJson(refundResponse));
 
+
+
+        repository.updatePayLogs(9,orderNO);//退款成功
         return refundResponse;
     }
 

@@ -56,4 +56,6 @@ public interface BuyTicketService {
     void sendYzm(String name, String phone, String uid);
 
     RefundResponse refund(String orderNO,double amount);
+
+    void delOrderByTimeOut();
 }

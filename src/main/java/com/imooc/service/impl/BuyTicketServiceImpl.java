@@ -607,11 +607,15 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         QRCodeUtil.encode(sellerInfo.getSellerId()+"_"+sod.getId(),QRCODE_PATH);
 
         SeatOrderDO sod2 = seatOrderRepository.findByOrderNo(payResponse.getOrderId());
-        if(sod2.getState()==ORDER_STATE_1) {
+        if(sod2!=null && sod2.getState()==ORDER_STATE_1) {
+            log.info("---------开始发送购买成功通知---------"+payResponse.getOrderId());
             //显示订单详情
             sendMessage(sellerInfo.getOpenid(), "orderStatus", getOrderTemplateData(sod)
                     , projectUrlConfig.getWechatMpAuthorize() + "/sell/ticket/queryOrder?orderId=" + sod.getId() + "&uid=" + sellerInfo.getSellerId());
             repository.addPayLogs(payResponse.getOrderId(), new BigDecimal(payResponse.getOrderAmount()), new Date(), ORDER_STATE_1);//付款成功
+        } else {
+            log.info("---------购买失败，订单已不存在---------"+payResponse.getOrderId());
+            repository.addPayLogs(payResponse.getOrderId(), new BigDecimal(payResponse.getOrderAmount()), new Date(), ORDER_STATE_2);//需退款
         }
         return payResponse;
     }
@@ -952,6 +956,13 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         repository.updatePayLogs(9,orderNO);//退款成功
         return refundResponse;
     }
+
+    @Override
+    public void delOrderByTimeOut() {
+        repository.delOrderItem();//
+        repository.delOrder();//
+    }
+
 
 
 

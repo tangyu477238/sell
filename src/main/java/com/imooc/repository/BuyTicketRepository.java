@@ -154,6 +154,20 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     @Query(value = "delete from  biz_verify where mobile = ?1 ",nativeQuery = true)
     int delVerify(String mobile);
 
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE from biz_seat_order where state=0 and update_time<NOW()",nativeQuery = true)
+    int delOrder();
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE biz_seat_order_item " +
+            " FROM biz_seat_order_item,biz_seat_order " +
+            " WHERE biz_seat_order_item.order_id = biz_seat_order.id" +
+            " and biz_seat_order.state=0 and biz_seat_order.update_time<NOW() ",nativeQuery = true)
+    int delOrderItem();
+
 }
 
 

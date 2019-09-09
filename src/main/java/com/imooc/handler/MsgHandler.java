@@ -20,6 +20,8 @@ import static me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
 @Component
 public class MsgHandler extends AbstractHandler {
 
+    public static String SEND_MSG="本公司主营服务范围：旅游包车、企业包车、商务包车等。公司或企业员工上下班接送、机场接送、看楼用车、学校用车、展会用车、婚宴用车等等。我们根据不同的客户要求提供各款优质车辆，价格实惠，服务周到；同时为各大企业单位、机关部门及社会团体提供长短期包车的汽车租赁业务。服务热线：13922253183";
+
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
                                     Map<String, Object> context, WxMpService weixinService,
@@ -43,9 +45,11 @@ public class MsgHandler extends AbstractHandler {
         }
 
         //TODO 组装回复消息
-        String content = "收到信息内容：" + JsonUtils.toJson(wxMessage);
+//        String content = "收到信息内容：" + JsonUtils.toJson(wxMessage);
 
-        return new TextBuilder().build(content, wxMessage, weixinService);
+
+
+        return new TextBuilder().build(SEND_MSG, wxMessage, weixinService);
 
     }
 

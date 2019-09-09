@@ -155,18 +155,29 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     int delVerify(String mobile);
 
 
+    //查询待删除数据
+    @Query(value = "select order_no,id from biz_seat_order where state=0 and update_time<NOW() ", nativeQuery = true)
+    List<Object[]> getDelOrderInfo();
+
+    //查询付款记录数据
+    @Query(value = "select order_no from biz_pay_log where state=1 and order_no = ?1 ", nativeQuery = true)
+    List<Object[]> getDelPayInfo(String orderNo);
+
+
+
+
     @Modifying
     @Transactional
-    @Query(value = "DELETE from biz_seat_order where state=0 and update_time<NOW()",nativeQuery = true)
-    int delOrder();
+    @Query(value = "DELETE from biz_seat_order where state=0 and update_time<NOW() and id = ?1",nativeQuery = true)
+    int delOrder(String id);
 
     @Modifying
     @Transactional
     @Query(value = "DELETE biz_seat_order_item " +
             " FROM biz_seat_order_item,biz_seat_order " +
             " WHERE biz_seat_order_item.order_id = biz_seat_order.id" +
-            " and biz_seat_order.state=0 and biz_seat_order.update_time<NOW() ",nativeQuery = true)
-    int delOrderItem();
+            " and biz_seat_order.state=0 and biz_seat_order.update_time<NOW() and biz_seat_order.id = ?1 ",nativeQuery = true)
+    int delOrderItem(String id);
 
 }
 

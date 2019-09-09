@@ -660,7 +660,6 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         templateMessage.setUrl(url);
         try {
             wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);
-            wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);
         }catch (WxErrorException e){
             log.error("【微信模板消息】发送失败，{}",e);
             try {
@@ -957,8 +956,25 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     @Override
     public void delOrderByTimeOut() {
-        repository.delOrderItem();//
-        repository.delOrder();//
+
+        List<Object[]> list = repository.getDelOrderInfo();
+        for (int i = 0; list!=null && i < list.size(); i++) {
+            List<Object[]> paylist =  repository.getDelPayInfo(list.get(i)[0].toString());
+            if(paylist == null || paylist.isEmpty()){
+                log.info(list.get(i)[0].toString()+"----订单删除开始----"+list.get(i)[1].toString());
+                repository.delOrderItem(list.get(i)[1].toString());//
+                repository.delOrder(list.get(i)[1].toString());//
+            }
+        }
+
+
+
+
+
+
+
+
+
     }
 
 

@@ -4,7 +4,6 @@ import com.imooc.config.ProjectUrlConfig;
 import com.imooc.config.SimpleSMSSender;
 import com.imooc.config.WechatAccountConfig;
 import com.imooc.dataobject.*;
-import com.imooc.dto.OrderDTO;
 import com.imooc.exception.BusinessException;
 import com.imooc.exception.SellException;
 import com.imooc.repository.*;
@@ -24,7 +23,6 @@ import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -61,8 +59,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     private static String QRCODE_PATH = "/opt/app/photos/qrcode/";//二维码图片路径
 
 
-    //订单锁定时间
-    private static int ORDER_LOCK_5_ = 5; //5分钟
+    //联系电话
+    private static String ORDER_link_TEL = "13922253183"; //
 
     @Autowired
     private ProjectUrlConfig projectUrlConfig;
@@ -635,7 +633,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
                 new WxMpTemplateData("keyword2",sod.getOrderNo() + ",请提前至少10分钟取票上车","#B5B5B5"),
                 new WxMpTemplateData("keyword3",sod.getInfo(),"#B5B5B5"),
                 new WxMpTemplateData("keyword4",sod.getNum()+"人","#B5B5B5"),
-                new WxMpTemplateData("remark","为避免超载，请主动为小朋友购买车票。\r\n欢迎再次购买。\r\n如需帮助请致电13922700093。","#173177"));
+                new WxMpTemplateData("remark","为避免超载，请主动为小朋友购买车票。\r\n欢迎再次购买。\r\n如需帮助请致电"+ORDER_link_TEL+"。","#173177"));
 
         return data;
     }
@@ -647,7 +645,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
                 new WxMpTemplateData("keyword1",mtu.getPtypeName()+"(总共"+mtu.getTotalNum()+"张)","#B5B5B5"),
                 new WxMpTemplateData("keyword2",mtu.getPrice()+"元","#B5B5B5"),
                 new WxMpTemplateData("keyword3",mtu.getMonth()+"月","#B5B5B5"),
-                new WxMpTemplateData("remark","欢迎再次购买。\r\n如需帮助请致电13922700093。","#173177"));
+                new WxMpTemplateData("remark","欢迎再次购买。\r\n如需帮助请致电"+ORDER_link_TEL+"。","#173177"));
 
         return data;
     }

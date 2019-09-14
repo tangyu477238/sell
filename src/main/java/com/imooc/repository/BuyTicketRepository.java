@@ -44,12 +44,15 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "delete from biz_seat_order  where id = ?1", nativeQuery = true)
+    @Query(value = "delete from biz_seat_order  where state=0 and id = ?1", nativeQuery = true)
     int deleteByOrdId(String orderId);
 
     @Modifying
     @Transactional
-    @Query(value = "delete from biz_seat_order_item  where order_id = ?1", nativeQuery = true)
+    @Query(value = "DELETE biz_seat_order_item " +
+            " FROM biz_seat_order_item,biz_seat_order " +
+            " WHERE biz_seat_order_item.order_id = biz_seat_order.id" +
+            " and biz_seat_order.state=0 and biz_seat_order.id = ?1 ",nativeQuery = true)
     int deleteByOrderPid(String orderId);
 
     //班次
@@ -69,7 +72,8 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     List<String> getBuyTimeBp(String route);
 
     //放票天数、放票时间,订单锁单时间，月票可提前购买天数
-    @Query(value = "select days,case when NOW()>str_to_date(CONCAT(date_format(now(),'%Y-%m-%d'),time), '%Y-%m-%d %H:%i:%s') then 1 else 0 end as flag,locktime,monthticketdays "
+    @Query(value = "select days,case when NOW()>str_to_date(CONCAT(date_format(now(),'%Y-%m-%d'),time), '%Y-%m-%d %H:%i:%s') then 1 else 0 end as flag" +
+            ",locktime,monthticketdays,buytime1,buybeforeticket1 "
             +"  from biz_sellday " , nativeQuery = true)
     List<Object[]> getDayTimeFlag();
 

@@ -793,17 +793,17 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
             List<Object[]> list = repository.getDayTimeFlag();
             int days = Integer.parseInt(list.get(0)[0].toString());
-
+            int buytime1 = Integer.parseInt(list.get(0)[4].toString());
+            String buybeforeticket1 = list.get(0)[5].toString();
 
             for (String timestr : timelist){
                 if (DateTimeUtil.getBeforeDay(days-1).equals(time)){ //选的日期是最后一天
-
+                    log.info("--------"+DateTimeUtil.getHoursOfDay(new Date())+"----------"+time+"----------"+timestr);
                     if(DateTimeUtil.getHoursOfDay(new Date())>=21){
                         str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
                     } else if(DateTimeUtil.getHoursOfDay(new Date())>=20 && timestr.compareTo("08:01")<0){
-                        log.info("--------"+DateTimeUtil.getHoursOfDay(new Date())+"----------"+time+"----------"+timestr);
                         str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
-                    } else if(DateTimeUtil.getHoursOfDay(new Date())>=19 && timestr.compareTo("07:01")<0){
+                    } else if(DateTimeUtil.getHoursOfDay(new Date())>=buytime1 && timestr.compareTo(buybeforeticket1)<0){
                         str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
                     }
 

@@ -36,8 +36,8 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
             +" where p.route_id = ?1 and e.biz_date = ?2 and e.biz_time = ?3  and e.name in (?4)", nativeQuery = true)
     List<Object[]> listSeatOder(String route, String time, String moment, String seatNames[]);
 
-    @Query(value = "select r.from_station, r.to_station,p.price from  biz_plan_price p "
-            +" inner join (select DISTINCT plan_id from biz_car_datetime_seat where biz_date = ?2 and biz_time = ?3) s on s.plan_id = p.id "
+    @Query(value = "select r.from_station, r.to_station,s.price from  biz_plan_price p "
+            +" inner join (select DISTINCT plan_id,price from biz_car_datetime_seat where biz_date = ?2 and biz_time = ?3) s on s.plan_id = p.id "
             +" inner join biz_route r on r.id = p.route_id "
             +" where r.id = ?1 ", nativeQuery = true)
     List<Object[]> getPlanPrice(String route, String bizDate, String bizTime);

@@ -59,8 +59,14 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     private static String QRCODE_PATH = "/opt/app/photos/qrcode/";//二维码图片路径
 
 
+
+
+
+
     //联系电话
     private static String ORDER_link_TEL = "13922253183"; //
+
+    private static String ORDER_WELCOME = "请提前至少10分钟排队等候上车";//二维码图片路径
 
     @Autowired
     private ProjectUrlConfig projectUrlConfig;
@@ -204,6 +210,27 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     synchronized
     public Map<String,Object> addOrder(String route,String time, String moment,
                                        String seat,String num,String uid,String routeStation) {
+
+
+        List<Object[]> paramslist = repository.getDayTimeFlag();
+        int days = Integer.parseInt(paramslist.get(0)[0].toString()); //天数
+        String buybeforeticket1 = paramslist.get(0)[5].toString(); //可购买几点前的票(1)
+        int buytime1 = Integer.parseInt(paramslist.get(0)[4].toString()); //几点开始售卖(1)
+        if (DateTimeUtil.getBeforeDay(days-1).equals(time)){ //选的日期是最后一天
+            log.info("--------"+DateTimeUtil.getHoursOfDay(new Date())+"----------"+time+"----------");
+            if(DateTimeUtil.getHoursOfDay(new Date())<buytime1){  //19点之前买票
+                throw new BusinessException("500","尚未到达售票时间！");
+            } else if (DateTimeUtil.getHoursOfDay(new Date())>=buytime1
+                    && DateTimeUtil.getHoursOfDay(new Date())<20 && moment.compareTo(buybeforeticket1)>0){ //19点-20之间买7点后的票
+                throw new BusinessException("500","尚未到达售票时间！");
+            } else if (DateTimeUtil.getHoursOfDay(new Date())>=20
+                    && DateTimeUtil.getHoursOfDay(new Date())<21 && moment.compareTo("08:01")>0){ //20点-21之间买8点后的票
+                throw new BusinessException("500","尚未到达售票时间！");
+            }
+        }
+
+
+
 
         List<BigDecimal> numlist = repository.getBuyCarNum(route,time,moment,uid);
         BigDecimal carnum = new BigDecimal(num);
@@ -630,7 +657,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         List<WxMpTemplateData> data= Arrays.asList(
                 new WxMpTemplateData("first","您好，您已成功购票。"),
                 new WxMpTemplateData("keyword1",sod.getBizDate()+" "+sod.getBizTime(),"#B5B5B5"),
-                new WxMpTemplateData("keyword2",sod.getOrderNo() + ",请提前至少10分钟取票上车","#B5B5B5"),
+                new WxMpTemplateData("keyword2",sod.getOrderNo() + "," + ORDER_WELCOME,"#B5B5B5"),
                 new WxMpTemplateData("keyword3",sod.getInfo(),"#B5B5B5"),
                 new WxMpTemplateData("keyword4",sod.getNum()+"人","#B5B5B5"),
                 new WxMpTemplateData("remark","为避免超载，请主动为小朋友购买车票。\r\n欢迎再次购买。\r\n如需帮助请致电"+ORDER_link_TEL+"。","#173177"));

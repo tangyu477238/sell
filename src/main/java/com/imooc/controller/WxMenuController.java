@@ -75,11 +75,12 @@ public class WxMenuController {
         button1.setName("我要订票");
         button1.setUrl(buyStrurl);
         log.info(buyStrurl);
+
+
         WxMenuButton button2 = new WxMenuButton();
-        button2.setType(MenuButtonType.VIEW);
-        button2.setName("月票充值");
-//        button2.setUrl("http://www.baidu.com");
-        button2.setUrl(buyMonthTickUrl);
+        button2.setName("月票或补票");
+
+
 
         WxMenuButton button3 = new WxMenuButton();
         button3.setName("我的");
@@ -88,15 +89,32 @@ public class WxMenuController {
         menu.getButtons().add(button2);
         menu.getButtons().add(button3);
 
+
+        WxMenuButton button21 = new WxMenuButton();
+        button21.setType(MenuButtonType.VIEW);
+        button21.setName("月票充值");
+        button21.setUrl(buyMonthTickUrl);
+
+
+        WxMenuButton button22 = new WxMenuButton();
+        button22.setType(MenuButtonType.VIEW);
+        button22.setName("我要补票");
+        button22.setUrl(bupiaoUrl);
+
+        button2.getSubButtons().add(button21);
+        button2.getSubButtons().add(button22);
+
+
+
         WxMenuButton button31 = new WxMenuButton();
         button31.setType(MenuButtonType.VIEW);
         button31.setName("我的订单");
         button31.setUrl(queryMonthOrderUrl);
 
-        WxMenuButton button32 = new WxMenuButton();
-        button32.setType(MenuButtonType.VIEW);
-        button32.setName("补票");
-        button32.setUrl(bupiaoUrl);
+//        WxMenuButton button32 = new WxMenuButton();
+//        button32.setType(MenuButtonType.VIEW);
+//        button32.setName("补票");
+//        button32.setUrl(bupiaoUrl);
 
 
         WxMenuButton button33 = new WxMenuButton();
@@ -122,7 +140,7 @@ public class WxMenuController {
 //        }
 //
         button3.getSubButtons().add(button31);
-        button3.getSubButtons().add(button32);
+//        button3.getSubButtons().add(button32);
         button3.getSubButtons().add(button33);
 //        button3.getSubButtons().add(button34);
 

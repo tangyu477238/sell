@@ -277,6 +277,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             so.setFromStation(objs.get(0)[0].toString());
             so.setToStation(objs.get(0)[1].toString());
             so.setPrice(new BigDecimal(objs.get(0)[2].toString()));
+            so.setPlanId(new Long(objs.get(0)[3].toString())); //公式id
         }
         so.setAmout(so.getPrice().multiply(so.getNum()));
         so.setCreateUser(uid); //创建人
@@ -366,6 +367,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             so.setFromStation(objs.get(0)[0].toString());
             so.setToStation(objs.get(0)[1].toString());
             so.setPrice(new BigDecimal(objs.get(0)[2].toString()));
+            so.setPlanId(new Long(objs.get(0)[3].toString())); //公式id
         }
         so.setAmout(so.getPrice().multiply(so.getNum()));
         so.setCreateUser(uid); //创建人
@@ -489,6 +491,16 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         if (sod== null || ttime<0){
             throw new SellException(500,"订单不存在或已超支付时间！");
         }
+
+
+        List<String> isMonth = repository.getIsMonthByOrder(orderId);
+        if (ComUtil.isEmpty(isMonth) || "0".equals(isMonth.get(0))){
+            throw new SellException(500,"此班次不支持月票抵扣！");
+        }
+
+
+
+
         List<BigDecimal> numlist = repository.getBuyMonthNum(uid,sod.getBizDate(),sod.getBizTime(),sod.getPlanId());
         BigDecimal yuepnum = sod.getNum();
         if (!ComUtil.isEmpty(numlist)&&numlist.size()>0 && !ComUtil.isEmpty(numlist.get(0))){
@@ -497,11 +509,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         if (yuepnum.intValue()>4){
             throw new SellException(500,"同一班车月票最多只能抵扣4张！");
         }
-//        List<SeatOrderItemDO> sodilist = seatOrderItemRepository.findByOrderId(sod.getId());
-//        SeatOrderItemDO sodi = null ;
-//        for (int i = 0; sodilist!=null && i < sodilist.size(); i++) {
-//            sodi = sodilist.get(i);
-//        }
+
         MonthTicketUserDO mtu =
                 monthTicketUserRepository.findByCreateUserAndMonthAndRemark(uid,sod.getBizDate().substring(0,7),MONTH_STATE_1);
         BigDecimal sy = mtu.getTotalNum().subtract(mtu.getUseNum()).subtract(sod.getNum());

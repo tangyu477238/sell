@@ -36,7 +36,7 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
             +" where p.route_id = ?1 and e.biz_date = ?2 and e.biz_time = ?3  and e.name in (?4)", nativeQuery = true)
     List<Object[]> listSeatOder(String route, String time, String moment, String seatNames[]);
 
-    @Query(value = "select r.from_station, r.to_station,s.price from  biz_plan_price p "
+    @Query(value = "select r.from_station, r.to_station,s.price,s.plan_id from  biz_plan_price p "
             +" inner join (select DISTINCT plan_id,price from biz_car_datetime_seat where biz_date = ?2 and biz_time = ?3) s on s.plan_id = p.id "
             +" inner join biz_route r on r.id = p.route_id "
             +" where r.id = ?1 ", nativeQuery = true)
@@ -182,6 +182,24 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
             " WHERE biz_seat_order_item.order_id = biz_seat_order.id" +
             " and biz_seat_order.state=0 and biz_seat_order.update_time<NOW() and biz_seat_order.id = ?1 ",nativeQuery = true)
     int delOrderItem(String id);
+
+
+    @Query(value = "select  distinct p.is_month from biz_seat_order s" +
+            " inner join biz_seat_order_item si on s.id = si.order_id" +
+            " inner join biz_car_datetime_seat cds on cds.id = si.seat_id" +
+            " inner join biz_plan_price p on cds.plan_id = p.id " +
+            " where s.id = ?1 ",nativeQuery = true)
+    List<String> getIsMonth(String id);
+
+
+    @Query(value = "select  p.is_month from biz_seat_order s" +
+            " inner join biz_plan_price p on s.plan_id = p.id" +
+            " where s.id = ?1 ",nativeQuery = true)
+    List<String> getIsMonthByOrder(String id);
+
+
+
+
 
 }
 

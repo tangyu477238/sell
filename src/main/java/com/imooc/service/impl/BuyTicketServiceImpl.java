@@ -9,7 +9,7 @@ import com.imooc.exception.SellException;
 import com.imooc.repository.*;
 import com.imooc.service.BuyTicketService;
 import com.imooc.utils.*;
-import com.lly835.bestpay.config.WxPayH5Config;
+import com.lly835.bestpay.config.WxPayConfig;
 import com.lly835.bestpay.enums.BestPayTypeEnum;
 import com.lly835.bestpay.model.PayRequest;
 import com.lly835.bestpay.model.PayResponse;
@@ -72,7 +72,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     private ProjectUrlConfig projectUrlConfig;
 
     @Autowired
-    private WxPayH5Config  wxPayH5Config;
+    private com.lly835.bestpay.config.WxPayConfig wxPayConfig;
 
     @Autowired
     private WxMpService wxMpService;
@@ -555,26 +555,33 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         }
 
         SellerInfo sellerInfo = userRepository.findOne(uid);
+        Map map = new HashMap();
+
+
 
         //初始化支付
-        PayRequest payRequest=new PayRequest();
+        PayRequest payRequest = new PayRequest();
         payRequest.setOpenid(sellerInfo.getOpenid());
-        log.info(""+sod.getAmout().doubleValue());
+        log.info("" + sod.getAmout().doubleValue());
         payRequest.setOrderAmount(sod.getAmout().doubleValue());
         payRequest.setOrderId(sod.getOrderNo());
         payRequest.setOrderName(sod.getOrderNo());
-        payRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_H5);
-        log.info("【微信支付请求】发起支付，request={}", JsonUtil.toJson(payRequest));
-        wxPayH5Config.setNotifyUrl(projectUrlConfig.getWechatMpAuthorize()+NotifyUrl);
-        bestPayService.setWxPayH5Config(wxPayH5Config);
+        payRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_MP);
 
-        PayResponse payResponse=bestPayService.pay(payRequest);
-        log.info("【微信支付返回】发起支付，response={}",JsonUtil.toJson(payResponse));
 
-        Map map = new HashMap();
+        log.info("【微信支666付请求】发起支付，request={}", JsonUtil.toJson(payRequest));
+        wxPayConfig.setNotifyUrl(projectUrlConfig.getWechatMpAuthorize() + NotifyUrl);
+        bestPayService.setWxPayConfig(wxPayConfig);
+
+        PayResponse payResponse = bestPayService.pay(payRequest);
+        log.info("【微信支付返回】发起支付，response={}", JsonUtil.toJson(payResponse));
+
+
+
         map.put("payResponse",payResponse); //支付信息
         map.put("sod",sod);
         map.put("orderNo",sod.getOrderNo());
+
         return map;
     }
 
@@ -755,12 +762,12 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         payRequest.setOrderAmount(mtud.getPrice().doubleValue());
         payRequest.setOrderId(mtud.getOrderNo());
         payRequest.setOrderName(mtud.getOrderNo());
-        payRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_H5);
+        payRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_MP);
         log.info("【月票-微信支付请求】发起支付，request={}", JsonUtil.toJson(payRequest));
 
         //设置月票回调URL
-        wxPayH5Config.setNotifyUrl(projectUrlConfig.getWechatMpAuthorize()+MONTH_NotifyUrl);
-        bestPayService.setWxPayH5Config(wxPayH5Config);
+        wxPayConfig.setNotifyUrl(projectUrlConfig.getWechatMpAuthorize()+MONTH_NotifyUrl);
+        bestPayService.setWxPayConfig(wxPayConfig);
 
         PayResponse payResponse=bestPayService.pay(payRequest);
         log.info("【月票-微信支付返回】发起支付，response={}",JsonUtil.toJson(payResponse));
@@ -978,7 +985,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         RefundRequest refundRequest=new RefundRequest();
         refundRequest.setOrderAmount(amount);
         refundRequest.setOrderId(orderNO);
-        refundRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_H5);
+        refundRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_MP);
         log.info("【微信退款】 request={}",JsonUtil.toJson(refundRequest));
         RefundResponse refundResponse = bestPayService.refund(refundRequest);
         log.info("【微信退款】 response={}",JsonUtil.toJson(refundResponse));

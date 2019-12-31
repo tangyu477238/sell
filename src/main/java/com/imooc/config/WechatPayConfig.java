@@ -1,6 +1,6 @@
 package com.imooc.config;
 
-import com.lly835.bestpay.config.WxPayH5Config;
+import com.lly835.bestpay.config.WxPayConfig;
 import com.lly835.bestpay.service.impl.BestPayServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,22 +16,22 @@ public class WechatPayConfig {
     private WechatAccountConfig accountConfig;
 
     @Bean
-    public WxPayH5Config wxPayH5Config(){
-        WxPayH5Config wxPayH5Config=new WxPayH5Config();
-        wxPayH5Config.setAppId(accountConfig.getMpAppId());
-        wxPayH5Config.setAppSecret(accountConfig.getMpAppSecret());
-        wxPayH5Config.setMchId(accountConfig.getMchId());
-        wxPayH5Config.setMchKey(accountConfig.getMchKey());
-        wxPayH5Config.setKeyPath(accountConfig.getKeyPath());
-        wxPayH5Config.setNotifyUrl(accountConfig.getNotifyUrl());
+    public WxPayConfig WxPayConfig(){
+        WxPayConfig WxPayConfig=new WxPayConfig();
+        WxPayConfig.setAppId(accountConfig.getMpAppId());
+        WxPayConfig.setAppSecret(accountConfig.getMpAppSecret());
+        WxPayConfig.setMchId(accountConfig.getMchId());
+        WxPayConfig.setMchKey(accountConfig.getMchKey());
+        WxPayConfig.setKeyPath(accountConfig.getKeyPath());
+        WxPayConfig.setNotifyUrl(accountConfig.getNotifyUrl());
 
-        return wxPayH5Config;
+        return WxPayConfig;
     }
     @Bean
     public BestPayServiceImpl bestPayService(){
 
         BestPayServiceImpl bestPayService=new BestPayServiceImpl();
-        bestPayService.setWxPayH5Config(wxPayH5Config());
+        bestPayService.setWxPayConfig(WxPayConfig());
         return bestPayService;
     }
 }

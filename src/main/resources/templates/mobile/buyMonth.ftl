@@ -119,7 +119,8 @@
     </style>
     <script>
         function yan() {
-            //alert(1)
+            
+			
             if(!document.getElementById("id").checked)
             {
                 alert('请选择后购买');
@@ -158,9 +159,11 @@
     </div>
 
     <div style=" color: red;font-weight:600; padding: 15px 0; width: 100%">
-        <div class="orderList-tab" style="font-size: 12px;">每月月底最后7天可以购买下个月月票，每个班次可以使用月票支付4次，当月未使用完的车票不能在下月继续使用！</div>
+        <div class="orderList-tab" style="font-size: 12px;">每月月底最后7天可以购买下个月月票，每个班次可以使用月票支付4次，当月未使用完的车票不能在下月继续使用，所购买的月票次票均不可退票，不可改签！</div>
     </div>
-
+	<div style=" color: red;font-weight:600; padding: 15px 0; width: 100%">
+        <div class="orderList-tab" style="font-size: 12px;">温馨提示：购买完月票的乘客与购买次票一样，需提前三天抢票，谢谢合作！</div>
+    </div>
     </form>
 </div>
 

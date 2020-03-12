@@ -516,6 +516,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         if (sy.doubleValue()<0){
             throw new SellException(500,"月票不足！");
         }
+        if (sod.getNum().doubleValue()<1){
+            throw new SellException(500,"非法订单！");
+        }
+
         mtu.setUseNum(mtu.getUseNum().add(sod.getNum()));
         monthTicketUserRepository.save(mtu);
         sod.setState(ORDER_STATE_1);

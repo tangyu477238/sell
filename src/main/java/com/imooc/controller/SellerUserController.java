@@ -4,6 +4,7 @@ import com.imooc.config.ProjectUrlConfig;
 import com.imooc.constant.CookieConstant;
 import com.imooc.constant.RedisConstant;
 import com.imooc.dataobject.SellerInfo;
+import com.imooc.enums.LouPanEnum;
 import com.imooc.enums.ResultEnum;
 import com.imooc.service.SellerService;
 import com.imooc.utils.CookieUtil;
@@ -43,46 +44,70 @@ public class SellerUserController {
     public ModelAndView login(@RequestParam("openid") String openid,
                               HttpServletResponse response,
                               Map<String,Object> map){
-
-       return getData(openid,response,map,"ticket");
-
+        String url = "/sell/ticket/ticket?lp=" + LouPanEnum.XINGFUYU.getCode();
+        return getData(openid, response, map, url);
     }
-
     @GetMapping("/buyMonthTicket")
     public ModelAndView buyMonthTicket(@RequestParam("openid") String openid,
                               HttpServletResponse response,
                               Map<String,Object> map){
-
-        return getData(openid,response,map,"buyTicket");
-
+        String url = "/sell/ticket/buyTicket?lp=" + LouPanEnum.XINGFUYU.getCode();
+        return getData(openid,response,map,url);
     }
+    @GetMapping("/bupiao")
+    public ModelAndView bupiao(@RequestParam("openid") String openid,
+                               HttpServletResponse response,
+                               Map<String,Object> map){
+        String url = "/sell/ticket/bupiao?lp=" + LouPanEnum.XINGFUYU.getCode();
+        return getData(openid,response,map,url);
+    }
+
+
+
+
+
+
+
+
+
+    @GetMapping("/wklogin")
+    public ModelAndView wankecheng(@RequestParam("openid") String openid,
+                               HttpServletResponse response,
+                               Map<String,Object> map){
+        String url = "/sell/ticket/ticket?lp=" + LouPanEnum.BEIBUWANKE.getCode();
+        return getData(openid,response,map,url);
+    }
+    @GetMapping("/wkbupiao")
+    public ModelAndView wkbupiao(@RequestParam("openid") String openid,
+                               HttpServletResponse response,
+                               Map<String,Object> map){
+        String url = "/sell/ticket/bupiao?lp=" + LouPanEnum.BEIBUWANKE.getCode();
+        return getData(openid,response,map,url);
+    }
+    @GetMapping("/wkbuyMonthTicket")
+    public ModelAndView wkbuyMonthTicket(@RequestParam("openid") String openid,
+                                       HttpServletResponse response,
+                                       Map<String,Object> map){
+        String url = "/sell/ticket/buyTicket?lp=" + LouPanEnum.BEIBUWANKE.getCode();
+        return getData(openid,response,map,url);
+    }
+
+
+
+
+
+
 
     @GetMapping("/queryMonthOrder")
     public ModelAndView queryMonthOrder(@RequestParam("openid") String openid,
                                         HttpServletResponse response,
                                         Map<String,Object> map){
-
-        return getData(openid,response,map,"queryMonthTicket");
+        String url = "/sell/ticket/queryMonthTicket?lp=1";
+        return getData(openid,response,map,url);
 
     }
-
-
-
-    @GetMapping("/bupiao")
-    public ModelAndView bupiao(@RequestParam("openid") String openid,
-                               HttpServletResponse response,
-                               Map<String,Object> map){
-
-        return getData(openid,response,map,"bupiao");
-    }
-
-
-
-
-
 
     private ModelAndView getData(String openid,HttpServletResponse response,Map map,String mode){
-
 
         //1.openid去和数据库里的数据匹配
         SellerInfo sellerInfo =sellerService.findSellerInfoByOpenid(openid);
@@ -100,7 +125,7 @@ public class SellerUserController {
         CookieUtil.set(response, CookieConstant.TOKEN,token,expire);
 
         map.put("uid",sellerInfo.getSellerId());
-        return new ModelAndView("redirect:"+projectUrlConfig.getSell()+"/sell/ticket/"+mode+"?uid="+sellerInfo.getSellerId());
+        return new ModelAndView("redirect:"+projectUrlConfig.getSell() + mode + "&uid="+sellerInfo.getSellerId());
     }
 
 

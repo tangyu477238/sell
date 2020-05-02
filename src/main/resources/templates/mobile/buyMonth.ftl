@@ -8,6 +8,7 @@
     <meta name="keywords" content="">
     <meta content="width=device-width, iniial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" id="viewport" />
     <link href="/sell/css/orderList.css" rel="stylesheet">
+    <script type="text/javascript" src="/sell/js/jquery-1.7.2.min.js"></script>
     <style type="text/css">
         * {
             margin: 0px;
@@ -119,14 +120,21 @@
     </style>
     <script>
         function yan() {
-            
-			
-            if(!document.getElementById("id").checked)
-            {
-                alert('请选择后购买');
+
+            var uid = $('#uid').val();
+
+            if(uid!='bdf9eb628f0b464dbefaaac694e680ab'
+                &&uid!='a365c62fd4c241f6a8b277ebd495c5d3'){
+                alert('系统维护');
                 return ;
             }
 
+
+            var radioVal = $('input:radio[name="id"]:checked').val();
+            if(radioVal==undefined) {
+                alert('请选择后购买');
+                return ;
+            }
             var form = document.getElementById("form");
             form.submit();
         }
@@ -138,7 +146,7 @@
     <img src="/sell/img/orderList-pic.gif">
 
     <form id = "form" name="form" action="/sell/ticket/payMonthTick"  method="post">
-        <input type="hidden" name="uid"  value="${uid}">
+        <input id="uid" ype="hidden" name="uid"  value="${uid}">
         <input type="hidden" name="month_val"  value="${month_val}">
 
     <div class="orderList-tab">
@@ -148,13 +156,23 @@
             <th style="width:60px;">费用</th>
             <th style="width:90px;">使用月份</th>
             </thead>
-            <tbody>
-            <tr>
-                <td colspan=1><input type="radio" name="id" id="id" value="${mtd.id}">${mtd.ptypeName}</td>
-                <td colspan=1>${mtd.price}元/${mtd.totalNum}张 </td>
-                <td colspan=1>${month_name}</td>
-            </tr>
-            </tbody>
+
+            <#list mtdlist as mtd>
+
+                <tbody>
+                    <tr>
+                    <td colspan=1><input type="radio" name="id"  value="${mtd.id}">${mtd.ptypeName}</td>
+                    <td colspan=1>${mtd.price}元/${mtd.totalNum}张 </td>
+                    <td colspan=1>${month_name}</td>
+                    </tr>
+                </tbody>
+
+            </#list>
+
+
+
+
+
         </table>
     </div>
 
@@ -177,7 +195,7 @@
                         <#--<div class="zhifu">微信支付</div>-->
                     <#--</a>-->
 
-                    <div class="bottom_a" style="background-color: #F66D22">
+                    <div class="bottom_a" style="background-color: ${lpColor}">
                         <font style="vertical-align: inherit;">
                             <font style="vertical-align: inherit;">
                                 <button type="button"  onclick="yan();" style="border:none; background:none;width:100%;color:#fff;

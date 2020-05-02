@@ -58,4 +58,40 @@ public class WechatAccountConfig {
     private Map<String,String> templateId;
 
 
+
+
+    /**
+     * 商户号-北部万科城
+     */
+    private String mchIdOne;
+
+    /**
+     * 商户密钥-北部万科城
+     */
+    private String mchKeyOne;
+
+    /**
+     * 商户证书路径-北部万科城
+     */
+    private String keyPathOne;
+
+
+
+    /**
+     * 商户号-xx
+     */
+    private String mchIdTwo;
+
+    /**
+     * 商户密钥-xx
+     */
+    private String mchKeyTwo;
+
+    /**
+     * 商户证书路径-xx
+     */
+    private String keyPathTwo;
+
+
+
 }

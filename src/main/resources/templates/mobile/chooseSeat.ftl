@@ -75,8 +75,9 @@
             <input type="hidden" id="num" name="num">
             <input type="hidden" name="uid"  value="${uid}">
             <input type="hidden" name="routeStation"  value="${routeStation}">
+            <input type="hidden" name="lp"  value="${lp}">
 
-            <div class="bottom_a">
+            <div class="bottom_a" style="background-color: ${lpColor}">
                 <font style="vertical-align: inherit;">
                     <font style="vertical-align: inherit;">
                         <button type="button"  onclick="yan();" style="border:none; background:none;width:100%;color:#fff;

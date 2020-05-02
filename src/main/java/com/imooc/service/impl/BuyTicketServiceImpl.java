@@ -4,6 +4,7 @@ import com.imooc.config.ProjectUrlConfig;
 import com.imooc.config.SimpleSMSSender;
 import com.imooc.config.WechatAccountConfig;
 import com.imooc.dataobject.*;
+import com.imooc.enums.LouPanEnum;
 import com.imooc.exception.BusinessException;
 import com.imooc.exception.SellException;
 import com.imooc.repository.*;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -66,7 +68,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     //联系电话
     private static String ORDER_link_TEL = "13922253183"; //
 
-    private static String ORDER_WELCOME = "请提前至少10分钟排队等候上车";//二维码图片路径
+    private static String ORDER_WELCOME = "请提前至少10分钟排队等候上车";
 
     @Autowired
     private ProjectUrlConfig projectUrlConfig;
@@ -98,6 +100,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     @Autowired
     private MonthTicketUserRepository monthTicketUserRepository;
+
+    @Autowired
+    private MonthTicketUserLogRepository monthTicketUserLogRepository;
 
 
     @Autowired
@@ -149,10 +154,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     //买票
     @Override
-    public Map<String,Object>  findAll() {
+    public Map<String,Object>  findAll(String lp) {
         Map<String,Object> map = new HashMap();
 
-        List<Object[]> plList = repository.getRouteInfo();
+        List<Object[]> plList = repository.getRouteInfo(lp);
         List<RouteDO> plist = new ArrayList();
         RouteDO cds ;
         for (Object[] obj: plList ) {
@@ -186,9 +191,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     //补票
     @Override
-    public Map<String,Object>  bupiao() {
+    public Map<String,Object>  bupiao(String lp) {
         Map<String,Object> map = new HashMap();
-        List<Object[]> plList = repository.getRouteInfo();
+        List<Object[]> plList = repository.getRouteInfo(lp);
 
         List<RouteDO> list = new ArrayList();
         RouteDO cds ;
@@ -206,12 +211,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
 
-    @Override
-    synchronized
-    public Map<String,Object> addOrder(String route,String time, String moment,
-                                       String seat,String num,String uid,String routeStation) {
 
-
+    private void checkSaleTime(String time, String moment){
         List<Object[]> paramslist = repository.getDayTimeFlag();
         int days = Integer.parseInt(paramslist.get(0)[0].toString()); //天数
         String buybeforeticket1 = paramslist.get(0)[5].toString(); //可购买几点前的票(1)
@@ -228,70 +229,111 @@ public class BuyTicketServiceImpl implements BuyTicketService {
                 throw new BusinessException("500","尚未到达售票时间！");
             }
         }
+    }
 
 
+    private List<Object[]> getSeatList(String route,String time, String moment, String seat,String uid){
+        String seatNames [] = seat.split(",");
+        List<Object[]> seatlist = repository.listSeatOder(route,time,moment,seatNames);
+        if (ComUtil.isEmpty(seatlist)){
+            throw new BusinessException("500","至少购买1张车票！");
+        }
 
+        for (int j = 0; j < seatlist.size(); j++) {
+            if(seatlist.get(j)[2] != null){
+                log.info(seatlist.get(j)[1]+"已被预定！");
+                throw new BusinessException("500", seatlist.get(j)[1]+"已被其他人预定！");
+            }
+        }
 
         List<BigDecimal> numlist = repository.getBuyCarNum(route,time,moment,uid);
-        BigDecimal carnum = new BigDecimal(num);
-        if (!ComUtil.isEmpty(numlist)&&numlist.size()>0 && !ComUtil.isEmpty(numlist.get(0))){
-            carnum = numlist.get(0).add(carnum);
+        BigDecimal cartotal = new BigDecimal(seatlist.size());
+        if (!ComUtil.isEmpty(numlist) && !ComUtil.isEmpty(numlist.get(0))){
+            cartotal = numlist.get(0).add(cartotal);
         }
-        if (carnum.intValue()>4){
+        if (cartotal.intValue()>4){
             throw new BusinessException("500","同一班车最多购买或预定4张车票！");
         }
 
+        return seatlist;
+    }
 
-        String seatNames [] = seat.split(",");
-        List<Object[]> seatlist = repository.listSeatOder(route,time,moment,seatNames);
-        if (!ComUtil.isEmpty(seatlist)){
-            for (int j = 0;  j < seatlist.size(); j++) {
-                if(seatlist.get(j)[2] != null){
-                    log.info(seatlist.get(j)[1]+"已被预定！");
-                    throw new BusinessException("500", seatlist.get(j)[1]+"已被其他人预定！");
-                }
-            }
+
+    private Date getLockTime(){
+        List<Object[]> list = repository.getDayTimeFlag();
+        int orderlock = Integer.parseInt(list.get(0)[2].toString());
+        return DateTimeUtil.addMinutes(new Date(), orderlock);
+    }
+
+
+    private void getOrderInfo(SeatOrderDO so){
+        List<Object[]> objs = repository.getPlanPrice(String.valueOf(so.getRouteId()),
+                so.getBizDate(), so.getBizTime());
+        if (ComUtil.isEmpty(objs) || objs.get(0) == null){
+            throw new SellException(500,"网络加载失败，请重新操作！");
         }
+        so.setFromStation(objs.get(0)[0].toString()); //出发站
+        so.setToStation(objs.get(0)[1].toString()); //到达站
+        so.setPrice(new BigDecimal(objs.get(0)[2].toString())); //价格
+        so.setPlanId(new Long(objs.get(0)[3].toString())); //公式id
+        so.setLp(objs.get(0)[4].toString());
+        so.setAmout(so.getPrice().multiply(so.getNum()));
+
+        so.setState(ORDER_STATE_0);//待付款
+        so.setRemark("");
+        so.setCreateTime(new Date());
+        so.setUpdateTime(getLockTime());//锁定2分钟
+        so.setOrderNo(KeyUtil.genUniqueKey());
+
+        getOrderUserInfo(so); //设置创建人信息
+
+    }
+
+
+    private void getOrderUserInfo(SeatOrderDO so){
+        SellerInfo sellerInfo = userRepository.findOne(so.getCreateUser());
+        so.setUserName(sellerInfo.getName());
+        so.setUserMobile(sellerInfo.getMobile());
+    }
+
+
+    private BigDecimal getMonthUserNum(SeatOrderDO so){
+        MonthTicketUserDO mtu =
+                monthTicketUserRepository.findByCreateUserAndMonthAndRemarkAndLp(so.getCreateUser(),
+                        so.getBizDate().substring(0,7), MONTH_STATE_1,so.getLp());
+        BigDecimal sysl = new BigDecimal(0);
+        if(!ComUtil.isEmpty(mtu)){
+            sysl = mtu.getTotalNum().subtract(mtu.getUseNum());
+        }
+        return sysl;
+    }
+
+    @Override
+    synchronized
+    public Map<String,Object> addOrder(String route,String time, String moment,
+                                       String seat,String num111,String uid,String routeStation) {
+
+        checkSaleTime(time, moment); //验证购票时间
+
+        List<Object[]> seatlist = getSeatList(route, time, moment, seat, uid); //验证购票座位以及数量
 
         SeatOrderDO so = new SeatOrderDO();
         so.setBizDate(time);
         so.setBizTime(moment);
         so.setRouteId(new Long(route));
-        so.setNum(new BigDecimal(num));
-        so.setCreateTime(new Date());
-
+        so.setNum(new BigDecimal(seatlist.size()));
         so.setRouteStation(routeStation);//上车点
-
-        List<Object[]> list = repository.getDayTimeFlag();
-        int orderlock = Integer.parseInt(list.get(0)[2].toString());
-        so.setUpdateTime(DateTimeUtil.addMinutes(new Date(),orderlock));//锁定2分钟
         so.setInfo(seat);
-        so.setState(ORDER_STATE_0);//待付款
-        so.setRemark("");
-
-        List<Object[]> objs = repository.getPlanPrice(route,so.getBizDate(),so.getBizTime());
-        if (ComUtil.isEmpty(objs)||objs.size()<1||objs.get(0)==null){
-            throw new SellException(500,"网络加载失败，请重新操作！");
-        }
-        if (!ComUtil.isEmpty(objs) && objs.size()>0) {
-            so.setFromStation(objs.get(0)[0].toString());
-            so.setToStation(objs.get(0)[1].toString());
-            so.setPrice(new BigDecimal(objs.get(0)[2].toString()));
-            so.setPlanId(new Long(objs.get(0)[3].toString())); //公式id
-        }
-        so.setAmout(so.getPrice().multiply(so.getNum()));
         so.setCreateUser(uid); //创建人
 
-        SellerInfo sellerInfo = userRepository.findOne(uid);
+        getOrderInfo(so); //设置订单基础信息
 
-        so.setUserName(sellerInfo.getName());
-        so.setUserMobile(sellerInfo.getMobile());
-        so.setOrderNo(KeyUtil.genUniqueKey());
+
 
         try {
 
             so = seatOrderRepository.save(so);
-            log.info("order----->id:"+so.getId());
+            log.info("order----->id:" + so.getId());
             for (int j = 0;  j < seatlist.size(); j++) {
                 if(seatlist.get(j)[0] != null){
                     SeatOrderItemDO sod = new SeatOrderItemDO();
@@ -306,18 +348,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         Map map = new HashMap();
         log.info("----------确认订单界面id值----------------"+so.getId());
-        map.put("sod",so);
-        map.put("createTime",DateTimeUtil.formatDateTimetoString(so.getCreateTime(),"yyy-MM-dd HH:mm:ss"));
-        map.put("orderNewId",String.valueOf(so.getId()));
-        MonthTicketUserDO mtu =
-                monthTicketUserRepository.findByCreateUserAndMonthAndRemark(uid,time.substring(0,7),MONTH_STATE_1);
-        if(ComUtil.isEmpty(mtu)){
-            map.put("sysl","0");
-        }else {
-            map.put("sysl",mtu.getTotalNum().subtract(mtu.getUseNum()).toString());
-        }
+        map.put("sod", so);
+        map.put("createTime", DateTimeUtil.formatDateTimetoString(so.getCreateTime(),"yyy-MM-dd HH:mm:ss"));
+        map.put("orderNewId", String.valueOf(so.getId()));
 
-
+        map.put("sysl", String.valueOf(getMonthUserNum(so))); //月票剩余数
 
         repository.addOrderLogs(so.getOrderNo(),so.getBizDate(),so.getBizTime(),so.getPlanId(),so.getInfo()
                 ,so.getPrice(),so.getNum(),so.getAmout(),so.getCreateTime(),so.getUpdateTime()
@@ -348,48 +383,21 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         so.setBizTime(moment);
         so.setRouteId(new Long(route));
         so.setNum(new BigDecimal(1));
-        so.setCreateTime(new Date());
-
-        List<Object[]> list = repository.getDayTimeFlag();
-        int orderlock = Integer.parseInt(list.get(0)[2].toString());
-
-        so.setUpdateTime(DateTimeUtil.addMinutes(new Date(),orderlock));//锁定2分钟(补票)
-        so.setState(ORDER_STATE_0);//待付款(补票)
-        so.setRemark("");
+        so.setCreateUser(uid); //创建人
         so.setInfo("补票");
 
-        List<Object[]> objs = repository.getPlanPrice(route,so.getBizDate(),so.getBizTime());
-        if (ComUtil.isEmpty(objs)||objs.size()<1||objs.get(0)==null){
-            throw new SellException(500,"网络加载失败，请重新操作！");
-        }
+        getOrderInfo(so);  //设置订单基础信息
 
-        if (!ComUtil.isEmpty(objs) && objs.size()>0) {
-            so.setFromStation(objs.get(0)[0].toString());
-            so.setToStation(objs.get(0)[1].toString());
-            so.setPrice(new BigDecimal(objs.get(0)[2].toString()));
-            so.setPlanId(new Long(objs.get(0)[3].toString())); //公式id
-        }
-        so.setAmout(so.getPrice().multiply(so.getNum()));
-        so.setCreateUser(uid); //创建人
-        SellerInfo sellerInfo = userRepository.findOne(uid);
-        so.setUserName(sellerInfo.getName());
-        so.setUserMobile(sellerInfo.getMobile());
-        so.setOrderNo(KeyUtil.genUniqueKey());
+
         so = seatOrderRepository.save(so);
+
         log.info("order--bupiao--->id:"+so.getId()+"-----"+so.getOrderNo());
         Map map = new HashMap();
         map.put("sod",so);
         map.put("orderNewId",so.getId().toString());
         map.put("createTime",DateTimeUtil.formatDateTimetoString(so.getCreateTime(),"yyy-MM-dd HH:mm:ss"));
 
-        MonthTicketUserDO mtu =
-                monthTicketUserRepository.findByCreateUserAndMonthAndRemark(uid,
-                        DateTimeUtil.getMonth(), MONTH_STATE_1);
-        if(ComUtil.isEmpty(mtu)){
-            map.put("sysl","0");
-        }else {
-            map.put("sysl",mtu.getTotalNum().subtract(mtu.getUseNum()).toString());
-        }
+        map.put("sysl", String.valueOf(getMonthUserNum(so))); //月票剩余数
         return map;
     }
 
@@ -481,6 +489,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         repository.deleteByOrdId(orderId);//删除order
     }
 
+
+
+
+
     //月票抵扣
     @Override
     public void updateYuepiaoOrder(String uid, String orderId) throws Exception{
@@ -492,36 +504,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             throw new SellException(500,"订单不存在或已超支付时间！");
         }
 
+        checkMonthTicket(sod); //月票检查和扣减
 
-        List<String> isMonth = repository.getIsMonthByOrder(orderId);
-        if (ComUtil.isEmpty(isMonth) || "0".equals(isMonth.get(0))){
-            throw new SellException(500,"此班次不支持月票抵扣！");
-        }
-
-
-
-
-        List<BigDecimal> numlist = repository.getBuyMonthNum(uid,sod.getBizDate(),sod.getBizTime(),sod.getPlanId());
-        BigDecimal yuepnum = sod.getNum();
-        if (!ComUtil.isEmpty(numlist)&&numlist.size()>0 && !ComUtil.isEmpty(numlist.get(0))){
-            yuepnum = numlist.get(0).add(yuepnum);
-        }
-        if (yuepnum.intValue()>4){
-            throw new SellException(500,"同一班车月票最多只能抵扣4张！");
-        }
-
-        MonthTicketUserDO mtu =
-                monthTicketUserRepository.findByCreateUserAndMonthAndRemark(uid,sod.getBizDate().substring(0,7),MONTH_STATE_1);
-        BigDecimal sy = mtu.getTotalNum().subtract(mtu.getUseNum()).subtract(sod.getNum());
-        if (sy.doubleValue()<0){
-            throw new SellException(500,"月票不足！");
-        }
-        if (sod.getNum().doubleValue()<1){
-            throw new SellException(500,"非法订单！");
-        }
-
-        mtu.setUseNum(mtu.getUseNum().add(sod.getNum()));
-        monthTicketUserRepository.save(mtu);
         sod.setState(ORDER_STATE_1);
         sod.setRemark("月票抵扣");
         sod.setCkstate(0);//未验票
@@ -543,7 +527,39 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
 
+    private void checkMonthTicket(SeatOrderDO sod){
 
+        List<String> isMonth = repository.getIsMonthByOrder(String.valueOf(sod.getId()));
+        if (ComUtil.isEmpty(isMonth) || "0".equals(isMonth.get(0))){
+            throw new SellException(500,"此班次不支持月票抵扣！");
+        }
+
+
+        List<BigDecimal> numlist = repository.getBuyMonthNum(sod.getCreateUser(),
+                sod.getBizDate(),sod.getBizTime(),sod.getPlanId());
+        BigDecimal yuepnum = sod.getNum();
+        if (!ComUtil.isEmpty(numlist)&&numlist.size()>0 && !ComUtil.isEmpty(numlist.get(0))){
+            yuepnum = numlist.get(0).add(yuepnum);
+        }
+        if (yuepnum.intValue()>4){
+            throw new SellException(500,"同一班车月票最多只能抵扣4张！");
+        }
+
+        //获取月票信息
+        MonthTicketUserDO mtu =
+                monthTicketUserRepository.findByCreateUserAndMonthAndRemarkAndLp(sod.getCreateUser(),
+                        sod.getBizDate().substring(0,7),MONTH_STATE_1,sod.getLp());
+        BigDecimal sy = mtu.getTotalNum().subtract(mtu.getUseNum()).subtract(sod.getNum());
+        if (sy.doubleValue()<0){
+            throw new SellException(500, "月票不足！");
+        }
+        if (sod.getNum().doubleValue()<1){
+            throw new SellException(500, "非法订单！");
+        }
+
+        mtu.setUseNum(mtu.getUseNum().add(sod.getNum()));
+        monthTicketUserRepository.save(mtu);
+    }
 
 
     @Override
@@ -575,12 +591,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         log.info("【微信支666付请求】发起支付，request={}", JsonUtil.toJson(payRequest));
         wxPayConfig.setNotifyUrl(projectUrlConfig.getWechatMpAuthorize() + NotifyUrl);
-        bestPayService.setWxPayConfig(wxPayConfig);
-
+        getPayMchKey(sod.getLp()); //设置支付方式
         PayResponse payResponse = bestPayService.pay(payRequest);
         log.info("【微信支付返回】发起支付，response={}", JsonUtil.toJson(payResponse));
-
-
 
         map.put("payResponse",payResponse); //支付信息
         map.put("sod",sod);
@@ -588,6 +601,20 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         return map;
     }
+
+    private void getPayMchKey(String lp){
+        if (LouPanEnum.BEIBUWANKE.getCode().equals(lp)){
+            wxPayConfig.setMchId(accountConfig.getMchIdOne());
+            wxPayConfig.setMchKey(accountConfig.getMchKeyOne());
+            wxPayConfig.setKeyPath(accountConfig.getKeyPathOne());
+        } else if (LouPanEnum.XINGFUYU.getCode().equals(lp)){
+            wxPayConfig.setMchId(accountConfig.getMchId());
+            wxPayConfig.setMchKey(accountConfig.getMchKey());
+            wxPayConfig.setKeyPath(accountConfig.getKeyPath());
+        }
+        bestPayService.setWxPayConfig(wxPayConfig);
+    }
+
 
 
     @Override
@@ -717,70 +744,99 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
     @Override
-    public Map<String, Object> buyTicket() {
+    public Map<String, Object> buyTicket(String lp) throws ParseException{
 
-        MonthTicketDO mtd = monthTicketRepository.findByState(1);
+        List<MonthTicketDO> mtdlist = monthTicketRepository.findByStateAndLp(1, lp);
+        Map<String,Object> map = new HashMap();
+        map.put("mtdlist", mtdlist);
 
-//        SellerInfo sellerInfo = userRepository.findOne(uid);
+        getMonthInfo(map); //设置和计算当前的的月份信息
 
-
-        Map map = new HashMap();
-        map.put("mtd",mtd);
         return map;
     }
 
 
+    //设置和计算当前的的月份信息
+    private void getMonthInfo(Map<String,Object> map) throws ParseException {
+        List<Object[]> list = repository.getDayTimeFlag();
+        int monthticketdays = Integer.parseInt(list.get(0)[3].toString());
 
+        Date lastDate = DateTimeUtil.getMonthOfLastDayDate(0);
+        int subDay = DateTimeUtil.daysBetween(new Date(), lastDate);
+
+        if(subDay < monthticketdays){
+            map.put("month_name", DateTimeUtil.getMonthDay(3)+"～"+DateTimeUtil.getMonthDay(4));
+            map.put("month_val", DateTimeUtil.getMonthDay(6));
+        } else {
+            map.put("month_name", DateTimeUtil.getMonthDay(1)+"～"+DateTimeUtil.getMonthDay(2));
+            map.put("month_val", DateTimeUtil.getMonthDay(5));
+        }
+    }
 
     @Override
     public Map<String, Object> payMonthTick(String id, String uid,String month_val) {
 
-        MonthTicketUserDO mtud =
-                monthTicketUserRepository.findByCreateUserAndMonth(uid,month_val);
-        if (!ComUtil.isEmpty(mtud)&&"1".equals(mtud.getRemark())){
-            throw new BusinessException("500","月票不可重复购买！");
-        }
+//        MonthTicketUserDO mtud =
+//                monthTicketUserRepository.findByCreateUserAndMonth(uid,month_val);
+//        if (!ComUtil.isEmpty(mtud) && "1".equals(mtud.getRemark())){
+//            //叠加月票数量
+//            throw new BusinessException("500","月票不可重复购买！");
+//        }
+//
+//        if (ComUtil.isEmpty(mtud)){
+//            mtud = new MonthTicketUserDO();
+//            mtud.setCreateTime(new Date());
+//        }
+
+
         MonthTicketDO mtd = monthTicketRepository.findById(new Long(id));
-        if (ComUtil.isEmpty(mtud)){
-            mtud = new MonthTicketUserDO();
-            mtud.setCreateTime(new Date());
+
+        MonthTicketUserLogDO mtudlog = monthTicketUserLogRepository.findByCreateUserAndMonthAndRemarkAndLp(uid
+                ,month_val,MONTH_STATE_0,mtd.getLp());
+        if (ComUtil.isEmpty(mtudlog)){
+            mtudlog = new MonthTicketUserLogDO();
         }
-        mtud.setCreateUser(uid);
-        mtud.setMonth(month_val);
-        mtud.setPtypeId(mtd.getId());
-        mtud.setPrice(mtd.getPrice());
-        mtud.setTotalNum(mtd.getTotalNum());
-        mtud.setUseNum(new BigDecimal(0));
-        mtud.setUpdateTime(new Date());
-        mtud.setPtypeName(mtd.getPtypeName());
-        mtud.setRemark(MONTH_STATE_0);
-        mtud.setOrderNo(KeyUtil.genUniqueKey());
-        monthTicketUserRepository.save(mtud);
+        mtudlog.setCreateUser(uid);
+        mtudlog.setMonth(month_val);
+        mtudlog.setPtypeId(mtd.getId());
+        mtudlog.setPrice(mtd.getPrice());
+        mtudlog.setTotalNum(mtd.getTotalNum());
+        mtudlog.setPtypeName(mtd.getPtypeName());
+        mtudlog.setLp(mtd.getLp()); //楼盘
+
+        mtudlog.setCreateTime(new Date());
+        mtudlog.setUseNum(new BigDecimal(0));
+        mtudlog.setUpdateTime(new Date());
+        mtudlog.setRemark(MONTH_STATE_0);
+        mtudlog.setOrderNo(KeyUtil.genUniqueKey());
+        monthTicketUserLogRepository.save(mtudlog);
 
         SellerInfo sellerInfo = userRepository.findOne(uid);
         //初始化支付
         PayRequest payRequest = new PayRequest();
 
         payRequest.setOpenid(sellerInfo.getOpenid());
-        log.info("" + mtd.getPrice());
-        payRequest.setOrderAmount(mtud.getPrice().doubleValue());
-        payRequest.setOrderId(mtud.getOrderNo());
-        payRequest.setOrderName(mtud.getOrderNo());
+        log.info("" + mtudlog.getPrice());
+        payRequest.setOrderAmount(mtudlog.getPrice().doubleValue());
+        payRequest.setOrderId(mtudlog.getOrderNo());
+        payRequest.setOrderName(mtudlog.getOrderNo());
         payRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_MP);
         log.info("【月票-微信支付请求】发起支付，request={}", JsonUtil.toJson(payRequest));
 
         //设置月票回调URL
         wxPayConfig.setNotifyUrl(projectUrlConfig.getWechatMpAuthorize()+MONTH_NotifyUrl);
-        bestPayService.setWxPayConfig(wxPayConfig);
-
+        getPayMchKey(mtd.getLp());
         PayResponse payResponse=bestPayService.pay(payRequest);
         log.info("【月票-微信支付返回】发起支付，response={}",JsonUtil.toJson(payResponse));
 
         Map map = new HashMap();
-        map.put("payResponse",payResponse); //支付信息
-        map.put("mtu",mtud);
+        map.put("payResponse", payResponse); //支付信息
+        map.put("mtu",mtudlog);
         return map;
     }
+
+
+
 
 
     @Override
@@ -883,6 +939,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(orderId),ORDER_STATE_1,uid);
         map.put("createTime",DateTimeUtil.formatDateTimetoString(sod.getCreateTime(),"yyy-MM-dd HH:mm:ss"));
         map.put("sod",sod);
+
         return map;
     }
 
@@ -899,35 +956,63 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
 
-        //查询订单
-        MonthTicketUserDO mtu =
-                monthTicketUserRepository.findByOrderNoAndRemark(payResponse.getOrderId(),MONTH_STATE_0);
-
-        //判断订单是否存在
-        if(mtu == null){
-
-            repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_2);//退款
-
+        MonthTicketUserLogDO logDO =
+                monthTicketUserLogRepository.findByOrderNoAndRemark(payResponse.getOrderId(), MONTH_STATE_0);
+        if(logDO == null){
+            repository.addPayLogs(payResponse.getOrderId(),
+                    new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_2);//退款
             log.error("【月票微信支付】 异步通知，订单不存在，orderId={}",payResponse.getOrderId());
             return payResponse;
-            //throw new SellException(ResultEnum.ORDER_NOT_EXIST);
         }
+
         //判断金额是否一致(0.10   0.1)
-        log.info(payResponse.getOrderAmount().toString()+"-----月票判断金额是否一致--------"+mtu.getPrice().toString());
-        if(!MathUtil.equals(payResponse.getOrderAmount(),mtu.getPrice().doubleValue())){
+        log.info(payResponse.getOrderAmount().toString()+"-----月票判断金额是否一致--------"+logDO.getPrice().toString());
+        if(!MathUtil.equals(payResponse.getOrderAmount(), logDO.getPrice().doubleValue())){
             repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_3);//退款
 
             log.error("【月票微信支付】 异步通知，订单金额不一致，orderId={},微信通知金额={}，系统金额={}",
                     payResponse.getOrderId(),
                     payResponse.getOrderAmount(),
-                    mtu.getPrice());
-            //throw new SellException(ResultEnum.WXPAY_NOTIFY_MONEY_VERIFY);
+                    logDO.getPrice());
             return payResponse;
         }
 
 
-        //修改订单的支付状态
-        mtu.setRemark(MONTH_STATE_1);
+        //查询月票订单
+        MonthTicketUserDO mtu =
+                monthTicketUserRepository.findByCreateUserAndMonthAndRemarkAndLp(logDO.getCreateUser(),
+                        logDO.getMonth(), MONTH_STATE_1, logDO.getLp());
+        //判断订单是否存在
+        if(mtu == null){
+            mtu = new MonthTicketUserDO();
+
+            mtu.setCreateUser(logDO.getCreateUser());
+            mtu.setMonth(logDO.getMonth());
+            mtu.setPtypeId(logDO.getId());
+            mtu.setPrice(logDO.getPrice());
+            mtu.setTotalNum(logDO.getTotalNum());
+            mtu.setLp(logDO.getLp()); //楼盘
+            mtu.setPtypeName("月票");
+            if (LouPanEnum.XINGFUYU.getCode().equals(mtu.getLp())){
+                mtu.setPtypeName(mtu.getPtypeName() + "("+LouPanEnum.XINGFUYU.getMessage()+")");
+            } else if (LouPanEnum.BEIBUWANKE.getCode().equals(mtu.getLp())){
+                mtu.setPtypeName(mtu.getPtypeName() + "("+LouPanEnum.BEIBUWANKE.getMessage()+")");
+            }
+            mtu.setCreateTime(new Date());
+            mtu.setUpdateTime(new Date());
+            mtu.setUseNum(new BigDecimal(0));
+            mtu.setRemark(MONTH_STATE_1);
+            mtu.setOrderNo(KeyUtil.genUniqueKey());
+
+        } else {
+            //如果存在,叠加次数
+            mtu.setPrice(mtu.getPrice().add(logDO.getPrice()));
+            mtu.setTotalNum(mtu.getTotalNum().add(logDO.getTotalNum()));
+            mtu.setUpdateTime(new Date());
+        }
+
+
+        //保存月票订单
         monthTicketUserRepository.save(mtu);
         SellerInfo sellerInfo = userRepository.findOne(mtu.getCreateUser());
 
@@ -1015,13 +1100,68 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
 
-
-
-
-
-
-
     }
+
+
+
+
+
+
+
+    @Override
+    public Map<String, Object> payOrder2(String orderId, String uid) {
+//        SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(orderId),0, uid);
+//
+//        if (sod== null){
+//            throw new SellException(501,"订单不存在或已超支付时间！");
+//        }
+//        double ttime1 =DateTimeUtil.getSecondsOfTwoDate(sod.getUpdateTime(),new Date()) ;
+//        if (ttime1<0){
+//            throw new SellException(501,"订单不存在或已超支付时间！");
+//        }
+//
+        SellerInfo sellerInfo = userRepository.findOne(uid);
+        Map map = new HashMap();
+
+        String str = System.currentTimeMillis()+"";
+
+        //初始化支付
+        PayRequest payRequest = new PayRequest();
+        payRequest.setOpenid(sellerInfo.getOpenid());
+//        log.info("" + sod.getAmout().doubleValue());
+        payRequest.setOrderAmount(0.01);
+        payRequest.setOrderId(str);
+        payRequest.setOrderName(str);
+        payRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_MP);
+
+
+        log.info("【微信支9999付请求】发起支付，request={}", JsonUtil.toJson(payRequest));
+        wxPayConfig.setNotifyUrl(projectUrlConfig.getWechatMpAuthorize() + NotifyUrl);
+        wxPayConfig.setMchId("1522031501");
+        wxPayConfig.setMchKey("cee97db711fe2ee8e5306a3a55f89ffc");
+        bestPayService.setWxPayConfig(wxPayConfig);
+
+        PayResponse payResponse = bestPayService.pay(payRequest);
+        log.info("【微信支付返回】发起支付，response={}", JsonUtil.toJson(payResponse));
+
+
+
+        map.put("payResponse",payResponse); //支付信息
+//        map.put("sod",sod);
+//        map.put("orderNo",sod.getOrderNo());
+
+        return map;
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 

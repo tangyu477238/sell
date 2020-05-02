@@ -61,8 +61,8 @@
     <table style="width:100%" class="altrowstable" id="alternatecolor">
         <thead class="evenrowcolor">
             <th style="width:25%;">乘车日期/时间</th>
-            <th style="width:25%;">出发/到达</th>
-            <th style="width:30%;">座位</th>
+            <th style="width:30%;">出发/到达</th>
+            <th style="width:25%;">座位</th>
             <th style="width:20%;">详情</th>
         </thead>
         <tbody>

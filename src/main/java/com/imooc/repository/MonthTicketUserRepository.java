@@ -11,11 +11,11 @@ import java.util.List;
 public interface MonthTicketUserRepository extends JpaRepository<MonthTicketUserDO,Integer> {
 
 
-    MonthTicketUserDO findByCreateUserAndMonthAndRemark(String uid,String month,String remark);
+//    MonthTicketUserDO findByCreateUserAndMonthAndRemark(String uid,String month,String remark);
 
     List<MonthTicketUserDO> findByCreateUserAndRemarkOrderByIdDesc(String uid,String remark);
 
-    MonthTicketUserDO findByCreateUserAndMonth(String uid,String month);
+    MonthTicketUserDO findByCreateUserAndMonthAndRemarkAndLp(String uid,String month,String remark, String lp);
 
     MonthTicketUserDO findByOrderNoAndRemark(String orderNo,String remark);
 }

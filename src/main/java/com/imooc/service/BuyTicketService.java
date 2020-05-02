@@ -6,6 +6,7 @@ import com.imooc.dto.OrderDTO;
 import com.lly835.bestpay.model.PayResponse;
 import com.lly835.bestpay.model.RefundResponse;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +20,9 @@ public interface BuyTicketService {
     Map<String,Object> delVerify(String mobile);
 
 
-    Map<String,Object>  findAll();
+    Map<String,Object>  findAll(String lp);
 
-    Map<String,Object>  bupiao();
+    Map<String,Object>  bupiao(String lp);
 
     Map<String,Object>  listSeatDetail(String route,String time, String moment);
 
@@ -35,7 +36,7 @@ public interface BuyTicketService {
 
     PayResponse notifyMonth(String notifyData);
 
-    Map<String, Object> buyTicket();
+    Map<String, Object> buyTicket(String lp) throws ParseException;
 
     Map<String, Object> payMonthTick(String id, String uid,String month_val);
 
@@ -58,4 +59,7 @@ public interface BuyTicketService {
     RefundResponse refund(String orderNO,double amount);
 
     void delOrderByTimeOut();
+
+    ////test
+    Map<String,Object> payOrder2(String orderId, String uid);
 }

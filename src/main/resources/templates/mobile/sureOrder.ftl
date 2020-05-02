@@ -144,6 +144,7 @@
     -->
 <form name="form" action="" onsubmit="yan(this)" method="get">
     <input type="hidden" id = "uid" name="uid"  value="${uid}">
+    <input type="hidden" id = "lp" name="lp"  value="${lp}">
     <input type="hidden" id = "orderId" name="orderId"  value="${orderNewId}">
     <input type="hidden" id = "sysl" name="sysl"  value="${sysl}">
     <input type="hidden" id = "num" name="num"  value="${sod.num}">
@@ -152,7 +153,7 @@
 </form>
 <div class="content">
     <div class="main">
-        <div class="main_header">
+        <div class="main_header"  style="background-color: ${lpColor}">
             <span style="float:left; margin-left:10px;">${sod.fromStation}</span>
             <img src="/sell/img/carlogo.png">
             <span style="float:right;margin-right:10px;">${sod.toStation}</span>
@@ -210,15 +211,15 @@
                 <td>
                     <a style="font-size:12pt; background:none; border:none; color:#fff; width:100%; height:100%;"
                        href="javascript:location.href='/sell/ticket/payOrder?orderId=${orderNewId}&uid=${uid}'">
-                        <div class="zhifu">微信支付</div>
+                        <div class="zhifu" style="background-color: ${lpColor}">微信支付</div>
                     </a>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <a style="font-size:12pt; background:none; border:none; color:#fff; width:100%; height:100%;"
+                    <a style=" font-size:12pt; background:none; border:none; color:#fff; width:100%; height:100%;"
                        href="javascript:jfzf();">
-                        <div class="zhifu">月票抵扣(${sysl})</div>
+                        <div class="zhifu" style="background-color: ${lpColor}">月票抵扣(${sysl})</div>
                     </a>
                 </td>
             </tr>

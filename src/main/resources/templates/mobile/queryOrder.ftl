@@ -122,7 +122,7 @@
             <img src="${qrcode}" style="height: 20em;">
         </div>
 
-        <div class="main_header">
+        <div class="main_header" style="background-color: ${lpColor}">
             <span style="float:left; margin-left:10px;font-size: 26px;">${sod.fromStation}</span>
             <img src="/sell/img/carlogo.png">
             <span style="float:right;margin-right:10px;font-size: 26px;">${sod.toStation}</span>

@@ -23,6 +23,16 @@
     });
 
     function jianyan() {
+
+        var uid = $('#uid').val();
+
+        if(uid!='bdf9eb628f0b464dbefaaac694e680ab'
+            &&uid!='a365c62fd4c241f6a8b277ebd495c5d3'){
+            alert('系统维护');
+            return false;
+        }
+
+
         var r = $('#route').val();
         var y = $('#moment').val();
         if (y == '' || r == '') {
@@ -60,6 +70,8 @@
                 <input type="submit" name="submit"  style=" background:none; border:none; color:#fff; width:100%; height:100%;"
                        value="下一步">
             </div>
+
+
         </form>
     </div>
 </div>

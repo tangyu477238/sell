@@ -4,11 +4,16 @@ import com.imooc.VO.ResultVO;
 import com.imooc.config.ProjectUrlConfig;
 import com.imooc.dataobject.SeatOrderDO;
 import com.imooc.dataobject.SellerInfo;
+import com.imooc.enums.LouPanEnum;
 import com.imooc.repository.BuyTicketRepository;
 import com.imooc.repository.SellerInfoRepository;
 import com.imooc.service.BuyTicketService;
 import com.imooc.utils.DateTimeUtil;
+import com.imooc.utils.JsonUtil;
 import com.imooc.utils.ResultVOUtil;
+import com.lly835.bestpay.enums.BestPayTypeEnum;
+import com.lly835.bestpay.model.PayRequest;
+import com.lly835.bestpay.model.PayResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,31 +44,56 @@ public class BuyTicketController {
     @Autowired
     private ProjectUrlConfig projectUrlConfig;
 
+
+    private void setLpInfo(Map map, String lp){
+        map.put("lp", lp);
+        if (LouPanEnum.BEIBUWANKE.getCode().equals(lp)){
+            map.put("lpName", "北部万科城");
+            map.put("lpColor", "#2952f6");
+        } else if (LouPanEnum.XINGFUYU.getCode().equals(lp)){
+            map.put("lpName", "万科幸福誉");
+            map.put("lpColor", "#F66D22");
+        } else  {
+            map.put("lpName", "万科幸福誉");
+            map.put("lpColor", "#F66D22");
+        }
+    }
+
     //进入选线路
     @GetMapping("/ticket")
-    public ModelAndView ticketIndex(@RequestParam("uid") String uid,Map<String,Object> map){
+    public ModelAndView ticketIndex(@RequestParam("uid") String uid,
+                                    @RequestParam("lp") String lp,
+                                    Map<String,Object> map){
         log.info("进入TicketIndex方法......." + uid);
         SellerInfo sellerInfo = userRepository.findOne(uid);
-        map.put("uid",uid);
+        map.put("uid", uid);
         if(sellerInfo.getMobile() == null){
             return new ModelAndView("mobile/addUserInfo", map);
         }
-        map = buyTicketService.findAll();
+        map = buyTicketService.findAll(lp);
+        setLpInfo(map, lp);
         return new ModelAndView("mobile/index", map);
     }
 
     //进入补票
     @GetMapping("/bupiao")
-    public ModelAndView ticketBupiao(@RequestParam("uid") String uid, Map<String,Object> map){
+    public ModelAndView ticketBupiao(@RequestParam("uid") String uid,
+                                     @RequestParam("lp") String lp,
+                                     Map<String,Object> map){
         log.info("ticketBupiao......." + uid);
         map.put("uid",uid);
-//        SellerInfo sellerInfo = userRepository.findOne(uid);
-//        if(sellerInfo.getMobile() == null){
-//            return new ModelAndView("mobile/addUserInfo", map);
-//        }
-        map = buyTicketService.bupiao();
+        map = buyTicketService.bupiao(lp);
+        setLpInfo(map, lp);
         return new ModelAndView("mobile/bupiao", map);
     }
+
+
+
+
+
+
+
+
 
     //选择座位
     @GetMapping("/cseat")
@@ -71,22 +101,24 @@ public class BuyTicketController {
                                @RequestParam("time") String time,
                                @RequestParam("moment") String moment,
                                @RequestParam("routeStation") String routeStation,
-                               @RequestParam("uid") String uid){
+                               @RequestParam("uid") String uid,
+                               @RequestParam("lp") String lp){
         log.info("进入选座方法.......");
         log.info("----route-----" + route);
         log.info("----time-----" + time);
         log.info("----time-----" + moment);
 
-        Map<String,Object>  maplist = buyTicketService.listSeatDetail(route,time,moment);
-        if (maplist == null){
-            maplist = new HashMap<>();
-            maplist.put("uid",uid);
-            return new ModelAndView("mobile/orderFail",maplist);
+        Map<String,Object>  map = buyTicketService.listSeatDetail(route,time,moment);
+        if (map == null){
+            map = new HashMap<>();
+            map.put("uid",uid);
+            return new ModelAndView("mobile/orderFail",map);
         }
 
-        maplist.put("uid",uid);
-        maplist.put("routeStation",routeStation);
-        return new ModelAndView("mobile/chooseSeat",maplist);
+        map.put("uid",uid);
+        map.put("routeStation",routeStation);
+        setLpInfo(map, lp);
+        return new ModelAndView("mobile/chooseSeat", map);
 
     }
 
@@ -98,6 +130,7 @@ public class BuyTicketController {
                              @RequestParam("seat") String seat,
                              @RequestParam("num") String num,
                              @RequestParam("uid") String uid,
+                             @RequestParam("lp") String lp,
                              @RequestParam("routeStation") String routeStation,
                              Map<String,Object> map){
         log.info("-------------进入确认订单方法.......");
@@ -106,6 +139,7 @@ public class BuyTicketController {
 
         map.put("uid",uid);
         log.info("--------进入确认订单方法-----"+map.toString());
+        setLpInfo(map, lp);
         return new ModelAndView("mobile/sureOrder",map);
 
     }
@@ -140,6 +174,7 @@ public class BuyTicketController {
         SeatOrderDO sod =(SeatOrderDO) map.get("sod");
         map.put("uid",uid);
         map.put("qrcode",projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+ uid +"_"+sod.getId()+".jpg");
+        setLpInfo(map, sod.getLp());
         return new ModelAndView("mobile/queryOrder",map);
 
     }
@@ -158,6 +193,19 @@ public class BuyTicketController {
 
     }
 
+    //支付订单2
+    @GetMapping("/payOrder2")
+    public ModelAndView payOrder2(
+            @RequestParam("orderId") String orderId,
+            @RequestParam("uid") String uid,
+            Map<String,Object> map){
+
+        map = buyTicketService.payOrder2(orderId,uid);
+        map.put("uid",uid);
+        map.put("returnUrl","/sell/ticket/orderSuccess?orderNo=1569766491397130805");
+        return new ModelAndView("pay/create",map);
+
+    }
 
 
 
@@ -275,28 +323,18 @@ public class BuyTicketController {
 
     //进入购买月票
     @GetMapping("/buyTicket")
-    public ModelAndView buyTicket(@RequestParam("uid") String uid,Map<String,Object> map)  throws ParseException {
+    public ModelAndView buyTicket(@RequestParam("uid") String uid,
+                                  @RequestParam("lp") String lp,
+                                  Map<String,Object> map)  throws ParseException {
         log.info("进入buyTicket方法.......");
 
-        map = buyTicketService.buyTicket();
+        map = buyTicketService.buyTicket(lp);
         map.put("uid",uid);
 
-        List<Object[]> list = repository.getDayTimeFlag();
-        int monthticketdays = Integer.parseInt(list.get(0)[3].toString());
-
-        Date lastDate = DateTimeUtil.getMonthOfLastDayDate(0);
-        int subDay = DateTimeUtil.daysBetween(new Date(),lastDate);
-
-        if(subDay < monthticketdays){
-            map.put("month_name", DateTimeUtil.getMonthDay(3)+"～"+DateTimeUtil.getMonthDay(4));
-            map.put("month_val",DateTimeUtil.getMonthDay(6));
-        } else {
-            map.put("month_name", DateTimeUtil.getMonthDay(1)+"～"+DateTimeUtil.getMonthDay(2));
-            map.put("month_val",DateTimeUtil.getMonthDay(5));
-        }
-
-        return new ModelAndView("mobile/buyMonth",map);
+        setLpInfo(map, lp);
+        return new ModelAndView("mobile/buyMonth", map);
     }
+
 
 
     //我的订单列表/月票/次票

@@ -47,6 +47,8 @@ public class WxMenuController {
         return WxMpConfiguration.getMpServices().get(appid).getMenuService().menuCreate(menu);
     }
 
+
+
     //http://localhost:8080/wx/menu/wxa5b1eca9389268b9/create?appid=wxa5b1eca9389268b9
     @GetMapping("/create")
     public String menuCreateSample(@PathVariable String appid) throws WxErrorException, MalformedURLException {
@@ -54,8 +56,13 @@ public class WxMenuController {
 
         String buyStrurl = strurl+"/sell/wechat/authorize?returnUrl="+strurl+"/sell/seller/login";//购票
         String buyMonthTickUrl = strurl+"/sell/wechat/authorize?returnUrl="+strurl+"/sell/seller/buyMonthTicket";//月票充值
-        String queryMonthOrderUrl = strurl+"/sell/wechat/authorize?returnUrl="+strurl+"/sell/seller/queryMonthOrder";//查询订单
         String bupiaoUrl = strurl+"/sell/wechat/authorize?returnUrl="+strurl+"/sell/seller/bupiao";//补票
+        String queryMonthOrderUrl = strurl+"/sell/wechat/authorize?returnUrl="+strurl+"/sell/seller/queryMonthOrder";//查询订单
+
+        String wk_buyStrurl = strurl+"/sell/wechat/authorize?returnUrl="+strurl+"/sell/seller/wklogin";//万科
+        String wk_buyMonthTickUrl = strurl+"/sell/wechat/authorize?returnUrl="+strurl+"/sell/seller/wkbuyMonthTicket";//月票充值
+        String wk_bupiaoUrl = strurl+"/sell/wechat/authorize?returnUrl="+strurl+"/sell/seller/wkbupiao";//补票
+
         WxMenu menu = new WxMenu();
 //        WxMenuButton button1 = new WxMenuButton();
 //        button1.setType(MenuButtonType.CLICK);
@@ -71,14 +78,19 @@ public class WxMenuController {
 
 
         WxMenuButton button1 = new WxMenuButton();
-        button1.setType(MenuButtonType.VIEW);
-        button1.setName("我要订票");
-        button1.setUrl(buyStrurl);
-        log.info(buyStrurl);
+//        button1.setName("幸福誉购票");  ----记得打开
+
+        button1.setType(MenuButtonType.VIEW); //记得注释
+        button1.setName("我要订票"); //记得注释
+        button1.setUrl(buyStrurl); //记得注释
+        log.info(buyStrurl); //记得注释
+
 
 
         WxMenuButton button2 = new WxMenuButton();
-        button2.setName("月票或补票");
+//        button2.setName("万科城购票"); ----记得打开
+
+        button2.setName("月票/补票");
 
 
 
@@ -90,31 +102,37 @@ public class WxMenuController {
         menu.getButtons().add(button3);
 
 
-        WxMenuButton button21 = new WxMenuButton();
-        button21.setType(MenuButtonType.VIEW);
-        button21.setName("月票充值");
-        button21.setUrl(buyMonthTickUrl);
+        ////////////////////////我要订票/////////////////////////////////////
 
 
-        WxMenuButton button22 = new WxMenuButton();
-        button22.setType(MenuButtonType.VIEW);
-        button22.setName("我要补票");
-        button22.setUrl(bupiaoUrl);
-
-        button2.getSubButtons().add(button21);
-        button2.getSubButtons().add(button22);
+//        setMenuButton(button1, "订购车票", buyStrurl);  ----记得打开
+//        setMenuButton(button1, "月票充值", buyMonthTickUrl);  ----记得打开
+//        setMenuButton(button1, "我要补票", bupiaoUrl);  ----记得打开
 
 
 
+
+        ////////////////////月票或补票/////////////////////////////////////////
+//        setMenuButton(button2, "订购车票", wk_buyStrurl);  ----记得打开
+//        setMenuButton(button2, "月票充值", wk_buyMonthTickUrl);  ----记得打开
+//        setMenuButton(button2, "我要补票", wk_bupiaoUrl);  ----记得打开
+
+
+        setMenuButton(button2, "月票充值", buyMonthTickUrl);
+        setMenuButton(button2, "我要补票", bupiaoUrl);
+
+
+
+        ///////////////////////我的//////////////////////////////////////////
+
+        setMenuButton(button3, "我的订单", queryMonthOrderUrl);
+        setMenuButton(button3, "时刻表", strurl + "/sell/ticket/getskb");
+
+        /******
         WxMenuButton button31 = new WxMenuButton();
         button31.setType(MenuButtonType.VIEW);
         button31.setName("我的订单");
         button31.setUrl(queryMonthOrderUrl);
-
-//        WxMenuButton button32 = new WxMenuButton();
-//        button32.setType(MenuButtonType.VIEW);
-//        button32.setName("补票");
-//        button32.setUrl(bupiaoUrl);
 
 
         WxMenuButton button33 = new WxMenuButton();
@@ -144,9 +162,24 @@ public class WxMenuController {
         button3.getSubButtons().add(button33);
 //        button3.getSubButtons().add(button34);
 
+
+         ******/
+
+
         log.info("--------------创建菜单---------------");
         return WxMpConfiguration.getMpServices().get(appid).getMenuService().menuCreate(menu);
     }
+
+    private void setMenuButton(WxMenuButton button,String buttonName,String url){
+        WxMenuButton button11 = new WxMenuButton();
+        button11.setType(MenuButtonType.VIEW);
+        button11.setName(buttonName);
+        button11.setUrl(url);
+        button.getSubButtons().add(button11);
+    }
+
+
+
 
     /**
      * <pre>

@@ -79,6 +79,7 @@ public class SeatOrderDO implements Serializable {
 	private Integer ckstate;
 
 
-
+	//楼盘
+	private String lp;
 
 }

@@ -58,11 +58,11 @@
 			
 			var uid = $('#uid').val();
 
-            if(uid!='bdf9eb628f0b464dbefaaac694e680ab'
-                &&uid!='a365c62fd4c241f6a8b277ebd495c5d3'){
-				alert('系统维护');
-				return false;
-			}
+            // if(uid!='bdf9eb628f0b464dbefaaac694e680ab'
+            //     &&uid!='a365c62fd4c241f6a8b277ebd495c5d3'){
+			// 	alert('系统维护');
+			// 	return false;
+			// }
 		
             var r = $('#route').val();
             var t = $('#time').val();

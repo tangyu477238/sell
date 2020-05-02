@@ -146,7 +146,7 @@
     <img src="/sell/img/orderList-pic.gif">
 
     <form id = "form" name="form" action="/sell/ticket/payMonthTick"  method="post">
-        <input id="uid" ype="hidden" name="uid"  value="${uid}">
+        <input id="uid" type="hidden" name="uid"  value="${uid}">
         <input type="hidden" name="month_val"  value="${month_val}">
 
     <div class="orderList-tab">

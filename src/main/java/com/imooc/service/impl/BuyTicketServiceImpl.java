@@ -711,7 +711,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         return data;
     }
 
-    private List<WxMpTemplateData> getOrderMonthTemplateData(MonthTicketUserDO mtu ){
+    private List<WxMpTemplateData> getOrderMonthTemplateData(MonthTicketUserLogDO mtu ){
         //发送通知
         List<WxMpTemplateData> data= Arrays.asList(
                 new WxMpTemplateData("first","您好，您已成功购买"+mtu.getMonth()+"月卡。"),
@@ -1014,9 +1014,13 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         //保存月票订单
         monthTicketUserRepository.save(mtu);
+
+        logDO.setRemark(MONTH_STATE_1);
+        monthTicketUserLogRepository.save(logDO); //月票购买记录更新为已购买
+
         SellerInfo sellerInfo = userRepository.findOne(mtu.getCreateUser());
 
-        sendMessage(sellerInfo.getOpenid(),"orderMonthStatus",getOrderMonthTemplateData(mtu),
+        sendMessage(sellerInfo.getOpenid(),"orderMonthStatus",getOrderMonthTemplateData(logDO),
                 null);
         repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_1);//付款成功
         return payResponse;

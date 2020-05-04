@@ -23,7 +23,10 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 import net.minidev.json.JSONObject;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -57,12 +60,14 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
 
 
     @Autowired
-    private BuyTicketRepository repository;
+    private SeatOrderRepository seatOrderRepository;
 
     @Autowired
-    private SeatOrderRepository seatOrderRepository;
-    @Autowired
     private RouteRepository routeRepository;
+
+
+    @Autowired
+    private VerificationTicketRepository verificationTicketRepository;
 
 
     @Override
@@ -95,6 +100,17 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
         sod.setCkstate(1);//更新验票状态
         sod.setUpdateTime(new Date());
         seatOrderRepository.save(sod);//更新状态
+
+
+        //验票记录
+        VerificationTicketDO verificationTicketDO = new VerificationTicketDO();
+        BeanUtils.copyProperties(sod,verificationTicketDO);
+        verificationTicketDO.setId(null);
+        verificationTicketDO.setUpdateTime(new Date());
+        verificationTicketDO.setOrderId(sod.getId());
+        verificationTicketDO.setCreateUser("管理员");
+        verificationTicketRepository.save(verificationTicketDO);
+
         flag = sod.getNum().intValue();
         map.put("state",flag);//验票ok
         return map;
@@ -109,7 +125,19 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
     @Override
     public Map<String,Object> cktikcetYpjl(String routeId, String bizDate, String bizTime) {
         Map<String,Object> map = new HashMap<>();
-        List list = seatOrderRepository.findAll();
+
+        VerificationTicketDO seatOrderDO = new VerificationTicketDO();
+        seatOrderDO.setRouteId(Long.parseLong(routeId));
+        seatOrderDO.setBizDate(bizDate);
+        seatOrderDO.setBizTime(bizTime);
+
+        //按照更新时间排序
+        Sort sort = new Sort(Sort.Direction.DESC, "id");
+
+        Example<VerificationTicketDO> example = Example.of(seatOrderDO);
+        List list = verificationTicketRepository.findAll(example, sort);
+
+
         map.put("plList",list);
         return map;
     }
@@ -125,7 +153,7 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
     @Override
     public Map<String,Object> cktikcetTime(String route,String bizDate) {
         Map<String,Object> map = new HashMap<>();
-        map.put("timelist",repository.getBuyTime(route,bizDate));
+        map.put("timelist",verificationTicketRepository.getTime(route,bizDate));
         return map;
     }
 

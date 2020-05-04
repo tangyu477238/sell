@@ -1,6 +1,7 @@
 package com.imooc.controller;
 
 import com.imooc.service.VerificationTicketService;
+import com.imooc.utils.DateTimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,32 +23,29 @@ public class VerificationTicketController {
 
     @ResponseBody
     @GetMapping("/cktikcetCzy")
-    public String cktikcetCzy(@RequestParam() Map<String,Object> map){
+    public Map<String,Object> cktikcetCzy(){
 
-
-
-
-        return "{\"timelist\":[\"19:10\",\"7:10\"],\"plList\":[{\"id\":1,\"fromStation\":\"宏发\",\"toStation\":\"幸福誉\"},{\"id\":2,\"fromStation\":\"幸福誉\",\"toStation\":\"宏发\"}]}";
+        return verificationTicketService.ckticketCzy();
     }
 
-
+    @ResponseBody
+    @GetMapping("/cktikcetTime")
+    public Map<String,Object> cktikcetTime(@RequestParam() String route){
+        return verificationTicketService.cktikcetTime(route,DateTimeUtil.getBeforeDay(0));
+    }
 
     @ResponseBody
     @GetMapping("/cktikcetYpjl")
-    public Map<String,Object> cktikcetYpjl(@RequestParam() Map<String,Object> map){
+    public Map<String,Object> cktikcetYpjl(@RequestParam("route") String route,
+                                           @RequestParam("bizTime") String bizTime){
 
-
-
-        return verificationTicketService.cktikcetYpjl(map);
+        return verificationTicketService.cktikcetYpjl(route, DateTimeUtil.getBeforeDay(0),bizTime);
     }
     //cktikcet  验票系统
     @ResponseBody
     @GetMapping("/ckticket")
-    public Map cktikcet(@RequestParam("uid") String uid,
-                        Map<String,Object> map){
+    public Map cktikcet(@RequestParam("uid") String uid){
         log.info("进入cktikcet订单方法.......");
-        map = verificationTicketService.cktikcet(uid);
-
-        return map;
+        return verificationTicketService.cktikcet(uid);
     }
 }

@@ -54,63 +54,21 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
 
     private static String MONTH_STATE_1 = "1"; //月票已付款
 
-    private static String MONTH_NotifyUrl = "/sell/ticket/notifyMonth"; //月票购买成功回调地址
 
-    private static String NotifyUrl = "/sell/ticket/notify"; //车票购买成功回调地址
-
-    private static String QRCODE_PATH = "/opt/app/photos/qrcode/";//二维码图片路径
-
-
-
-
-
-
-    //联系电话
-    private static String ORDER_link_TEL = "13922253183"; //
-
-    private static String ORDER_WELCOME = "请提前至少10分钟排队等候上车";
-
-    @Autowired
-    private ProjectUrlConfig projectUrlConfig;
-
-    @Autowired
-    private com.lly835.bestpay.config.WxPayConfig wxPayConfig;
-
-    @Autowired
-    private WxMpService wxMpService;
-
-    @Autowired
-    private WechatAccountConfig accountConfig;
-
-    @Autowired
-    private SellerInfoRepository userRepository;
 
     @Autowired
     private BuyTicketRepository repository;
 
     @Autowired
     private SeatOrderRepository seatOrderRepository;
-
     @Autowired
-    private SeatOrderItemRepository seatOrderItemRepository;
+    private RouteRepository routeRepository;
 
 
-    @Autowired
-    private MonthTicketRepository monthTicketRepository;
+    @Override
+    public void yuecheSave(String s, String s1, String s2, String s3, String s4, String s5, String s6, String s7, String s8) {
 
-    @Autowired
-    private MonthTicketUserRepository monthTicketUserRepository;
-
-    @Autowired
-    private MonthTicketUserLogRepository monthTicketUserLogRepository;
-
-
-    @Autowired
-    private BestPayServiceImpl bestPayService;
-
-    @Autowired
-    private VerifyRepository verifyRepository;
-
+    }
 
     @Override
     public Map<String,Object> cktikcet(String uid) {
@@ -146,13 +104,11 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
 
 
 
-    @Override
-    public void yuecheSave(String s, String s1, String s2, String s3, String s4, String s5, String s6, String s7, String s8) {
 
-    }
 
     @Override
-    public Map<String,Object> cktikcetYpjl(Map<String,Object> map) {
+    public Map<String,Object> cktikcetYpjl(String routeId, String bizDate, String bizTime) {
+        Map<String,Object> map = new HashMap<>();
         List list = seatOrderRepository.findAll();
         map.put("plList",list);
         return map;
@@ -160,12 +116,17 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
 
     @Override
     public Map<String,Object> ckticketCzy() {
-        return null;
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("plList",routeRepository.findAll());
+        return map;
     }
 
     @Override
-    public Map<String,Object> cktikcetTime(String s) {
-        return null;
+    public Map<String,Object> cktikcetTime(String route,String bizDate) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("timelist",repository.getBuyTime(route,bizDate));
+        return map;
     }
 
 

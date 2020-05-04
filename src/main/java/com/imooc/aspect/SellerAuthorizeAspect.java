@@ -33,12 +33,11 @@ public class SellerAuthorizeAspect {
     @Pointcut("(execution(public * com.imooc.controller.Seller*.*(..))"
             +"|| execution(public * com.imooc.controller.Buy*.*(..)))"
             +"&& !execution(public * com.imooc.controller.Buy*.notify*(..))"
-            +"&& !execution(public * com.imooc.controller.Buy*.cktikcet*(..))"
+            +"&& !execution(public * com.imooc.controller.VerificationTicket*.*(..))" //验票
             +"&& !execution(public * com.imooc.controller.Buy*.queryOrder*(..))"
             +"&& !execution(public * com.imooc.controller.SellerUserController.*(..))"
 
             )
-
 
     public void verify(){}
 

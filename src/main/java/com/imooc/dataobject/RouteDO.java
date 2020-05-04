@@ -30,11 +30,10 @@ public class RouteDO implements Serializable {
 	@GeneratedValue
 	private Long id;
 
-	@Transient
 	private String fromStation;
 
-	@Transient
 	private String toStation;
 
-
+	//楼盘
+	private String lp;
 }

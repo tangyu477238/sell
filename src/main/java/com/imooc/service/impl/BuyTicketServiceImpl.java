@@ -10,7 +10,6 @@ import com.imooc.exception.SellException;
 import com.imooc.repository.*;
 import com.imooc.service.BuyTicketService;
 import com.imooc.utils.*;
-import com.lly835.bestpay.config.WxPayConfig;
 import com.lly835.bestpay.enums.BestPayTypeEnum;
 import com.lly835.bestpay.model.PayRequest;
 import com.lly835.bestpay.model.PayResponse;
@@ -1112,50 +1111,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
 
-    @Override
-    public Map<String, Object> payOrder2(String orderId, String uid) {
-//        SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(orderId),0, uid);
-//
-//        if (sod== null){
-//            throw new SellException(501,"订单不存在或已超支付时间！");
-//        }
-//        double ttime1 =DateTimeUtil.getSecondsOfTwoDate(sod.getUpdateTime(),new Date()) ;
-//        if (ttime1<0){
-//            throw new SellException(501,"订单不存在或已超支付时间！");
-//        }
-//
-        SellerInfo sellerInfo = userRepository.findOne(uid);
-        Map map = new HashMap();
 
-        String str = System.currentTimeMillis()+"";
-
-        //初始化支付
-        PayRequest payRequest = new PayRequest();
-        payRequest.setOpenid(sellerInfo.getOpenid());
-//        log.info("" + sod.getAmout().doubleValue());
-        payRequest.setOrderAmount(0.01);
-        payRequest.setOrderId(str);
-        payRequest.setOrderName(str);
-        payRequest.setPayTypeEnum(BestPayTypeEnum.WXPAY_MP);
-
-
-        log.info("【微信支9999付请求】发起支付，request={}", JsonUtil.toJson(payRequest));
-        wxPayConfig.setNotifyUrl(projectUrlConfig.getWechatMpAuthorize() + NotifyUrl);
-        wxPayConfig.setMchId("1522031501");
-        wxPayConfig.setMchKey("cee97db711fe2ee8e5306a3a55f89ffc");
-        bestPayService.setWxPayConfig(wxPayConfig);
-
-        PayResponse payResponse = bestPayService.pay(payRequest);
-        log.info("【微信支付返回】发起支付，response={}", JsonUtil.toJson(payResponse));
-
-
-
-        map.put("payResponse",payResponse); //支付信息
-//        map.put("sod",sod);
-//        map.put("orderNo",sod.getOrderNo());
-
-        return map;
-    }
 
 
 

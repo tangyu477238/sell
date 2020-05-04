@@ -1,13 +1,9 @@
 package com.imooc.service;
 
-import com.imooc.dataobject.Callplan;
-import com.imooc.dataobject.SeatOrderDO;
-import com.imooc.dto.OrderDTO;
 import com.lly835.bestpay.model.PayResponse;
 import com.lly835.bestpay.model.RefundResponse;
 
 import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,6 +56,5 @@ public interface BuyTicketService {
 
     void delOrderByTimeOut();
 
-    ////test
-    Map<String,Object> payOrder2(String orderId, String uid);
+
 }

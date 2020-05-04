@@ -8,12 +8,7 @@ import com.imooc.enums.LouPanEnum;
 import com.imooc.repository.BuyTicketRepository;
 import com.imooc.repository.SellerInfoRepository;
 import com.imooc.service.BuyTicketService;
-import com.imooc.utils.DateTimeUtil;
-import com.imooc.utils.JsonUtil;
 import com.imooc.utils.ResultVOUtil;
-import com.lly835.bestpay.enums.BestPayTypeEnum;
-import com.lly835.bestpay.model.PayRequest;
-import com.lly835.bestpay.model.PayResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -193,19 +186,7 @@ public class BuyTicketController {
 
     }
 
-    //支付订单2
-    @GetMapping("/payOrder2")
-    public ModelAndView payOrder2(
-            @RequestParam("orderId") String orderId,
-            @RequestParam("uid") String uid,
-            Map<String,Object> map){
 
-        map = buyTicketService.payOrder2(orderId,uid);
-        map.put("uid",uid);
-        map.put("returnUrl","/sell/ticket/orderSuccess?orderNo=1569766491397130805");
-        return new ModelAndView("pay/create",map);
-
-    }
 
 
 

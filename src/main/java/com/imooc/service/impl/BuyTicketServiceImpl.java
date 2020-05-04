@@ -1025,35 +1025,6 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         return payResponse;
     }
 
-    @Override
-    public Map<String,Object> cktikcet(String uid) {
-        Map map = new HashMap();
-        int flag = 0;
-        map.put("state",flag);//验票失败
-        if (ComUtil.isEmpty(uid)){
-            return map;
-        }
-        String strs[] = uid.split("_");
-        if (ComUtil.isEmpty(strs)||strs.length!=2||strs[0].length()!=32){
-            return map;
-        }
-
-        SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(strs[1]),ORDER_STATE_1,strs[0]);
-        if (ComUtil.isEmpty(sod)){
-            return map;
-        }
-        if (sod.getCkstate()==1){
-            flag = -1;
-            map.put("state",flag);//重复验票
-            return map;
-        }
-        sod.setCkstate(1);//更新验票状态
-        sod.setUpdateTime(new Date());
-        seatOrderRepository.save(sod);//更新状态
-        flag = sod.getNum().intValue();
-        map.put("state",flag);//验票ok
-        return map;
-    }
 
 
 
@@ -1106,37 +1077,4 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public static void main (String str []){
-
-
-//        TreeSet treeSet = new TreeSet(originalList);
-//        List tempList = new ArrayList();
-//        tempList.addAll(treeSet);
-//        treeSet 默认的排序为升序，根据实际情况添加是否需要反排序
-//        Collections.reverse(tempList);
-
-
-        System.out.println("10:00".compareTo("09:01"));
-
-    }
 }

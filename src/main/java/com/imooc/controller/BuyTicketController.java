@@ -32,9 +32,6 @@ public class BuyTicketController {
     private SellerInfoRepository userRepository;
 
     @Autowired
-    private BuyTicketRepository repository;
-
-    @Autowired
     private ProjectUrlConfig projectUrlConfig;
 
 
@@ -387,16 +384,7 @@ public class BuyTicketController {
     }
 
 
-    //cktikcet  验票系统
-    @ResponseBody
-    @GetMapping("/ckticket")
-    public Map cktikcet(@RequestParam("uid") String uid,
-                               Map<String,Object> map){
-        log.info("进入cktikcet订单方法.......");
-        map = buyTicketService.cktikcet(uid);
 
-        return map;
-    }
 
     //cktikcet  删除验证码
     @ResponseBody

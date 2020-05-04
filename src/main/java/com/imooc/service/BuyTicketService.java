@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public interface BuyTicketService {
 
-    Map<String,Object> cktikcet(String uid);
+
 
     Map<String,Object> delVerify(String mobile);
 

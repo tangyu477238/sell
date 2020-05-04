@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no"
+          name="viewport" id="viewport"/>
+    <title>订单确定</title>
+    <script type="text/javascript" src="/sell/js/jquery-1.7.2.min.js"></script>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+            font-family: "微软雅黑"
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .header {
+            width: 100%;
+            height: 50px;
+            background: #F3F3F3;
+            text-align: center;
+        }
+
+        .header a {
+            color: #888888;
+            font-size: 13px;
+            line-height: 50px;
+        }
+
+        .content .main {
+            width: 88%;
+            height: 250px;
+            margin: 0 auto;
+            background: #F3F3F3;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .content .main_header {
+            height: 42px;
+            width: 100%;
+            background: #68A1E8;
+            text-align: center;
+            line-height: 42px;
+            color: #fff;
+            font-size: 13px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+
+
+        }
+
+        .content .main_header img {
+            width: 39px;
+            height: 21px;
+            margin-top: 10px;
+        }
+
+        .main_info {
+            padding: 5px;
+            font-size: 13px;
+        }
+
+        .tableleft {
+            color: #909090;
+        }
+
+        td {
+            height: 25px;
+        }
+
+        .read {
+            margin-top: 20px;
+        }
+
+        .read span {
+            font-size: 10px;
+            color: red;
+        }
+
+        .phone {
+            width: 100%;
+            height: 42px;
+            margin-top: 10px;
+            border: 1px solid #E0E0E0;
+            border-radius: 3px;
+            color: #A9A9A9;
+            background: #F3F3F3;
+        }
+
+        .zhifu {
+            display: block;
+            width: 100%;
+            height: 42px;
+            text-align: center;
+            line-height: 42px;
+            color: #fff;
+            background: #F66D22;
+            margin-top: 20px;
+            border-radius: 3px;
+        }
+
+        .quxiao {
+            display: block;
+            width: 100%;
+            height: 42px;
+            text-align: center;
+            line-height: 42px;
+            color: #fff;
+            background: #EA3931;
+            margin-top: 10px;
+            border-radius: 3px;
+        }
+    </style>
+    <script language="JavaScript">
+        function check() {
+            var phonenum = $('#phonenum').val();
+            if (phonenum == '') {
+                alert("请填入正确的手机号");
+                return false;
+            } else if (typeof (phonenum) == 'undefined') {
+                alert("请填入正确的手机号");
+                return false;
+            } else if (phonenum.length < 11) {
+                alert("请填入正确的手机号");
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        // 直接购买
+        function go1() {
+            if (!check()) return;
+            $('form').find('[name=payType]').val('zhijiegoumai');
+        }
+
+        // 月票抵扣
+        function go2() {
+            if (!check()) return;
+            $('form').find('[name=payType]').val('yuepiaodikou');
+        }
+
+        function jfzf(el, ordreId) {
+            if (!confirm('确认用积分支付吗?')) {
+                return;
+            }
+            var phone = $('#phonenum').val();
+            if (window.is__jfzf) return;
+            window.is__jfzf = true;
+            $(el).find('div').html('支付中....');
+
+            $.getJSON('jfZf?order_id=' + ordreId + "&phone=" + phone, function (res) {
+                $(el).find('div').html('积分支付');
+                window.is__jfzf = false;
+                $(el).find('div').html('支付中....');
+                if (res.error) {
+                    alert('支付失败:' + res.errorMsg);
+                } else {
+                    alert('支付成功!');
+                    location.href = 'showPay?orderId=' + ordreId;
+
+                }
+            })
+        }
+
+    </script>
+
+</head>
+<body>
+<!--
+    <div class="header"><a class="btn" href="">返回上一步</a></div>
+    -->
+<div class="content">
+    <div class="main">
+        <div class="main_header">
+            <span style="float:left; margin-left:10px;">以太广场（越秀公园地铁A出口）</span>
+            <img src="/sell/img/carlogo.png">
+            <span style="float:right;margin-right:10px;">北部万科城</span>
+        </div>
+        <div class="main_info">
+            <table>
+                <tr>
+                    <td class="tableleft">乘客姓名：</td>
+                    <td>唐智瑜</td>
+                </tr>
+                <tr>
+                    <td class="tableleft">手&nbsp;机&nbsp;&nbsp;号：</td>
+                    <td>13552379492</td>
+                </tr>
+                <tr>
+                    <td class="tableleft">乘车日期：</td>
+                    <td>2018-12-15 08:30</td>
+                </tr>
+                <tr>
+                    <td class="tableleft">预订时间：</td>
+                    <td>2018-12-14 22:16:56</td>
+                </tr>
+                <tr>
+                    <td class="tableleft">已选座位：</td>
+                    <td>10排3座,5排2座</td>
+                </tr>
+                <tr>
+                    <td class="tableleft">单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价：</td>
+                    <td>20RMB</td>
+                </tr>
+                <tr>
+                    <td class="tableleft">乘客人数：</td>
+                    <td>2人</td>
+                </tr>
+                <tr>
+                    <td class="tableleft">应付金额：</td>
+                    <td>40RMB</td>
+                </tr>
+                <tr>
+                    <td class="tableleft">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注：</td>
+                    <td> (非)</td>
+                </tr>
+            </table>
+        </div>
+        <script>$('.main').css('height', $('.main_info').height() + 60);</script>
+        <div class="read">
+            <span>1.请仔细核对订单信息，车票一旦售出，无法退换</span>
+            <br>
+            <span>2.请您在5分钟内完成支付;如果尚未完成支付，您选择的座位将被取消</span>
+        </div>
+        短信通知
+        <input type="text" class="phone" value="13552379492" name="mobile" id="phonenum" placeholder="手机号">
+        <table style="width:100%">
+            <tr>
+                <td>
+                    <a style="font-size:12pt; background:none; border:none; color:#fff; width:100%; height:100%;"
+                       href="javascript:location.href='pay?order_id=1283916&phone='+$('#phonenum').val()">
+                        <div class="zhifu">微信支付</div>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a style="font-size:12pt; background:none; border:none; color:#fff; width:100%; height:100%;"
+                       href="javascript:jfzf(this, 1283916);">
+                        <div class="zhifu">积分支付</div>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+            </tr>
+        </table>
+        <a class="quxiao" href="javascript:if(confirm('确实要取消该订单吗?'))location='cancel?order_id=1283916'">取消订单</a>
+    </div>
+</div>
+<script>
+</script>
+</body>
+</html>

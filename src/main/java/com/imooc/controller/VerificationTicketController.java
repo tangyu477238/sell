@@ -44,8 +44,11 @@ public class VerificationTicketController {
     //cktikcet  验票系统
     @ResponseBody
     @GetMapping("/ckticket")
-    public Map cktikcet(@RequestParam("uid") String uid){
-        log.info("进入cktikcet订单方法.......");
-        return verificationTicketService.cktikcet(uid);
+    public Map cktikcet(@RequestParam("route") String route,
+                        @RequestParam("time") String time,
+                        @RequestParam("uid") String uid){
+        Map map = verificationTicketService.cktikcet(route, DateTimeUtil.getBeforeDay(0),time,uid);
+        log.info("进入cktikcet订单方法......." + map.toString());
+        return map;
     }
 }

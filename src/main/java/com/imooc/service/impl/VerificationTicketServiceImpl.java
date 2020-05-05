@@ -76,9 +76,12 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
     }
 
     @Override
-    public Map<String,Object> cktikcet(String uid) {
+    public Map<String,Object> cktikcet(String route, String bizDate, String bizTime, String uid) {
+
+        log.info("route:"+route+"  bizDate:"+bizDate+"  bizTime:"+bizTime+"  uid:"+uid);
+
         Map map = new HashMap();
-        int flag = 0;
+        String flag = "fail";
         map.put("state",flag);//验票失败
         if (ComUtil.isEmpty(uid)){
             return map;
@@ -92,9 +95,18 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
         if (ComUtil.isEmpty(sod)){
             return map;
         }
+
+        if (!sod.getRouteId().toString().equals(route)
+                ||!sod.getBizDate().equals(bizDate)
+                ||!sod.getBizTime().equals(bizTime)){
+            map.put("state","banci");//班次不一致
+            return map;
+        }
+
+
+
         if (sod.getCkstate()==1){
-            flag = -1;
-            map.put("state",flag);//重复验票
+            map.put("state","double");//重复验票
             return map;
         }
         sod.setCkstate(1);//更新验票状态
@@ -109,10 +121,10 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
         verificationTicketDO.setUpdateTime(new Date());
         verificationTicketDO.setOrderId(sod.getId());
         verificationTicketDO.setCreateUser("管理员");
+        verificationTicketDO.setUserMobile(sod.getUserMobile().replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2"));
         verificationTicketRepository.save(verificationTicketDO);
 
-        flag = sod.getNum().intValue();
-        map.put("state",flag);//验票ok
+        map.put("state",String.valueOf(sod.getNum().intValue()));//验票ok
         return map;
     }
 

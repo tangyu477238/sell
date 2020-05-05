@@ -936,6 +936,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     public Map<String, Object> queryOrder(String orderId, String uid) {
         Map map = new HashMap();
         SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(orderId),ORDER_STATE_1,uid);
+        sod.setUserMobile(sod.getUserMobile().replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2"));
         map.put("createTime",DateTimeUtil.formatDateTimetoString(sod.getCreateTime(),"yyy-MM-dd HH:mm:ss"));
         map.put("sod",sod);
 

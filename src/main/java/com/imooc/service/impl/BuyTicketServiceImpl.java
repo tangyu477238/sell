@@ -38,6 +38,10 @@ import java.util.*;
 @Slf4j
 public class BuyTicketServiceImpl implements BuyTicketService {
 
+    private static int houre1 = 18;
+    private static int houre2 = 19;
+    private static int houre3 = 20;
+
     private static int ORDER_STATE_0 = 0; //订单待付款
 
     private static int ORDER_STATE_1 = 1; //订单已付款
@@ -221,10 +225,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             if(DateTimeUtil.getHoursOfDay(new Date())<buytime1){  //19点之前买票
                 throw new BusinessException("500","尚未到达售票时间！");
             } else if (DateTimeUtil.getHoursOfDay(new Date())>=buytime1
-                    && DateTimeUtil.getHoursOfDay(new Date())<20 && moment.compareTo(buybeforeticket1)>0){ //19点-20之间买7点后的票
+                    && DateTimeUtil.getHoursOfDay(new Date())<houre2 && moment.compareTo(buybeforeticket1)>0){ //19点-20之间买7点后的票
                 throw new BusinessException("500","尚未到达售票时间！");
-            } else if (DateTimeUtil.getHoursOfDay(new Date())>=20
-                    && DateTimeUtil.getHoursOfDay(new Date())<21 && moment.compareTo("08:01")>0){ //20点-21之间买8点后的票
+            } else if (DateTimeUtil.getHoursOfDay(new Date())>=houre2
+                    && DateTimeUtil.getHoursOfDay(new Date())<houre3 && moment.compareTo("08:01")>0){ //20点-21之间买8点后的票
                 throw new BusinessException("500","尚未到达售票时间！");
             }
         }
@@ -442,17 +446,15 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 //                        col = "" + (Integer.parseInt(col)-1);
 //                    }
                     String seatName = seatlist.get(i)[5].toString();
-//                            new StringBuilder(rows.toString()).append("排").append(col).append("座").toString();
+//                  new StringBuilder(rows.toString()).append("排").append(col).append("座").toString();
                     m.put("name",seatName);
                     list.add(m);
                     //存放已经选完的座位
-
                     if (seatlist.get(i)[3] != null){
                         selected.add(seatName);
                         seated.append(seatName).append(",");
                     }
                 }
-
             }
             map.put(rows,list);
         }
@@ -470,6 +472,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         Map resMap = new HashMap();
         resMap.put("seatlist",JSONObject.toJSONString(map));
+        resMap.put("seatlistMobile",map);
         resMap.put("time",time);
         resMap.put("route",route);
         resMap.put("moment",moment);
@@ -900,9 +903,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             for (String timestr : timelist){
                 if (DateTimeUtil.getBeforeDay(days-1).equals(time)){ //选的日期是最后一天
                     log.info("--------"+DateTimeUtil.getHoursOfDay(new Date())+"----------"+time+"----------"+timestr);
-                    if(DateTimeUtil.getHoursOfDay(new Date())>=21){
+                    if(DateTimeUtil.getHoursOfDay(new Date())>=houre3){
                         str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
-                    } else if(DateTimeUtil.getHoursOfDay(new Date())>=20 && timestr.compareTo("08:01")<0){
+                    } else if(DateTimeUtil.getHoursOfDay(new Date())>=houre2 && timestr.compareTo("08:01")<0){
                         str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
                     } else if(DateTimeUtil.getHoursOfDay(new Date())>=buytime1 && timestr.compareTo(buybeforeticket1)<0){
                         str = str + "<option value='" + timestr + "'>" + timestr + "</option>";

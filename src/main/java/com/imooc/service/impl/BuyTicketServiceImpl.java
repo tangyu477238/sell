@@ -114,6 +114,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     @Autowired
     private VerifyRepository verifyRepository;
 
+    @Autowired
+    private QrcodeColorRepository qrcodeColorRepository;
+
+
+
 
     @Override
     public void sendYzm(String name, String phone, String uid) {
@@ -513,12 +518,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         sod.setCkstate(0);//未验票
         seatOrderRepository.save(sod);
 
+        createOrderQrcode(sod); //生成二维码
 
-
-        SellerInfo sellerInfo = userRepository.findOne(uid);
-
-        QRCodeUtil.encode(sellerInfo.getSellerId()+"_"+sod.getId(),QRCODE_PATH);
         //显示详情
+        SellerInfo sellerInfo = userRepository.findOne(uid);
         sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
                 ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
 //        //显示二维码
@@ -617,7 +620,20 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         bestPayService.setWxPayConfig(wxPayConfig);
     }
 
-
+    private void createOrderQrcode(SeatOrderDO sod) throws Exception{
+        QrcodeColorDO qrcodeColorDO = qrcodeColorRepository.findByRouteIdAndBizDate(
+                sod.getRouteId(), sod.getBizDate());
+        if (ComUtil.isEmpty(qrcodeColorDO)){
+            qrcodeColorDO = new QrcodeColorDO();
+            qrcodeColorDO.setBizDate(sod.getBizDate());
+            qrcodeColorDO.setBizTime(sod.getBizTime());
+            qrcodeColorDO.setRouteId(sod.getRouteId());
+            qrcodeColorDO.setQrcode(QRCodeUtil.getColor());
+            qrcodeColorDO.setCreateTime(new Date());
+            qrcodeColorRepository.save(qrcodeColorDO);
+        }
+        QRCodeUtil.encode(sod.getCreateUser()+"_"+sod.getId(),QRCODE_PATH,qrcodeColorDO.getQrcode());
+    }
 
     @Override
     public PayResponse notify(String notifyData) throws Exception {
@@ -675,10 +691,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         sod.setCkstate(0);//未验票
         seatOrderRepository.save(sod);
 
+        createOrderQrcode(sod); //生成二维码
+
         SellerInfo sellerInfo = userRepository.findOne(sod.getCreateUser());
-
-        QRCodeUtil.encode(sellerInfo.getSellerId()+"_"+sod.getId(),QRCODE_PATH);
-
         SeatOrderDO sod2 = seatOrderRepository.findByOrderNo(payResponse.getOrderId());
         if(sod2!=null && sod2.getState()==ORDER_STATE_1) {
             log.info("---------开始发送购买成功通知---------"+payResponse.getOrderId());

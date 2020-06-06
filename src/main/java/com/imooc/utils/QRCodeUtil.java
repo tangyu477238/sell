@@ -1,13 +1,10 @@
 package com.imooc.utils;
 
-import java.awt.BasicStroke;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.Random;
@@ -24,11 +21,13 @@ import com.google.zxing.Result;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 二维码工具类
  *
  */
+@Slf4j
 public class QRCodeUtil {
 
     private static final String CHARSET = "utf-8";
@@ -41,7 +40,7 @@ public class QRCodeUtil {
     private static final int HEIGHT = 60;
 
     private static BufferedImage createImage(String content, String imgPath,
-                                             boolean needCompress) throws Exception {
+                                             boolean needCompress,String color) throws Exception {
         Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.CHARACTER_SET, CHARSET);
@@ -54,8 +53,7 @@ public class QRCodeUtil {
                 BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                image.setRGB(x, y, bitMatrix.get(x, y) ? 0xFF000000
-                        : 0xFFFFFFFF);
+                image.setRGB(x, y, bitMatrix.get(x, y) ? Integer.parseInt(color, 16) : 0xFFFFFFFF);
             }
         }
         if (imgPath == null || "".equals(imgPath)) {
@@ -128,9 +126,9 @@ public class QRCodeUtil {
      * @throws Exception
      */
     public static void encode(String content, String imgPath, String destPath,
-                              boolean needCompress) throws Exception {
+                              boolean needCompress,String color) throws Exception {
         BufferedImage image = QRCodeUtil.createImage(content, imgPath,
-                needCompress);
+                needCompress,color);
         mkdirs(destPath);
 //        String file = new Random().nextInt(99999999)+".jpg";
         String file = content +".jpg";
@@ -163,9 +161,9 @@ public class QRCodeUtil {
      *            存储地址
      * @throws Exception
      */
-    public static void encode(String content, String imgPath, String destPath)
+    public static void encode(String content, String imgPath, String destPath,String color)
             throws Exception {
-        QRCodeUtil.encode(content, imgPath, destPath, false);
+        QRCodeUtil.encode(content, imgPath, destPath, false,color);
     }
 
     /**
@@ -180,8 +178,8 @@ public class QRCodeUtil {
      * @throws Exception
      */
     public static void encode(String content, String destPath,
-                              boolean needCompress) throws Exception {
-        QRCodeUtil.encode(content, null, destPath, needCompress);
+                              boolean needCompress,String color) throws Exception {
+        QRCodeUtil.encode(content, null, destPath, needCompress,color);
     }
 
     /**
@@ -193,8 +191,8 @@ public class QRCodeUtil {
      *            存储地址
      * @throws Exception
      */
-    public static void encode(String content, String destPath) throws Exception {
-        QRCodeUtil.encode(content, null, destPath, false);
+    public static void encode(String content, String destPath,String color) throws Exception {
+        QRCodeUtil.encode(content, null, destPath, false,color);
     }
 
     /**
@@ -211,9 +209,9 @@ public class QRCodeUtil {
      * @throws Exception
      */
     public static void encode(String content, String imgPath,
-                              OutputStream output, boolean needCompress) throws Exception {
+                              OutputStream output, boolean needCompress,String color) throws Exception {
         BufferedImage image = QRCodeUtil.createImage(content, imgPath,
-                needCompress);
+                needCompress,color);
         ImageIO.write(image, FORMAT_NAME, output);
     }
 
@@ -226,9 +224,9 @@ public class QRCodeUtil {
      *            输出流
      * @throws Exception
      */
-    public static void encode(String content, OutputStream output)
+    public static void encode(String content, OutputStream output,String color)
             throws Exception {
-        QRCodeUtil.encode(content, null, output, false);
+        QRCodeUtil.encode(content, null, output, false,color);
     }
 
     /**
@@ -268,9 +266,46 @@ public class QRCodeUtil {
         return QRCodeUtil.decode(new File(path));
     }
 
+
+    //随机生成颜色代码
+    public static String getColor(){
+        //红色
+        String red;
+        //绿色
+        String green;
+        //蓝色
+        String blue;
+        //生成随机对象
+        Random random = new Random();
+        //生成红色颜色代码
+        red = Integer.toHexString(random.nextInt(256)).toUpperCase();
+        //生成绿色颜色代码
+        green = Integer.toHexString(random.nextInt(256)).toUpperCase();
+        //生成蓝色颜色代码
+        blue = Integer.toHexString(random.nextInt(256)).toUpperCase();
+
+        //判断红色代码的位数
+        red = red.length()==1 ? "0" + red : red ;
+        //判断绿色代码的位数
+        green = green.length()==1 ? "0" + green : green ;
+        //判断蓝色代码的位数
+        blue = blue.length()==1 ? "0" + blue : blue ;
+        //生成十六进制颜色值
+        String color = red+green+blue;
+        log.info(color);
+        return color;
+    }
+
+
+
+
     public static void main(String[] args) throws Exception {
         String text = "a365c62fd4c241f6a8b277ebd495c5d3_554";
-        QRCodeUtil.encode(text,"D:/");
+
+        for (int i=0;i<10;i++){
+            QRCodeUtil.encode(text+i,"D:/", getColor());
+        }
+
 //        QRCodeUtil.encode(text, "D:/1.png", "D:barcode", true);
     }
 }

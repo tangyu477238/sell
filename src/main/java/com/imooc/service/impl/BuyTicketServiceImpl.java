@@ -414,78 +414,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     @Override
     public Map<String,Object>  listSeatDetail(String route,String time, String moment) {
-
-        String carId = "";
         List<Object[]> seatlist = repository.listSeatDetail(route, time, moment);
-        if (seatlist==null||seatlist.size()==0){
-            return null ;
-            //throw new SellException(500,"本班次已被售完！");
-        }
-        Set<Integer> set = new HashSet(); //存放排数
-        for (int j = 0; seatlist != null && j < seatlist.size(); j++) {
-            if (seatlist.get(j)[0]!=null){
-                set.add(Integer.parseInt(seatlist.get(j)[0].toString()));
-                carId = seatlist.get(j)[4].toString();
-            }
-        }
-
-        //排数值进行排序一遍
-        List tempList = new ArrayList();
-        tempList.addAll(set);
-        Collections.reverse(tempList);
-
-        Map map = new LinkedHashMap ();
-        Map m ;
-
-        StringBuffer seated = new StringBuffer();
-        List selected = new ArrayList();
-        for (Integer rows : set) {
-            List list = new ArrayList();
-            for (int i = 0; seatlist != null && i < seatlist.size(); i++) {
-                if (rows == Integer.parseInt(seatlist.get(i)[0].toString())){
-                    m = new LinkedHashMap();
-                    String col = seatlist.get(i)[1].toString();//列(座位)
-                    m.put("colIndex", col);
-                    m.put("seatType", seatlist.get(i)[2].toString());
-//                    if(Integer.parseInt(col)>2){
-//                        col = "" + (Integer.parseInt(col)-1);
-//                    }
-                    String seatName = seatlist.get(i)[5].toString();
-//                  new StringBuilder(rows.toString()).append("排").append(col).append("座").toString();
-                    m.put("name",seatName);
-                    list.add(m);
-                    //存放已经选完的座位
-                    if (seatlist.get(i)[3] != null){
-                        selected.add(seatName);
-                        seated.append(seatName).append(",");
-                    }
-                }
-            }
-            map.put(rows,list);
-        }
-
-
-
-        List<Object[]> carInfo = repository.getCarInfo(carId);
-
-        map.put("total",carInfo.get(0)[1]);
-        map.put("rows",carInfo.get(0)[0]);
-        map.put("cols",5);
-        map.put("left",2);
-        map.put("right",2);
-        log.info("------"+JSONObject.toJSONString(map));
-
-        Map resMap = new HashMap();
-        resMap.put("seatlist",JSONObject.toJSONString(map));
-        resMap.put("seatlistMobile",map);
-        resMap.put("time",time);
-        resMap.put("route",route);
-        resMap.put("moment",moment);
-
-        if(selected!=null&&selected.toString().length()>0){
-            resMap.put("selected",selected.toString().substring(1,selected.toString().length()-1));
-            //log.info(selected.toString().substring(1,selected.toString().length()-1));
-        }
+        Map resMap = queryOrderSeats(seatlist,route, time, moment);
         return resMap;
     }
 
@@ -1093,6 +1023,90 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
 
+    }
+
+
+
+    public Map<String,Object>  getOrderSeats(String route, String time, String moment) {
+        List<Object[]> seatlist = repository.getOrderSeats(route, time, moment);
+        Map resMap =queryOrderSeats(seatlist, route, time, moment);
+        List<SeatOrderDO>  list = seatOrderRepository.findByRouteIdAndBizDateAndBizTimeAndInfoAndState(
+                Long.valueOf(route),time,moment,"补票",1);
+        resMap.put("bupiao",list.size());
+        return resMap;
+    }
+
+
+    private Map<String,Object>  queryOrderSeats(List<Object[]> seatlist, String route, String time, String moment) {
+        String carId = "";
+        if (seatlist==null||seatlist.size()==0){
+            return null ;
+            //throw new SellException(500,"本班次已被售完！");
+        }
+        Set<Integer> set = new HashSet(); //存放排数
+        for (int j = 0; seatlist != null && j < seatlist.size(); j++) {
+            if (seatlist.get(j)[0]!=null){
+                set.add(Integer.parseInt(seatlist.get(j)[0].toString()));
+                carId = seatlist.get(j)[4].toString();
+            }
+        }
+        //排数值进行排序一遍
+        List tempList = new ArrayList();
+        tempList.addAll(set);
+        Collections.reverse(tempList);
+
+        Map map = new LinkedHashMap ();
+        Map m ;
+
+        StringBuffer seated = new StringBuffer();
+        List selected = new ArrayList();
+        for (Integer rows : set) {
+            List list = new ArrayList();
+            for (int i = 0; seatlist != null && i < seatlist.size(); i++) {
+                if (rows == Integer.parseInt(seatlist.get(i)[0].toString())){
+                    m = new LinkedHashMap();
+                    String col = seatlist.get(i)[1].toString();//列(座位)
+                    m.put("colIndex", col);
+                    m.put("seatType", seatlist.get(i)[2].toString());
+//                    if(Integer.parseInt(col)>2){
+//                        col = "" + (Integer.parseInt(col)-1);
+//                    }
+                    String seatName = seatlist.get(i)[5].toString();
+//                  new StringBuilder(rows.toString()).append("排").append(col).append("座").toString();
+                    m.put("name",seatName);
+                    list.add(m);
+                    //存放已经选完的座位
+                    if (seatlist.get(i)[3] != null){
+                        selected.add(seatName);
+                        seated.append(seatName).append(",");
+                    }
+                }
+            }
+            map.put(rows,list);
+        }
+
+
+
+        List<Object[]> carInfo = repository.getCarInfo(carId);
+
+        map.put("total",carInfo.get(0)[1]);
+        map.put("rows",carInfo.get(0)[0]);
+        map.put("cols",5);
+        map.put("left",2);
+        map.put("right",2);
+        log.info("------"+JSONObject.toJSONString(map));
+
+        Map resMap = new HashMap();
+        resMap.put("seatlist",JSONObject.toJSONString(map));
+        resMap.put("seatlistMobile",map);
+        resMap.put("time",time);
+        resMap.put("route",route);
+        resMap.put("moment",moment);
+        if(selected!=null&&selected.toString().length()>0){
+            resMap.put("selected",selected.toString().substring(1,selected.toString().length()-1));
+            //log.info(selected.toString().substring(1,selected.toString().length()-1));
+        }
+        return resMap;
     }
 
 

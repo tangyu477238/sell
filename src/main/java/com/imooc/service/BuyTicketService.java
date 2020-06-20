@@ -56,5 +56,5 @@ public interface BuyTicketService {
 
     void delOrderByTimeOut();
 
-
+    Map<String,Object>  getOrderSeats(String route, String time, String moment);
 }

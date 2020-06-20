@@ -198,8 +198,17 @@ public interface BuyTicketRepository extends JpaRepository<Callplan,Integer> {
     List<String> getIsMonthByOrder(String id);
 
 
-
-
+    //支付以后剩余座位
+    @Query(value = "select e.row_Index,e.col_Index,e.seat_Type,o.seat_id,e.car_id,e.name from biz_car_datetime_seat e "
+            +" inner join biz_plan_price p on p.id= e.plan_id "
+            +" left join ("
+            +" select o.seat_id"
+            +" from biz_seat_order_item o"
+            +" inner join biz_seat_order ord on ord.id=o.order_id"
+            +" where ord.route_id = ?1 and ord.biz_date = ?2 and ord.biz_time = ?3 and ord.state=1"
+            +" ) o on o.seat_id=e.id "
+            +" where p.route_id = ?1 and e.biz_date = ?2 and e.biz_time = ?3 order by e.row_index,e.col_index", nativeQuery = true)
+    List<Object[]> getOrderSeats(String route, String time, String moment);
 
 }
 

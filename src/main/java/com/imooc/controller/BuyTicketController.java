@@ -5,7 +5,6 @@ import com.imooc.config.ProjectUrlConfig;
 import com.imooc.dataobject.SeatOrderDO;
 import com.imooc.dataobject.SellerInfo;
 import com.imooc.enums.LouPanEnum;
-import com.imooc.repository.BuyTicketRepository;
 import com.imooc.repository.SellerInfoRepository;
 import com.imooc.service.BuyTicketService;
 import com.imooc.utils.ResultVOUtil;
@@ -33,6 +32,7 @@ public class BuyTicketController {
 
     @Autowired
     private ProjectUrlConfig projectUrlConfig;
+
 
 
     private void setLpInfo(Map map, String lp){
@@ -419,4 +419,14 @@ public class BuyTicketController {
         return map;
     }
 
+    @ResponseBody
+    @GetMapping("/queryOrderGetSeats")
+    public Map queryOrderGetSeats(@RequestParam("route") String route,
+                                  @RequestParam("bizDate") String bizDate,
+                                  @RequestParam("time") String time) throws Exception{
+
+        Map<String,Object>  map = buyTicketService.getOrderSeats(route,bizDate,time);
+        log.info("进入getSeats订单方法......." + map.toString());
+        return map;
+    }
 }

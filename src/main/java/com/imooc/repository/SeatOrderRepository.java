@@ -2,6 +2,7 @@ package com.imooc.repository;
 
 import com.imooc.dataobject.SeatOrderDO;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -32,4 +33,16 @@ public interface SeatOrderRepository extends JpaRepository<SeatOrderDO,Integer> 
                                                                String bizTime,
                                                                String info,
                                                                Integer state);
+
+    @Query(value = "select * from biz_seat_order "
+            +" where  (info LIKE CONCAT(?1,'%')  or info LIKE CONCAT('%,',?1,'%') )  and route_id =?2 "
+            +" and biz_date =?3 and biz_time =?4 " , nativeQuery = true)
+    SeatOrderDO getOrderBySeat(String info,
+                              Long routeId,
+                              String bizDate,
+                              String bizTime);
+
+
+
+
 }

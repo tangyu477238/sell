@@ -1,36 +1,20 @@
 package com.imooc.service.impl;
 
-import com.imooc.config.ProjectUrlConfig;
-import com.imooc.config.SimpleSMSSender;
-import com.imooc.config.WechatAccountConfig;
 import com.imooc.dataobject.*;
-import com.imooc.enums.LouPanEnum;
-import com.imooc.exception.BusinessException;
-import com.imooc.exception.SellException;
+import com.imooc.enums.YanpiaoEnum;
 import com.imooc.repository.*;
-import com.imooc.service.BuyTicketService;
 import com.imooc.service.VerificationTicketService;
-import com.imooc.utils.*;
-import com.lly835.bestpay.enums.BestPayTypeEnum;
-import com.lly835.bestpay.model.PayRequest;
-import com.lly835.bestpay.model.PayResponse;
-import com.lly835.bestpay.model.RefundRequest;
-import com.lly835.bestpay.model.RefundResponse;
-import com.lly835.bestpay.service.impl.BestPayServiceImpl;
+import com.imooc.utils.ComUtil;
+import com.imooc.utils.JPushService;
+import com.imooc.utils.WeChatQrcodeUtils;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.common.error.WxErrorException;
-import me.chanjar.weixin.mp.api.WxMpService;
-import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
-import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
-import net.minidev.json.JSONObject;
+import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -59,24 +43,70 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
 
 
 
+
     @Autowired
     private SeatOrderRepository seatOrderRepository;
-
     @Autowired
     private RouteRepository routeRepository;
-
-
     @Autowired
     private VerificationTicketRepository verificationTicketRepository;
+    @Autowired
+    private JpushRepository jpushRepository;
+    @Autowired
+    private JPushService jPushService;
+    @Autowired
+    private SequenceRepository sequenceRepository;
+    @Autowired
+    private QrcodeOrderRepository qrcodeOrderRepository;
+    @Autowired
+    private WeChatQrcodeUtils weChatQrcodeUtils;
 
+
+    @Override
+    public Map pushMessage(String notificationTitle,String exts) {
+
+        List<JpushDo>  list = jpushRepository.findAll();
+        List<String> aliasList = new ArrayList<>();
+        for (JpushDo jpushDo : list){
+            aliasList.add(jpushDo.getUid());
+        }
+        String msgContent = notificationTitle;
+        //默认按注册ID推送 消息
+        jPushService.sendToRegistRationIdsList(aliasList, notificationTitle,
+                YanpiaoEnum.getMessageByCode(exts), msgContent, exts);
+        //推送所有设备广播
+        // jPushService.sendToAll(notificationTitle, msgTitle, msgContent, "exts");
+
+        return null;
+    }
+
+
+
+    @Override
+    public Map addRegistrationId(String registrationId) {
+
+        JpushDo jPushDo = jpushRepository.findByUid(registrationId);
+        if (jPushDo==null){
+            jPushDo = new JpushDo();
+            jPushDo.setMobile(registrationId);
+            jPushDo.setUid(registrationId);
+            jPushDo.setCreateTime(new Date());
+            jpushRepository.save(jPushDo);
+        }
+        Map map = new HashMap();
+        map.put("flag",1);
+        return map;
+    }
 
     @Override
     public void yuecheSave(String s, String s1, String s2, String s3, String s4, String s5, String s6, String s7, String s8) {
 
     }
 
+
+
     @Override
-    public Map<String,Object> cktikcet(String route, String bizDate, String bizTime, String uid) {
+    public Map<String,Object> cktikcet(String route, String bizDate, String bizTime, String uid){
 
         log.info("route:"+route+"  bizDate:"+bizDate+"  bizTime:"+bizTime+"  uid:"+uid);
 
@@ -90,21 +120,29 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
         if (ComUtil.isEmpty(strs)||strs.length!=2||strs[0].length()!=32){
             return map;
         }
-
-        SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(strs[1]),ORDER_STATE_1,strs[0]);
-        if (ComUtil.isEmpty(sod)){
-            return map;
-        }
-
+        SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(strs[1]),
+                ORDER_STATE_1,strs[0]);
         if (!sod.getRouteId().toString().equals(route)
                 ||!sod.getBizDate().equals(bizDate)
                 ||!sod.getBizTime().equals(bizTime)){
             map.put("state","banci");//班次不一致
             return map;
         }
+        List list = new ArrayList();
+        list.add(sod);
+        map = cktikcet(list);
+        return map;
+    }
 
+    @Override
+    public Map<String,Object> cktikcet(List<SeatOrderDO> list) {
 
-
+        Map map = new HashMap();
+        if (ComUtil.isEmpty(list) || list.size()<1){
+            map.put("state","fail");//验票失败
+            return map;
+        }
+        SeatOrderDO sod = list.get(0);
         if (sod.getCkstate()==1){
             map.put("state","double");//重复验票
             return map;
@@ -124,7 +162,8 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
         verificationTicketDO.setUserMobile(sod.getUserMobile().replaceAll("(\\d{3})\\d{4}(\\d{4})","$1****$2"));
         verificationTicketRepository.save(verificationTicketDO);
 
-        map.put("state",String.valueOf(sod.getNum().intValue()));//验票ok
+        map.put("state", String.valueOf(sod.getNum().intValue()));//验票ok
+        map.put("info", sod.getInfo() + "("+sod.getBizDate()+" "+sod.getBizTime()+")"+"["+sod.getFromStation()+"-"+sod.getToStation()+"]");
         return map;
     }
 
@@ -170,4 +209,31 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
     }
 
 
+    @Override
+    public Map<String, Object> getQrcode(String route, String bizDate, String bizTime) throws Exception{
+        SequenceDO sequenceDO = sequenceRepository.findByBizDate(bizDate);
+        if (sequenceDO == null){
+            sequenceDO = new SequenceDO();
+            sequenceDO.setBizDate(bizDate);
+            sequenceDO.setNum(1);
+        } else {
+            sequenceDO.setNum(sequenceDO.getNum()+1);
+        }
+        sequenceRepository.save(sequenceDO);
+
+        QrcodeOrderDO qrcodeOrderDO = new QrcodeOrderDO();
+        qrcodeOrderDO.setRouteId(Long.parseLong(route));
+        qrcodeOrderDO.setBizDate(bizDate);
+        qrcodeOrderDO.setBizTime(bizTime);
+        qrcodeOrderDO.setOrderNo(sequenceDO.getNum());
+        qrcodeOrderDO.setCreateTime(new Date());
+        qrcodeOrderRepository.save(qrcodeOrderDO);
+
+        WxMpQrCodeTicket wxMpQrCodeTicket =
+                weChatQrcodeUtils.qrCodeCreateTmpTicket(sequenceDO.getNum(), 7200);
+        String urlPicture = weChatQrcodeUtils.qrCodePictureUrl(wxMpQrCodeTicket.getTicket());
+        Map map = new HashMap();
+        map.put("urlPicture", urlPicture);
+        return map;
+    }
 }

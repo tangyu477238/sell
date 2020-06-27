@@ -1,21 +1,22 @@
 package com.imooc.controller;
 
 import com.imooc.VO.ResultVO;
+import com.imooc.config.WechatAccountConfig;
 import com.imooc.dataobject.JianyiDO;
 import com.imooc.dataobject.SeatOrderDO;
 import com.imooc.repository.JianyiRepository;
 import com.imooc.repository.SeatOrderRepository;
 import com.imooc.utils.ResultVOUtil;
+import com.imooc.utils.WxUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.UUID;
 
 @Slf4j
@@ -30,6 +31,9 @@ public class JianyiController {
     @Autowired
     SeatOrderRepository seatOrderRepository;
 
+    @Autowired
+    private WechatAccountConfig accountConfig;
+
     //
     @GetMapping("/index")
     public ModelAndView jianyi(@RequestParam("uid") String uid,
@@ -39,6 +43,12 @@ public class JianyiController {
         return new ModelAndView("mobile/jianyi", map);
     }
 
+
+    @GetMapping("/location")
+    public ModelAndView location(){
+        log.info("进入location方法......." );
+        return new ModelAndView("mobile/location");
+    }
 
     @ResponseBody
     @GetMapping("/add")
@@ -78,18 +88,44 @@ public class JianyiController {
 
     }
 
-//    @RequestMapping("location")
-//    public String location(Model model) throws Exception {
-//        //32位随机数(UUID去掉-就是32位的)
-//        String uuid = UUID.randomUUID().toString().replace("-", "");
-//        long timestamp = new Date().getTime();
-//        //jssdk权限验证参数
-//        TreeMap<Object, Object> map = new TreeMap<>();
-//        map.put("appId","");
-//        map.put("timestamp",timestamp);//全小写
-//        map.put("nonceStr",uuid);
-//        map.put("signature",WeChatUtil.getSignature(timestamp,uuid,RequestUtil.getUrl(request)));
-//        model.addAttribute("configMap",map);
-//        return  "location"; //视图页面
-//    }
+    /**
+     * 获取页面需要的配置信息的参数
+     * 获取用户微信地理位置信息
+     * @param url
+     * @return
+     */
+    @ResponseBody
+    @CrossOrigin
+    @GetMapping("/getJsTicket")
+    public Map<String, Object> getWeJsTicket(@RequestParam("url") String url) throws Exception {
+
+
+
+        log.info("进入getJsTicket方法......."+url);
+        Map<String, Object> map = new HashMap<>();
+
+        String AppId = accountConfig.getMpAppId();//第三方用户唯一凭证
+        String secret = accountConfig.getMpAppSecret();//第三方用户唯一凭证密钥，即appsecret
+
+        //1、获取AccessToken
+        String accessToken = WxUtils.getAccessToken(AppId,secret);
+        //2、获取Ticket
+        String jsapi_ticket = WxUtils.getTicket(accessToken);
+        //3、时间戳和随机字符串
+        String noncestr = UUID.randomUUID().toString().replace("-", "").substring(0, 16);//随机字符串
+        String timestamp = String.valueOf(System.currentTimeMillis() / 1000);//时间戳
+        //5、将参数排序并拼接字符串
+        String str = "jsapi_ticket="+jsapi_ticket+"&noncestr="+noncestr+"&timestamp="+timestamp+"&url="+url;
+        //6、将字符串进行sha1加密
+        String signature =WxUtils.SHA1(str);
+
+
+        // 获取微信signature
+        map.put("appId", AppId);
+        map.put("timestamp", timestamp);
+        map.put("nonceStr", noncestr);
+        map.put("signature", signature);
+
+        return map;
+    }
 }

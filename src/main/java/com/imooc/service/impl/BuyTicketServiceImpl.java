@@ -1109,5 +1109,24 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         return resMap;
     }
 
-
+//    @Override
+//    public void createOrderQrcode() throws Exception{
+//
+//        List<SeatOrderDO> list = seatOrderRepository.getorderlist();
+//        for(SeatOrderDO sod : list){
+//            QrcodeColorDO qrcodeColorDO = qrcodeColorRepository.findByRouteIdAndBizDate(
+//                    sod.getRouteId(), sod.getBizDate());
+//            if (ComUtil.isEmpty(qrcodeColorDO)){
+//                qrcodeColorDO = new QrcodeColorDO();
+//                qrcodeColorDO.setBizDate(sod.getBizDate());
+//                qrcodeColorDO.setBizTime(sod.getBizTime());
+//                qrcodeColorDO.setRouteId(sod.getRouteId());
+//                qrcodeColorDO.setQrcode(QRCodeUtil.getColor());
+//                qrcodeColorDO.setCreateTime(new Date());
+//                qrcodeColorRepository.save(qrcodeColorDO);
+//            }
+//            QRCodeUtil.encode(sod.getCreateUser()+"_"+sod.getId(),QRCODE_PATH, qrcodeColorDO.getQrcode());
+//        }
+//
+//    }
 }

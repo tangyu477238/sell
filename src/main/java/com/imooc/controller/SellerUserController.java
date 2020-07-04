@@ -7,6 +7,7 @@ import com.imooc.dataobject.SellerInfo;
 import com.imooc.enums.LouPanEnum;
 import com.imooc.enums.ResultEnum;
 import com.imooc.service.SellerService;
+import com.imooc.utils.ComUtil;
 import com.imooc.utils.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -44,21 +45,24 @@ public class SellerUserController {
     public ModelAndView login(@RequestParam("openid") String openid,
                               HttpServletResponse response,
                               Map<String,Object> map){
-        String url = "/sell/ticket/ticket?lp=" + LouPanEnum.XINGFUYU.getCode();
+        String url = "/sell/ticket/ticket";
+        map.put("lp",LouPanEnum.XINGFUYU.getCode());
         return getData(openid, response, map, url);
     }
     @GetMapping("/buyMonthTicket")
     public ModelAndView buyMonthTicket(@RequestParam("openid") String openid,
                               HttpServletResponse response,
                               Map<String,Object> map){
-        String url = "/sell/ticket/buyTicket?lp=" + LouPanEnum.XINGFUYU.getCode();
+        String url = "/sell/ticket/buyTicket";
+        map.put("lp",LouPanEnum.XINGFUYU.getCode());
         return getData(openid,response,map,url);
     }
     @GetMapping("/bupiao")
     public ModelAndView bupiao(@RequestParam("openid") String openid,
                                HttpServletResponse response,
                                Map<String,Object> map){
-        String url = "/sell/ticket/bupiao?lp=" + LouPanEnum.XINGFUYU.getCode();
+        String url = "/sell/ticket/bupiao";
+        map.put("lp",LouPanEnum.XINGFUYU.getCode());
         return getData(openid,response,map,url);
     }
 
@@ -74,21 +78,24 @@ public class SellerUserController {
     public ModelAndView wankecheng(@RequestParam("openid") String openid,
                                HttpServletResponse response,
                                Map<String,Object> map){
-        String url = "/sell/ticket/ticket?lp=" + LouPanEnum.BEIBUWANKE.getCode();
+        String url = "/sell/ticket/ticket";
+        map.put("lp",LouPanEnum.BEIBUWANKE.getCode());
         return getData(openid,response,map,url);
     }
     @GetMapping("/wkbupiao")
     public ModelAndView wkbupiao(@RequestParam("openid") String openid,
                                HttpServletResponse response,
                                Map<String,Object> map){
-        String url = "/sell/ticket/bupiao?lp=" + LouPanEnum.BEIBUWANKE.getCode();
+        String url = "/sell/ticket/bupiao";
+        map.put("lp",LouPanEnum.BEIBUWANKE.getCode());
         return getData(openid,response,map,url);
     }
     @GetMapping("/wkbuyMonthTicket")
     public ModelAndView wkbuyMonthTicket(@RequestParam("openid") String openid,
                                        HttpServletResponse response,
                                        Map<String,Object> map){
-        String url = "/sell/ticket/buyTicket?lp=" + LouPanEnum.BEIBUWANKE.getCode();
+        String url = "/sell/ticket/buyTicket";
+        map.put("lp",LouPanEnum.BEIBUWANKE.getCode());
         return getData(openid,response,map,url);
     }
 
@@ -102,7 +109,7 @@ public class SellerUserController {
     public ModelAndView queryMonthOrder(@RequestParam("openid") String openid,
                                         HttpServletResponse response,
                                         Map<String,Object> map){
-        String url = "/sell/ticket/queryMonthTicket?lp=1";
+        String url = "/sell/ticket/queryMonthTicket";
         return getData(openid,response,map,url);
 
     }
@@ -125,7 +132,12 @@ public class SellerUserController {
         CookieUtil.set(response, CookieConstant.TOKEN,token,expire);
 
         map.put("uid",sellerInfo.getSellerId());
-        return new ModelAndView("redirect:"+projectUrlConfig.getSell() + mode + "&uid="+sellerInfo.getSellerId());
+
+        String url = projectUrlConfig.getSell() + mode +"?uid="+sellerInfo.getSellerId();
+        if (map.containsKey("lp")){
+            url = url +"&lp="+map.get("lp");
+        }
+        return new ModelAndView("redirect:"+ url);
     }
 
 

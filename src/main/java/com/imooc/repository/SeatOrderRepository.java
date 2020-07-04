@@ -42,7 +42,7 @@ public interface SeatOrderRepository extends JpaRepository<SeatOrderDO,Integer> 
                               String bizDate,
                               String bizTime);
 
-
-
+//    @Query(value = "select * from biz_seat_order where biz_date = '2020-06-30' and create_time <'2020-06-28 21:01:22'", nativeQuery = true)
+//    List<SeatOrderDO> getorderlist();
 
 }

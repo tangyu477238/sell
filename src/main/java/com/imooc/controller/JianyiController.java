@@ -2,8 +2,10 @@ package com.imooc.controller;
 
 import com.imooc.VO.ResultVO;
 import com.imooc.config.WechatAccountConfig;
+import com.imooc.dataobject.DriverGpsDO;
 import com.imooc.dataobject.JianyiDO;
 import com.imooc.dataobject.SeatOrderDO;
+import com.imooc.repository.DriverGpsRepository;
 import com.imooc.repository.JianyiRepository;
 import com.imooc.repository.SeatOrderRepository;
 import com.imooc.utils.ResultVOUtil;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -128,4 +131,60 @@ public class JianyiController {
 
         return map;
     }
+
+
+    @ResponseBody
+    @CrossOrigin
+    @GetMapping("/getDriverGps")
+    public Map<String, Object> getDriverGps(@RequestParam("id") Long id) throws Exception {
+
+        log.info("进入getDriverGps方法......."+id);
+        Map<String, Object> map = new HashMap<>();
+        SeatOrderDO seatOrderDO = seatOrderRepository.findByIdAndState(id,1);
+        DriverGpsDO driverGpsDO = driverGpsRepository.findByRouteIdAndBizDateAndBizTime(seatOrderDO.getRouteId(),
+                seatOrderDO.getBizDate(),seatOrderDO.getBizTime());
+
+        map.put("latitude",driverGpsDO.getLat());
+        map.put("longitude",driverGpsDO.getLon());
+        map.put("name","楼巴-->"+seatOrderDO.getFromStation()+"-"+seatOrderDO.getToStation()+"/"+seatOrderDO.getBizTime());
+        map.put("address","最新位置："+driverGpsDO.getAddr());
+        return map;
+    }
+
+
+    @ResponseBody
+    @PostMapping("/uploadGps")
+    public ResultVO uploadGps(@RequestParam("lat") String lat,
+                              @RequestParam("lon") String lon,
+                              @RequestParam("addr") String addr){
+        log.info("进入uploadGps方法.......");
+        Long routeId = new Long(1);
+        String bizDate="2020-06-27";
+        String bizTime="08:00";
+
+
+        synchronized (this){
+            DriverGpsDO driverGpsDO = driverGpsRepository
+                    .findByRouteIdAndBizDateAndBizTime(routeId,bizDate,bizTime);
+            if (driverGpsDO == null) {
+                driverGpsDO = new DriverGpsDO();
+                driverGpsDO.setRouteId(routeId);
+                driverGpsDO.setBizDate(bizDate);
+                driverGpsDO.setBizTime(bizTime);
+            }
+
+            driverGpsDO.setUpdateTime(new Date());
+            driverGpsDO.setLat(lat);
+            driverGpsDO.setLon(lon);
+            driverGpsDO.setAddr(addr);
+            driverGpsRepository.save(driverGpsDO);
+        }
+
+        return ResultVOUtil.success();
+
+    }
+
+    @Autowired
+    private DriverGpsRepository driverGpsRepository;
+
 }

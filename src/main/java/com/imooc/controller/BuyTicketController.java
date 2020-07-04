@@ -429,4 +429,18 @@ public class BuyTicketController {
         log.info("进入getSeats订单方法......." + map.toString());
         return map;
     }
+
+//    @ResponseBody
+//    @GetMapping("/getorderlist")
+//    public String getorderlist() throws Exception{
+//
+//        buyTicketService.createOrderQrcode();
+//
+//        return "";
+//    }
+
+
+
+
+
 }

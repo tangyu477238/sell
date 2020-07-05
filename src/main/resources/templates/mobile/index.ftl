@@ -58,6 +58,10 @@
 
             var uid = $('#uid').val();
 
+
+			
+			
+
             // if(uid!='bdf9eb628f0b464dbefaaac694e680ab'
             //     &&uid!='a365c62fd4c241f6a8b277ebd495c5d3'){
             // 	alert('系统维护');
@@ -68,6 +72,14 @@
             var t = $('#time').val();
             var y = $('#moment').val();
             var routeStation = $('#routeStation').val();
+
+
+			//if(t=='2020-06-29' && uid!='bdf9eb628f0b464dbefaaac694e680ab'
+			//	 && uid!='a365c62fd4c241f6a8b277ebd495c5d3'){
+			//	alert('系统紧急维护,请稍后再试!');
+			//	return false;
+			//}  
+            
 
             if (r==''){
                 alert('亲，日期（或时间或路线）一定要选哦');
@@ -135,17 +147,21 @@
 
 
             <div id="aaaa" style="text-align: right;min-height: 3em;margin-top: 0.5em;">
-                <a href="javascript:location.href='/sell/jianyi/index?uid=${uid}'">建议班车</a>
+                <a href="javascript:location.href='http://gzjhqc.vip/sell/shangchedian.html'">上车点位置&地图导航</a>
             </div>
 
             <div class="button" style="background-color: ${lpColor};margin-top: 0.2em;">
                 <input type="submit" name="submit" style=" background:none; border:none; color:#fff; width:100%; height:100%;" value="下一步"></div>
             <div style="color:red; padding:10px;font-size: 14px;">
                    温馨提示：
-                <br/>班次如购买错误，系统无法实现退还，请您注意选择正确的班次！
+				   <br/>
+
+				<br/>宏发的上车点在北门               
+				<br/>班次如购买错误，系统无法实现退还，请您注意选择正确的班次！
 				<br/>过期车票一律作废，逃票、套票弄虚做假者我司将其列入黑名单。
                 <br/>为避免超载，请主动为小朋友购买车票，谢谢！
-                <br/>
+		
+<br/>
                 <br/>6月4日起调整售票：
                 <br/>每天18点可以买第3天7点和7点之前的票
                 <br/>每天19点可以买第3天8点和8点之前的票

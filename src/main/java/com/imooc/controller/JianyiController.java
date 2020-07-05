@@ -48,9 +48,9 @@ public class JianyiController {
 
 
     @GetMapping("/location")
-    public ModelAndView location(){
+    public ModelAndView location(@RequestParam("station") String station){
         log.info("进入location方法......." );
-        return new ModelAndView("mobile/location");
+        return new ModelAndView("mobile/"+station);
     }
 
     @ResponseBody

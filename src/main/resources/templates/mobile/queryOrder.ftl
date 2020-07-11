@@ -86,21 +86,15 @@
 
     </style>
     <script language="JavaScript">
-        function check() {
-            var phonenum = $('#phonenum').val();
-            if (phonenum == '') {
-                alert("请填入正确的手机号");
-                return false;
-            } else if (typeof (phonenum) == 'undefined') {
-                alert("请填入正确的手机号");
-                return false;
-            } else if (phonenum.length < 11) {
-                alert("请填入正确的手机号");
-                return false;
+        $(document).ready(function () {
+            var num = Math.floor(Math.random() * 10) + 1;
+            if (num > 5){
+                $("#imageId").attr("src","/sell/img/guanggao1.jpg");
             } else {
-                return true;
+                $("#imageId").attr("src","/sell/img/guanggao2.jpg");
             }
-        }
+
+        });
 
 
 
@@ -119,7 +113,7 @@
 <div class="content">
     <div class="main">
         <div style="width: 100%;height: 20em;margin-bottom: 20px; text-align: center;">
-            <img src="${qrcode}" style="height: 20em;">
+            <img id="imageId" src="${qrcode}" style="height: 20em;">
         </div>
 
         <div class="main_header" style="background-color: ${lpColor}">

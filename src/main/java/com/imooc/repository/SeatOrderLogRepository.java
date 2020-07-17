@@ -1,6 +1,5 @@
 package com.imooc.repository;
 
-import com.imooc.dataobject.SeatOrderDO;
 import com.imooc.dataobject.SeatOrderLogDO;
 import org.springframework.data.jpa.repository.JpaRepository;
 

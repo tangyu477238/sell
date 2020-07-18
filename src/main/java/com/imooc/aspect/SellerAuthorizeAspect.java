@@ -2,7 +2,12 @@ package com.imooc.aspect;
 
 import com.imooc.constant.CookieConstant;
 import com.imooc.constant.RedisConstant;
+import com.imooc.dataobject.BlacklistDO;
+import com.imooc.dataobject.SellerInfo;
 import com.imooc.exception.BusinessException;
+import com.imooc.repository.BlacklistRepository;
+import com.imooc.repository.SellerInfoRepository;
+import com.imooc.utils.ComUtil;
 import com.imooc.utils.CookieUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,6 +22,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Created by SqMax on 2018/4/2.
@@ -28,6 +34,14 @@ public class SellerAuthorizeAspect {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private BlacklistRepository blacklistRepository;
+
+    @Autowired
+    private SellerInfoRepository sellerInfoRepository;
+
+
 
     @Pointcut("(execution(public * com.imooc.controller.Seller*.*(..))"
             +"|| execution(public * com.imooc.controller.Buy*.*(..)))"
@@ -57,6 +71,13 @@ public class SellerAuthorizeAspect {
             log.warn("【登录校验】 Redis中查不到token");
             throw new BusinessException("500","系统错误");
         }
+        //黑名单拦截
+        SellerInfo sellerInfo = sellerInfoRepository.findByOpenid(tokenValue);
+        List<BlacklistDO>  list = blacklistRepository.findByOpenidOrMobile(sellerInfo.getOpenid(),sellerInfo.getMobile());
+        if (!ComUtil.isEmpty(list)){
+            throw new BusinessException("500","已被加入黑名单，如需帮助，请拨打服务热线！");
+        }
+
     }
 
 }

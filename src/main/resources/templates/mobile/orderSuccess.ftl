@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no"
           name="viewport" id="viewport"/>
-    <title>订票成功</title>
+    <title>支付成功</title>
     <style type="text/css">
         * {
             margin: 0px;
@@ -130,8 +130,8 @@
     -->
 <div class="main">
     <img src="/sell/img/success.png">
-    <h4>订票成功</h4>
-    <span>本次订票信息及取票信息已经发送您的手机</span>
+    <h4>支付成功，但不一定出票成功！</h4>
+    <span>本次订票信息已经发送您的手机,请注意查收</span>
     <#--<p> 购票类型：订座票</p>-->
     <p>订单号：${orderNo}</p>
     <#--<p></p>-->
@@ -145,15 +145,15 @@
     <div class="clear"></div>
     <span>1.完成订票后，您将收到微信提示，包括本次购票信息</span>
     <br>
-    <span>2.取票信息是您取材时唯一的凭证，请妥善保存</span>
+    <span>2.如果没有收到微信提示，请点开我的订单，可找到购票信息！</span>
 </div>
 <div class="shuoming">
-    <h3>取票说明</h3>
-    <span>1.前往乘车现场，即可完成取票</span>
+    <h3>乘车说明</h3>
+    <span>1.前往乘车现场，展示购票订单详情即可！</span>
     <br>
-    <span>2.如现场终端无法打印车票，确定订票信息无误后，联系现场工作人员，协助取票</span>
+    <span>2.司机可通过购票系统的座位图，查询到每位业主的购票信息，大巴的空位情况！</span>
     <br>
-    <span>3.打印订座票后  请配合购买的原纸质票一同检票乘车。</span>
+    <span>3.为避免不必要的麻烦，请不要使用过期或重复的截图订单详情逃票上车。</span>
 </div>
 <div class="footer">
     <#--<a href="index">完成预约</a>-->

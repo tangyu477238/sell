@@ -153,10 +153,10 @@
             <div class="button" style="background-color: ${lpColor};margin-top: 0.2em;">
                 <input type="submit" name="submit" style=" background:none; border:none; color:#fff; width:100%; height:100%;" value="下一步"></div>
             <div style="color:red; padding:10px;font-size: 14px;">
-                   温馨提示：
-				   <br/>
-
-				<br/>宏发的上车点在北门               
+                温馨提示：
+                <br/>
+				<br/>预定座位的订单支付时间为2分钟，超时系统会自动释放座位！
+                <br/>
 				<br/>班次如购买错误，系统无法实现退还，请您注意选择正确的班次！
 				<br/>过期车票一律作废，逃票、套票弄虚做假者我司将其列入黑名单。
                 <br/>为避免超载，请主动为小朋友购买车票，谢谢！

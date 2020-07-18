@@ -95,6 +95,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     private SeatOrderRepository seatOrderRepository;
 
     @Autowired
+    private SeatOrderLogRepository seatOrderLogRepository;
+
+
+
+    @Autowired
     private SeatOrderItemRepository seatOrderItemRepository;
 
 
@@ -436,8 +441,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         log.info("----------------updateYuepiaoOrder-------------------");
         SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(orderId),0,uid);
-        double ttime =DateTimeUtil.getSecondsOfTwoDate(sod.getUpdateTime(),new Date()) ;
-        if (sod== null || ttime<0){
+        if (sod== null || DateTimeUtil.getSecondsOfTwoDate(sod.getUpdateTime(),new Date())<0){
             throw new SellException(500,"订单不存在或已超支付时间！");
         }
 
@@ -501,12 +505,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     public Map<String, Object> payOrder(String orderId, String uid) {
         SeatOrderDO sod = seatOrderRepository.findByIdAndStateAndCreateUser(new Long(orderId),0, uid);
 
-        if (sod== null){
-            throw new SellException(501,"订单不存在或已超支付时间！");
-        }
-        double ttime1 =DateTimeUtil.getSecondsOfTwoDate(sod.getUpdateTime(),new Date()) ;
-        if (ttime1<0){
-            throw new SellException(501,"订单不存在或已超支付时间！");
+        if (sod== null || DateTimeUtil.getSecondsOfTwoDate(sod.getUpdateTime(),new Date())<0){
+            throw new BusinessException("500","订单不存在或已超支付时间！");
         }
 
         SellerInfo sellerInfo = userRepository.findOne(uid);
@@ -583,10 +583,16 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         //查询订单
         SeatOrderDO sod = seatOrderRepository.findByOrderNo(payResponse.getOrderId());
         //判断订单是否存在  不存在说明超时支付，需要发起退款操作，但目前不做直接退款，只做记录
-        if(sod == null){
+        if(sod == null || DateTimeUtil.getSecondsOfTwoDate(sod.getUpdateTime(),new Date())<0){
             log.error("【微信支付】 异步通知，订单不存在，orderId={}",payResponse.getOrderId());
 
             repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_2);
+
+            SeatOrderLogDO logDO = seatOrderLogRepository.findByOrderNo(payResponse.getOrderId());
+            SellerInfo sellerLog = userRepository.findOne(logDO.getCreateUser());
+            sendMessage(sellerLog.getOpenid(), "orderTuiStatus", getOrderTuiTemplateData(logDO), null);
+
+            //refund(payResponse.getOrderId(), payResponse.getOrderAmount()); //退款
 
             log.error("【微信支付】-----待退款记录------- 异步通知，订单不存在，orderId={}",payResponse.getOrderId());
             return payResponse;
@@ -641,11 +647,21 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
 
+    private List<WxMpTemplateData> getOrderTuiTemplateData(SeatOrderLogDO sod){
+        //发送出票失败通知
+        List<WxMpTemplateData> data= Arrays.asList(
+                new WxMpTemplateData("first","您好，您的订单已支付超时，出票失败了！"),
+                new WxMpTemplateData("keyword1",sod.getFromStation()+"-"+sod.getToStation(),"#B5B5B5"),
+                new WxMpTemplateData("keyword2",sod.getBizDate()+" "+sod.getBizTime(),"#B5B5B5"),
+                new WxMpTemplateData("keyword3",sod.getOrderNo(),"#B5B5B5"),
+                new WxMpTemplateData("remark","退款将在3个工作日内按原路返回。\r\n若需购票请重新下单。\r\n如需帮助请致电"+ORDER_link_TEL+"。","#173177"));
+
+        return data;
+    }
 
 
 
-
-    private List<WxMpTemplateData> getOrderTemplateData(SeatOrderDO sod ){
+    private List<WxMpTemplateData> getOrderTemplateData(SeatOrderDO sod){
         //发送通知
         List<WxMpTemplateData> data= Arrays.asList(
                 new WxMpTemplateData("first","您好，您已成功购票。"),
@@ -658,7 +674,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         return data;
     }
 
-    private List<WxMpTemplateData> getOrderMonthTemplateData(MonthTicketUserLogDO mtu ){
+    private List<WxMpTemplateData> getOrderMonthTemplateData(MonthTicketUserLogDO mtu){
         //发送通知
         List<WxMpTemplateData> data= Arrays.asList(
                 new WxMpTemplateData("first","您好，您已成功购买"+mtu.getMonth()+"月卡。"),

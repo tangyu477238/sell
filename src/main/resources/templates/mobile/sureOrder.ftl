@@ -115,6 +115,9 @@
             border-radius: 3px;
         }
     </style>
+
+
+
     <script language="JavaScript">
         function check() {
             var phonenum = $('#phonenum').val();
@@ -133,6 +136,33 @@
         }
 
 
+        window.onload = function () {
+            var payOutTime = "${sod.updateTime?string('yyyy-MM-dd HH:mm:ss')}";
+
+            countDown();
+            function addZero(i) {
+                return i < 10 ? "0" + i: i + "";
+            }
+            function countDown() {
+                var nowtime = new Date();
+                var endtime = new Date(payOutTime);
+                var lefttime = parseInt((endtime.getTime() - nowtime.getTime()) / 1000);
+                var d = parseInt(lefttime / (24*60*60))
+                var h = parseInt(lefttime / (60 * 60) % 24);
+                var m = parseInt(lefttime / 60 % 60);
+                var s = parseInt(lefttime % 60);
+                d = addZero(d)
+                h = addZero(h);
+                m = addZero(m);
+                s = addZero(s);
+                document.querySelector(".count").innerHTML = m+'分'+s+'秒';
+                if (lefttime <= 0) {
+                    document.querySelector(".count").innerHTML = "订单已超时";
+                    return;
+                }
+                setTimeout(countDown, 1000);
+            }
+        }
 
 
     </script>
@@ -160,6 +190,10 @@
         </div>
         <div class="main_info">
             <table>
+                <tr>
+                    <td class="tableleft">支付剩余时间：</td>
+                    <td class="count" style="color: red"></td>
+                </tr>
                 <tr>
                     <td class="tableleft">乘客姓名：</td>
                     <td>${sod.userName}</td>

@@ -53,7 +53,7 @@ public class MyScheduler {
     public CronTriggerFactoryBean cronJobTrigger(MethodInvokingJobDetailFactoryBean jobDetail) {
         CronTriggerFactoryBean tigger = new CronTriggerFactoryBean();
         tigger.setJobDetail(jobDetail.getObject());
-        tigger.setCronExpression("0 0/2 * * * ? *");// 初始时的cron表达式
+        tigger.setCronExpression("0/15 * * * * ?");// 初始时的cron表达式
         tigger.setName("marketing_activity");// trigger的name
         return tigger;
 

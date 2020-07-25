@@ -428,7 +428,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     @Override
     public void deleteSorder(String uid, String orderId) {
         repository.deleteByOrderPid(orderId);//删除orderItem
+        SeatOrderDO seatOrderDO = seatOrderRepository.findByIdAndState(Long.parseLong(orderId),ORDER_STATE_0);
         repository.deleteByOrdId(orderId);//删除order
+        SeatOrderLogDO logDO = seatOrderLogRepository.findByOrderNo(seatOrderDO.getOrderNo());
+        logDO.setUpdateTime(new Date());
+        seatOrderLogRepository.save(logDO);
     }
 
 

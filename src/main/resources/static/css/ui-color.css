@@ -8,6 +8,10 @@
 .bc-bg {
     background-color: #FFFFFF;
 }
+/**灰色背景***/
+.bc-bg1 {
+    background-color: #F8F8F8;
+}
 /*辅助控件背景颜色*/
 .sc-bg {
     background-color: #EEEEEE;

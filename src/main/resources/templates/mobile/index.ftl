@@ -42,7 +42,7 @@
             }else if(q==2){
                 $("#routeStation").append("<option value=''>请选择上车地点</option><option value='幸福誉第一期'>幸福誉第一期</option><option value='幸福誉第三期'>幸福誉第三期</option><option value='绿地城'>绿地城</option>");
             }else if(q==16){
-                $("#routeStation").append("<option value='珠江新城'>珠江新城</option>");
+                $("#routeStation").append("<option value='猎德'>猎德</option><option value='珠江新城'>珠江新城</option><option value='潭村'>潭村</option>");
             }else if(q==15){
                 $("#routeStation").append("<option value=''>请选择上车地点</option><option value='幸福誉第一期'>幸福誉第一期</option><option value='幸福誉第三期'>幸福誉第三期</option><option value='绿地城'>绿地城</option>");
             }else if(q==17){
@@ -59,8 +59,8 @@
             var uid = $('#uid').val();
 
 
-			
-			
+
+
 
             // if(uid!='bdf9eb628f0b464dbefaaac694e680ab'
             //     &&uid!='a365c62fd4c241f6a8b277ebd495c5d3'){
@@ -74,12 +74,12 @@
             var routeStation = $('#routeStation').val();
 
 
-			//if(t=='2020-06-29' && uid!='bdf9eb628f0b464dbefaaac694e680ab'
-			//	 && uid!='a365c62fd4c241f6a8b277ebd495c5d3'){
-			//	alert('系统紧急维护,请稍后再试!');
-			//	return false;
-			//}  
-            
+            //if(t=='2020-06-29' && uid!='bdf9eb628f0b464dbefaaac694e680ab'
+            //	 && uid!='a365c62fd4c241f6a8b277ebd495c5d3'){
+            //	alert('系统紧急维护,请稍后再试!');
+            //	return false;
+            //}
+
 
             if (r==''){
                 alert('亲，日期（或时间或路线）一定要选哦');
@@ -155,13 +155,13 @@
             <div style="color:red; padding:10px;font-size: 14px;">
                 温馨提示：
                 <br/>
-				<br/>预定座位的订单支付时间为2分钟，超时系统会自动释放座位！
+                <br/>预定座位的订单支付时间为2分钟，超时系统会自动释放座位！
                 <br/>
-				<br/>班次如购买错误，系统无法实现退还，请您注意选择正确的班次！
-				<br/>过期车票一律作废，逃票、套票弄虚做假者我司将其列入黑名单。
+                <br/>班次如购买错误，系统无法实现退还，请您注意选择正确的班次！
+                <br/>过期车票一律作废，逃票、套票弄虚做假者我司将其列入黑名单。
                 <br/>为避免超载，请主动为小朋友购买车票，谢谢！
-		
-<br/>
+
+                <br/>
                 <br/>6月4日起调整售票：
                 <br/>每天18点可以买第3天7点和7点之前的票
                 <br/>每天19点可以买第3天8点和8点之前的票

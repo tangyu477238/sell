@@ -22,6 +22,7 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 import net.minidev.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -1053,6 +1054,16 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         List<SeatOrderDO>  list = seatOrderRepository.findByRouteIdAndBizDateAndBizTimeAndInfoAndState(
                 Long.valueOf(route),time,moment,"补票",1);
         resMap.put("bupiao",list.size());
+
+        List<SeatOrderDO>  listZhanwei = seatOrderRepository.findByRouteIdAndBizDateAndBizTimeAndState(
+                Long.valueOf(route),time,moment,0);
+
+        List liststr = new ArrayList();
+        for(SeatOrderDO seatOrderDO : listZhanwei){
+            liststr.add(seatOrderDO.getInfo());
+        }
+        resMap.put("zhanpiao", StringUtils.join(liststr, ","));
+//        log.info(StringUtils.join(liststr, ","));
         return resMap;
     }
 

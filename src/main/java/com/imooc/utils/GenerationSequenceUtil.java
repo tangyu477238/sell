@@ -32,7 +32,7 @@ public class GenerationSequenceUtil {
             char c = (char) (randomInt(0, 10) + '0');
             charValue += String.valueOf(c);
         }
-        if (Integer.parseInt(charValue)<1000){
+        if (Double.parseDouble(charValue)<Math.pow(10,charCount-1)){
             charValue = GenerationSequenceUtil.getRandNum(4);
         }
         return charValue;
@@ -58,12 +58,12 @@ public class GenerationSequenceUtil {
 
     public static void main(String[] args) {
 //        System.out.println(GenerationSequenceUtil.SnowflakeIdWorker.getNextValue());
-//        System.out.println(generateUUID("menu"));
-        for (int i = 0; i < 1000000; i++) {
+//        System.out.println(Math.pow(10,3));
+        for (int i = 0; i < 1000; i++) {
             String r =getRandNum(4) ;
-            if (r.length()!=4){
+//            if (r.length()!=4){
                 System.out.println("-------"+r);
-            }
+//            }
         }
 
     }

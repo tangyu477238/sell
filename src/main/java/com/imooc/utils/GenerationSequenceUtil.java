@@ -32,6 +32,9 @@ public class GenerationSequenceUtil {
             char c = (char) (randomInt(0, 10) + '0');
             charValue += String.valueOf(c);
         }
+        if (Integer.parseInt(charValue)<1000){
+            charValue = GenerationSequenceUtil.getRandNum(4);
+        }
         return charValue;
     }
     private static  int randomInt(int from, int to) {

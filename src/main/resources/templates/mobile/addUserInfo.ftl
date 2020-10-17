@@ -148,19 +148,18 @@
                 return;
             }
 
-            if (window.is__jfzf) return;
-            window.is__jfzf = true;
+
 
             var uid = $('#uid').val();
             $.get('/sell/ticket/saveInfo?uid=' + uid + '&verify=' + verify + '&name=' + name + '&phone=' + phonenum, function (res) {
                
-                window.is__jfzf = false;
+
                 
                 if (res.msg=='成功') {
                     alert('提交成功!');
-                    location.replace( '/sell/ticket/ticket?uid=' + uid)  ;
+                    WeixinJSBridge.invoke('closeWindow',{},function(res){});
                 } else {
-                    alert('提交失败:' + res.msg);
+                    alert('提交失败:' + res.msg+"[可联系管理员微信13552379492]");
                 }
             })
         }

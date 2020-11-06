@@ -208,6 +208,11 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
         return map;
     }
 
+    @Override
+    public Map<String, Object> shikebiao(String route, String holiday) {
+        String bizDate = verificationTicketRepository.getCalendar(holiday);
+        return cktikcetTime(route,bizDate);
+    }
 
     @Override
     public Map<String, Object> getQrcode(String route, String bizDate, String bizTime) throws Exception{

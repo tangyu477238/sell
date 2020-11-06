@@ -48,6 +48,7 @@ public class SellerAuthorizeAspect {
             +"&& !execution(public * com.imooc.controller.Buy*.notify*(..))"
             +"&& !execution(public * com.imooc.controller.VerificationTicket*.*(..))" //验票
             +"&& !execution(public * com.imooc.controller.Buy*.queryOrder*(..))"
+            +"&& !execution(public * com.imooc.controller.Buy*.getskb*(..))"
             +"&& !execution(public * com.imooc.controller.SellerUserController.*(..))"
 
             )

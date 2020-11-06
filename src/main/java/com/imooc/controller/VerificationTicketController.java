@@ -41,6 +41,11 @@ public class VerificationTicketController {
         return verificationTicketService.cktikcetTime(route,DateTimeUtil.getBeforeDay(0));
     }
 
+    @GetMapping("/shikebiao")
+    public Map<String,Object> shikebiao(@RequestParam() String route,
+                                           @RequestParam() String holiday){
+        return verificationTicketService.shikebiao(route,holiday);
+    }
 
     @GetMapping("/cktikcetYpjl")
     public Map<String,Object> cktikcetYpjl(@RequestParam("route") String route,

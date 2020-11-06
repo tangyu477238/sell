@@ -14,8 +14,13 @@ public interface VerificationTicketRepository extends JpaRepository<Verification
     //班次
     @Query(value = "select distinct biz_time  from  biz_car_datetime_seat v  "
             +" inner join biz_plan_price p on p.id= v.plan_id "
-            +" where p.route_id =?1  and  v.biz_date = ?2   order by biz_time" , nativeQuery = true)
+            +" where p.route_id =?1  and  v.biz_date = ?2  order by biz_time" , nativeQuery = true)
     List<String> getTime(String route, String bizDate);
+
+    @Query(value = "select MAX(biz_date) as biz_date from biz_calendar"
+            +" WHERE holiday = ?1 and biz_date<=CURDATE() ", nativeQuery = true)
+    String getCalendar(String holiday);
+
 
 }
 

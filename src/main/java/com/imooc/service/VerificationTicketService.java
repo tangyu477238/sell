@@ -20,6 +20,9 @@ public interface VerificationTicketService {
 
     Map<String,Object> cktikcetTime(String route,String bizDate);
 
+    Map<String,Object> shikebiao(String route,String holiday);
+
+
     Map<String,Object> cktikcet(String route, String bizDate, String bizTime,String uid);
 
     Map<String,Object> cktikcet(List<SeatOrderDO> sodlist);

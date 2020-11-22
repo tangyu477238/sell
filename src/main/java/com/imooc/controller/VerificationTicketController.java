@@ -29,14 +29,14 @@ public class VerificationTicketController {
 
 
 
-    @GetMapping("/cktikcetCzy")
+    @GetMapping("/cktikcetCzyNew") //2
     public Map<String,Object> cktikcetCzy(){
 
         return verificationTicketService.ckticketCzy();
     }
 
 
-    @GetMapping("/cktikcetTime")
+    @GetMapping("/cktikcetTimeNew") //3
     public Map<String,Object> cktikcetTime(@RequestParam() String route){
         return verificationTicketService.cktikcetTime(route,DateTimeUtil.getBeforeDay(0));
     }
@@ -66,7 +66,7 @@ public class VerificationTicketController {
 
 
 
-    @GetMapping("/addRegistrationId")
+    @GetMapping("/addRegistrationIdNew") //1
     public Map addRegistrationId(@RequestParam("registrationId") String registrationId){
         Map map = verificationTicketService.addRegistrationId(registrationId);
         log.info("addRegistrationId......." + map.toString());

@@ -3,6 +3,7 @@ package com.imooc.service.impl;
 import com.imooc.dataobject.*;
 import com.imooc.enums.YanpiaoEnum;
 import com.imooc.repository.*;
+import com.imooc.service.BuyTicketService;
 import com.imooc.service.VerificationTicketService;
 import com.imooc.utils.ComUtil;
 import com.imooc.utils.JPushService;
@@ -43,7 +44,8 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
 
 
 
-
+    @Autowired
+    private BuyTicketService buyTicketService;
     @Autowired
     private SeatOrderRepository seatOrderRepository;
     @Autowired
@@ -61,6 +63,12 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
     @Autowired
     private WeChatQrcodeUtils weChatQrcodeUtils;
 
+
+    @Override
+    public void sendWandianMsg(Long route, String bizDate, String bizTime, String wtime) {
+
+        buyTicketService.sendWandianMsg(route,bizDate,bizTime,"",wtime);
+    }
 
     @Override
     public Map pushMessage(String notificationTitle,String exts) {

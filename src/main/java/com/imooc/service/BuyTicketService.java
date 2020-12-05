@@ -59,4 +59,6 @@ public interface BuyTicketService {
     Map<String,Object>  getOrderSeats(String route, String time, String moment);
 
 //    void createOrderQrcode() throws Exception;
+
+    void sendWandianMsg(Long route, String bizDate, String bizTime, String carNum, String wtime);
 }

@@ -1,8 +1,10 @@
 package com.imooc.controller;
 
+import com.imooc.VO.ResultVO;
 import com.imooc.service.BuyTicketService;
 import com.imooc.service.VerificationTicketService;
 import com.imooc.utils.DateTimeUtil;
+import com.imooc.utils.ResultVOUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,16 @@ public class VerificationTicketController {
     private BuyTicketService buyTicketService;
 
 
+
+    @GetMapping("/sendWandianMsg")
+    public ResultVO sendWandianMsg(@RequestParam("route") Long route,
+                                   @RequestParam("bizDate") String bizDate,
+                                   @RequestParam("time") String time,
+                                   @RequestParam("wtime") String wtime){
+        verificationTicketService.sendWandianMsg(route, bizDate,time,wtime);
+        log.info("sendWandianMsg......." );
+        return ResultVOUtil.success();
+    }
 
 
     @GetMapping("/cktikcetCzyNew") //2

@@ -691,6 +691,19 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         return data;
     }
 
+    private List<WxMpTemplateData> getWandianTemplateData(SeatOrderDO sod, String carNum, String wtime){
+        //发送通知
+        List<WxMpTemplateData> data= Arrays.asList(
+                new WxMpTemplateData("first","抱歉，您购买的"+sod.getBizDate()+" "+sod.getBizTime()+"班车，因故大约晚点"+wtime+"分钟！"),
+                new WxMpTemplateData("keyword1",sod.getFromStation()+"-"+sod.getToStation(),"#B5B5B5"),
+                new WxMpTemplateData("keyword2",carNum,"#B5B5B5"),
+                new WxMpTemplateData("keyword3",sod.getBizDate()+" "+sod.getBizTime()+"(晚点"+wtime+"分钟)","#FF0000"),
+                new WxMpTemplateData("keyword4",ORDER_link_TEL,"#B5B5B5"),
+                new WxMpTemplateData("remark","给您带来的不便，我们深感歉意！","#173177"));
+
+        return data;
+    }
+
 
     private void sendMessage(String openid,String moban,List<WxMpTemplateData> data,String url){
 
@@ -1046,7 +1059,16 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     }
 
-
+    @Override
+    public void sendWandianMsg(Long route, String bizDate, String bizTime,String carNum,String wtime) {
+        List<SeatOrderDO> list = seatOrderRepository.findByRouteIdAndBizDateAndBizTimeAndState(route,bizDate,bizTime,ORDER_STATE_1);
+        for (int i = 0; i < list.size(); i++) {
+            SeatOrderDO sod = list.get(i);
+            SellerInfo sellerInfo = userRepository.findOne(sod.getCreateUser());
+            sendMessage(sellerInfo.getOpenid(),"orderWanStatus",getWandianTemplateData(sod,carNum,wtime),
+                    null);
+        }
+    }
 
     public Map<String,Object>  getOrderSeats(String route, String time, String moment) {
         List<Object[]> seatlist = repository.getOrderSeats(route, time, moment);

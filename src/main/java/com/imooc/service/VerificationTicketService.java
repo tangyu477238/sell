@@ -33,4 +33,6 @@ public interface VerificationTicketService {
 
     Map<String,Object> getQrcode(String route, String bizDate, String bizTime) throws Exception;
 
+   void sendWandianMsg(Long route, String bizDate, String bizTime, String wtime);
+
 }

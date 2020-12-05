@@ -1782,7 +1782,7 @@ public class DateTimeUtil {
     //当前月
     public static String getMonth() {
         Calendar calendar = Calendar.getInstance(); // 此时打印它获取的是系统当前时间
-        calendar.add(Calendar.DATE, 0); // 得到前一天
+        calendar.add(Calendar.DATE, 0); //
         return new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime()).substring(0,7);
     }
 

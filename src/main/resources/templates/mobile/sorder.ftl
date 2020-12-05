@@ -21,7 +21,7 @@
 </div>
 
 <div style="font: 14px; color: #3445a1;font-weight:600; padding: 15px 0; background: #e6fcf0; width: 100%">
-    <div class="orderList-tab">月票消费记录</div>
+    <div class="orderList-tab">月票消费记录(仅显示当月之后数据)</div>
 </div>
 
 
@@ -53,7 +53,7 @@
 
 
 <div style="font: 14px; color: #3445a1;font-weight:600; padding: 15px 0; background: #e6fcf0;">
-    <div class="orderList-tab">次票消费记录</div>
+    <div class="orderList-tab">次票消费记录(仅显示当月之后数据)</div>
 </div>
 
 <div >

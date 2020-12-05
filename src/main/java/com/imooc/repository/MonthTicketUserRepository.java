@@ -2,6 +2,7 @@ package com.imooc.repository;
 
 import com.imooc.dataobject.MonthTicketUserDO;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -10,8 +11,8 @@ import java.util.List;
  */
 public interface MonthTicketUserRepository extends JpaRepository<MonthTicketUserDO,Integer> {
 
-
-//    MonthTicketUserDO findByCreateUserAndMonthAndRemark(String uid,String month,String remark);
+    @Query(value = "select * from biz_month_ticket_user where remark = 1 and create_user=?1 and `month` >=?2 ", nativeQuery = true)
+    List<MonthTicketUserDO> getMonthByUser(String uid,String month);
 
     List<MonthTicketUserDO> findByCreateUserAndRemarkOrderByIdDesc(String uid,String remark);
 

@@ -811,11 +811,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     public Map<String, Object> queryMonthTicket(String uid) {
 
         List<MonthTicketUserDO> mtulist =
-                monthTicketUserRepository.findByCreateUserAndRemarkOrderByIdDesc(uid,MONTH_STATE_1);
+                monthTicketUserRepository.getMonthByUser(uid,DateTimeUtil.getMonth());
         Map map = new HashMap();
         map.put("mtulist",mtulist);
 
-        List<SeatOrderDO> sodlist = seatOrderRepository.findByStateAndCreateUserOrderByIdDesc(ORDER_STATE_1,uid);
+        List<SeatOrderDO> sodlist = seatOrderRepository.findSeatOrderByUser(uid,DateTimeUtil.getMonth());
         map.put("sodlist",sodlist);
 
         return map;

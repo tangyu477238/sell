@@ -704,6 +704,19 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         return data;
     }
 
+    private List<WxMpTemplateData> getwarningOrderTemplateData(String fromStation,String toStation,String updateTime,String toDateTime,String name){
+        //发送通知
+        List<WxMpTemplateData> data= Arrays.asList(
+                new WxMpTemplateData("first","警告，系统检测到您可能存在卡发车时间而不付款现象，还请注意提前购买车票！"),
+                new WxMpTemplateData("keyword1",name,"#B5B5B5"),
+                new WxMpTemplateData("keyword2",fromStation+"-"+toStation,"#B5B5B5"),
+                new WxMpTemplateData("keyword3",toDateTime,"#B5B5B5"),
+                new WxMpTemplateData("keyword4",updateTime,"#FF0000"),
+                new WxMpTemplateData("remark","即日起系统检测到2次及以上卡发车时间而不付款，将会自动拉入黑名单，月票自动清零！还请知晓！","#FF0000"));
+
+        return data;
+    }
+
 
     private void sendMessage(String openid,String moban,List<WxMpTemplateData> data,String url){
 
@@ -1057,6 +1070,19 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
 
+    }
+
+    @Override
+    public void getwarningOrderUsers() {
+        List<Object[]> list  = seatOrderLogRepository.getwarningOrderUsers();
+        for (int j = 0; list != null && j < list.size(); j++) {
+            if (list.get(j)[0]!=null){
+                SellerInfo sellerInfo = userRepository.findOne(list.get(j)[0].toString());
+                sendMessage(sellerInfo.getOpenid(),"orderWarningStatus",getwarningOrderTemplateData(list.get(j)[1].toString(),
+                        list.get(j)[2].toString(),list.get(j)[3].toString(),list.get(j)[4].toString(),list.get(j)[5].toString()),
+                        null);
+            }
+        }
     }
 
     @Override

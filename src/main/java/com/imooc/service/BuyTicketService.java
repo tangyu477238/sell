@@ -61,4 +61,6 @@ public interface BuyTicketService {
 //    void createOrderQrcode() throws Exception;
 
     void sendWandianMsg(Long route, String bizDate, String bizTime, String carNum, String wtime);
+
+    void getwarningOrderUsers();
 }

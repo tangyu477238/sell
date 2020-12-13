@@ -123,6 +123,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     @Autowired
     private QrcodeColorRepository qrcodeColorRepository;
 
+    @Autowired
+    private BlacklistRepository blacklistRepository;
 
 
 
@@ -1081,6 +1083,17 @@ public class BuyTicketServiceImpl implements BuyTicketService {
                 sendMessage(sellerInfo.getOpenid(),"orderWarningStatus",getwarningOrderTemplateData(list.get(j)[1].toString(),
                         list.get(j)[2].toString(),list.get(j)[3].toString(),list.get(j)[4].toString(),list.get(j)[5].toString()),
                         null);
+
+                 List<Object[]> listUser = seatOrderLogRepository.addBlacklist(sellerInfo.getMobile());
+                 if (listUser != null && listUser.size()>0){
+                     BlacklistDO black = new BlacklistDO();
+                     black.setOpenid(sellerInfo.getSellerId());
+                     black.setMobile(sellerInfo.getMobile());
+                     black.setCreateTime(new Date());
+                     black.setName(sellerInfo.getName());
+                     blacklistRepository.save(black);
+                 }
+
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.imooc.service;
 
+import com.imooc.dataobject.SeatOrderDO;
 import com.lly835.bestpay.model.PayResponse;
 import com.lly835.bestpay.model.RefundResponse;
 
@@ -52,7 +53,11 @@ public interface BuyTicketService {
 
     void sendYzm(String name, String phone, String uid);
 
+    //退款
     RefundResponse refund(String orderNO,double amount);
+
+    //退单
+    void tuiDan(SeatOrderDO seatOrderDO);
 
     void delOrderByTimeOut();
 

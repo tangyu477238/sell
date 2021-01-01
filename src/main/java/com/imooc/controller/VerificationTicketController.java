@@ -1,7 +1,6 @@
 package com.imooc.controller;
 
 import com.imooc.VO.ResultVO;
-import com.imooc.service.BuyTicketService;
 import com.imooc.service.VerificationTicketService;
 import com.imooc.utils.DateTimeUtil;
 import com.imooc.utils.ResultVOUtil;
@@ -25,17 +24,58 @@ public class VerificationTicketController {
     @Autowired
     private VerificationTicketService verificationTicketService;
 
-    @Autowired
-    private BuyTicketService buyTicketService;
+
+    //去除黑名单
+    @GetMapping("/updateBlack")
+    public ResultVO updateBlack(@RequestParam("mobile") String mobile){
+        verificationTicketService.updateBlack(mobile);
+        log.info("updateBlack......." );
+        return ResultVOUtil.success();
+    }
+
+    //卡票记录
+    @GetMapping("/black") //1
+    public Map black(@RequestParam("mobile") String mobile){
+        Map map = verificationTicketService.black(mobile);
+        log.info("black......." + map.toString());
+        return map;
+    }
+
+    //黑名单列表
+    @GetMapping("/blacklist") //1
+    public Map blacklist(){
+        Map map = verificationTicketService.blacklist();
+        log.info("blacklist......." + map.toString());
+        return map;
+    }
 
 
+    //修改售票天数
+    @GetMapping("/updateSellday")
+    public ResultVO updateSellday(@RequestParam("days") Integer days){
+        verificationTicketService.updateSellday(days);
+        log.info("updateSellday......." );
+        return ResultVOUtil.success();
+    }
 
+
+    //取消班车通知
+    @GetMapping("/sendCancelMsg")
+    public ResultVO sendCancelMsg(@RequestParam("route") Long route,
+                                   @RequestParam("bizDate") String bizDate,
+                                   @RequestParam("time") String time){
+        verificationTicketService.sendCancelMsg(route, bizDate, time);
+        log.info("sendCancelMsg......." );
+        return ResultVOUtil.success();
+    }
+
+    //晚点通知
     @GetMapping("/sendWandianMsg")
     public ResultVO sendWandianMsg(@RequestParam("route") Long route,
                                    @RequestParam("bizDate") String bizDate,
                                    @RequestParam("time") String time,
                                    @RequestParam("wtime") String wtime){
-        verificationTicketService.sendWandianMsg(route, bizDate,time,wtime);
+        verificationTicketService.sendWandianMsg(route, bizDate, time, wtime);
         log.info("sendWandianMsg......." );
         return ResultVOUtil.success();
     }
@@ -49,10 +89,11 @@ public class VerificationTicketController {
 
 
     @GetMapping("/cktikcetTimeNew") //3
-    public Map<String,Object> cktikcetTime(@RequestParam() String route){
-        return verificationTicketService.cktikcetTime(route,DateTimeUtil.getBeforeDay(0));
+    public Map<String,Object> cktikcetTime(@RequestParam() String route,
+                                           @RequestParam("bizDate") String bizDate){
+        return verificationTicketService.cktikcetTime(route, bizDate);
     }
-
+    //时刻表
     @GetMapping("/shikebiao")
     public Map<String,Object> shikebiao(@RequestParam() String route,
                                            @RequestParam() String holiday){

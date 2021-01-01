@@ -44,6 +44,7 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
 
 
 
+
     @Autowired
     private BuyTicketService buyTicketService;
     @Autowired
@@ -63,6 +64,43 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
     @Autowired
     private WeChatQrcodeUtils weChatQrcodeUtils;
 
+    @Autowired
+    private BlacklistRepository blacklistRepository;
+
+    @Override
+    public int updateBlack(String mobile) {
+        return verificationTicketRepository.updateBlack(mobile);
+    }
+
+    @Override
+    public Map black(String mobile) {
+        List<Object[]> blacklist = verificationTicketRepository.black(mobile);
+        Map map = new HashMap();
+        map.put("blacklist",blacklist);
+        return map;
+    }
+    @Override
+    public Map blacklist() {
+        List<BlacklistDO> blacklist = blacklistRepository.findAll();
+        Map map = new HashMap();
+        map.put("blacklist",blacklist);
+        return map;
+    }
+
+
+    @Override
+    public int updateSellday(Integer days) {
+        return verificationTicketRepository.updateSellday(days);
+    }
+
+    @Override
+    public void sendCancelMsg(Long route, String bizDate, String bizTime) {
+
+        List<SeatOrderDO> list = seatOrderRepository.findByRouteIdAndBizDateAndBizTimeAndState(route,bizDate,bizTime,ORDER_STATE_1);
+        for (SeatOrderDO seatOrderDO : list) {
+            buyTicketService.tuiDan(seatOrderDO);
+        }
+    }
 
     @Override
     public void sendWandianMsg(Long route, String bizDate, String bizTime, String wtime) {

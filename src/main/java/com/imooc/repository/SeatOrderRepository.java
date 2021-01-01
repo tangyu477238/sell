@@ -9,7 +9,9 @@ import java.util.List;
 /**
  * Created by SqMax on 2018/3/17.
  */
-public interface SeatOrderRepository extends JpaRepository<SeatOrderDO,Integer> {
+public interface SeatOrderRepository extends JpaRepository<SeatOrderDO, Long> {
+
+
 
     SeatOrderDO findByIdAndState(Long id,int state);
 

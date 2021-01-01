@@ -1,5 +1,6 @@
 package com.imooc.dataobject;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -27,6 +28,7 @@ public class BlacklistDO implements Serializable {
     private Long id;
 
     private String openid;
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
     private String mobile;
     private String name;

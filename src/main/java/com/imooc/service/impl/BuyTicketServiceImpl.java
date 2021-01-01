@@ -64,7 +64,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     private static String QRCODE_PATH = "/opt/app/photos/qrcode/";//二维码图片路径
 
-
+    private static String PAY_MONTH ="月票抵扣";
+    private static String PAY_WX ="微信支付";
 
 
 
@@ -125,6 +126,24 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     @Autowired
     private BlacklistRepository blacklistRepository;
+
+    @Override
+    public void tuiDan(SeatOrderDO seatOrderDO) {
+        seatOrderDO.setState(ORDER_STATE_0);
+        seatOrderRepository.save(seatOrderDO); //状态调整为未付款
+
+        if (seatOrderDO.getRemark().equals(PAY_MONTH)){
+            MonthTicketUserDO monthTicketUserDO =
+                    monthTicketUserRepository.findByCreateUserAndMonthAndRemarkAndLp(seatOrderDO.getCreateUser(),
+                            DateTimeUtil.getMonth(seatOrderDO.getBizDate()), MONTH_STATE_1, seatOrderDO.getLp());
+            monthTicketUserDO.setUseNum(monthTicketUserDO.getUseNum().subtract(seatOrderDO.getNum()));
+            monthTicketUserRepository.save(monthTicketUserDO); //月票退单
+        } else if (seatOrderDO.getRemark().equals(PAY_WX)){
+            refund(seatOrderDO.getOrderNo(),seatOrderDO.getAmout().doubleValue());//微信退款
+        }
+
+        sendMessage(seatOrderDO.getCreateUser(), "orderCancelStatus", getOrderCancelTemplateData(seatOrderDO), null);
+    }
 
 
 
@@ -462,9 +481,8 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         createOrderQrcode(sod); //生成二维码
 
         //显示详情
-        SellerInfo sellerInfo = userRepository.findOne(uid);
-        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sellerInfo.getSellerId());
+        sendMessage(sod.getCreateUser(),"orderStatus",getOrderTemplateData(sod)
+                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sod.getCreateUser());
 //        //显示二维码
 //        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
 //                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
@@ -596,8 +614,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_2);
 
             SeatOrderLogDO logDO = seatOrderLogRepository.findByOrderNo(payResponse.getOrderId());
-            SellerInfo sellerLog = userRepository.findOne(logDO.getCreateUser());
-            sendMessage(sellerLog.getOpenid(), "orderTuiStatus", getOrderTuiTemplateData(logDO), null);
+            sendMessage(logDO.getCreateUser(), "orderTuiStatus", getOrderTuiTemplateData(logDO), null);
 
             //refund(payResponse.getOrderId(), payResponse.getOrderAmount()); //退款
 
@@ -636,13 +653,12 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         createOrderQrcode(sod); //生成二维码
 
-        SellerInfo sellerInfo = userRepository.findOne(sod.getCreateUser());
         SeatOrderDO sod2 = seatOrderRepository.findByOrderNo(payResponse.getOrderId());
         if(sod2!=null && sod2.getState()==ORDER_STATE_1) {
             log.info("---------开始发送购买成功通知---------"+payResponse.getOrderId());
             //显示订单详情
-            sendMessage(sellerInfo.getOpenid(), "orderStatus", getOrderTemplateData(sod)
-                    , projectUrlConfig.getWechatMpAuthorize() + "/sell/ticket/queryOrder?orderId=" + sod.getId() + "&uid=" + sellerInfo.getSellerId());
+            sendMessage(sod.getCreateUser(), "orderStatus", getOrderTemplateData(sod)
+                    , projectUrlConfig.getWechatMpAuthorize() + "/sell/ticket/queryOrder?orderId=" + sod.getId() + "&uid=" + sod.getCreateUser());
             repository.addPayLogs(payResponse.getOrderId(), new BigDecimal(payResponse.getOrderAmount()), new Date(), ORDER_STATE_1);//付款成功
         } else {
             log.info("---------购买失败，订单已不存在---------"+payResponse.getOrderId());
@@ -651,7 +667,16 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         return payResponse;
     }
 
+    private List<WxMpTemplateData> getOrderCancelTemplateData(SeatOrderDO sod){
+        //取消班车通知
+        List<WxMpTemplateData> data= Arrays.asList(
+                new WxMpTemplateData("first","尊敬的业主您好，\r\n您预定的"+sod.getBizDate()+" "+sod.getBizTime()+"班车已经取消，请重新预定出行班车，退款也将原路返还！"),
+                new WxMpTemplateData("keyword1", new Date().toLocaleString(),"#B5B5B5"),
+                new WxMpTemplateData("keyword2","班车取消","#FF0000"),
+                new WxMpTemplateData("remark","给您带来的不便，敬请谅解。\r\n如需帮助请致电"+ORDER_link_TEL+"。","#173177"));
 
+        return data;
+    }
 
 
     private List<WxMpTemplateData> getOrderTuiTemplateData(SeatOrderLogDO sod){
@@ -669,11 +694,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
     private List<WxMpTemplateData> getOrderTemplateData(SeatOrderDO sod){
-        //发送通知
+        //发送次票通知
         List<WxMpTemplateData> data= Arrays.asList(
                 new WxMpTemplateData("first","您好，您已成功购票。"),
                 new WxMpTemplateData("keyword1",sod.getBizDate()+" "+sod.getBizTime(),"#B5B5B5"),
-                new WxMpTemplateData("keyword2",sod.getOrderNo() + "," + ORDER_WELCOME,"#B5B5B5"),
+                new WxMpTemplateData("keyword2","无需取票," + ORDER_WELCOME,"#B5B5B5"),
                 new WxMpTemplateData("keyword3",sod.getInfo(),"#B5B5B5"),
                 new WxMpTemplateData("keyword4",sod.getNum()+"人","#B5B5B5"),
                 new WxMpTemplateData("remark","为避免超载，请主动为小朋友购买车票。\r\n欢迎再次购买。\r\n如需帮助请致电"+ORDER_link_TEL+"。","#173177"));
@@ -682,7 +707,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
     private List<WxMpTemplateData> getOrderMonthTemplateData(MonthTicketUserLogDO mtu){
-        //发送通知
+        //发送月票通知
         List<WxMpTemplateData> data= Arrays.asList(
                 new WxMpTemplateData("first","您好，您已成功购买"+mtu.getMonth()+"月卡。"),
                 new WxMpTemplateData("keyword1",mtu.getPtypeName()+"(总共"+mtu.getTotalNum()+"张)","#B5B5B5"),
@@ -694,7 +719,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
     private List<WxMpTemplateData> getWandianTemplateData(SeatOrderDO sod, String carNum, String wtime){
-        //发送通知
+        //发送晚点通知
         List<WxMpTemplateData> data= Arrays.asList(
                 new WxMpTemplateData("first","抱歉，您购买的"+sod.getBizDate()+" "+sod.getBizTime()+"班车，因故大约晚点"+wtime+"分钟！"),
                 new WxMpTemplateData("keyword1",sod.getFromStation()+"-"+sod.getToStation(),"#B5B5B5"),
@@ -707,7 +732,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
     private List<WxMpTemplateData> getwarningOrderTemplateData(String fromStation,String toStation,String updateTime,String toDateTime,String name){
-        //发送通知
+        //发送卡票通知
         List<WxMpTemplateData> data= Arrays.asList(
                 new WxMpTemplateData("first","警告，系统检测到您可能存在卡发车时间而不付款现象，还请注意提前购买车票！"),
                 new WxMpTemplateData("keyword1",name,"#B5B5B5"),
@@ -720,8 +745,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
 
-    private void sendMessage(String openid,String moban,List<WxMpTemplateData> data,String url){
-
+    private void sendMessage(String createUser, String moban, List<WxMpTemplateData> data, String url){
+        SellerInfo sellerLog = userRepository.findOne(createUser);
+        String openid = sellerLog.getOpenid();
         WxMpTemplateMessage templateMessage=new WxMpTemplateMessage();
         templateMessage.setTemplateId(accountConfig.getTemplateId().get(moban));//模板id:"GoCullfix05R-rCibvoyI87ZUg50cyieKA5AyX7pPzo"
         templateMessage.setToUser(openid);//openid:"ozswp1Ojl2rA57ZK97ntGw2WQ2CA
@@ -1015,9 +1041,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         logDO.setRemark(MONTH_STATE_1);
         monthTicketUserLogRepository.save(logDO); //月票购买记录更新为已购买
 
-        SellerInfo sellerInfo = userRepository.findOne(mtu.getCreateUser());
-
-        sendMessage(sellerInfo.getOpenid(),"orderMonthStatus",getOrderMonthTemplateData(logDO),
+        sendMessage(mtu.getCreateUser(),"orderMonthStatus",getOrderMonthTemplateData(logDO),
                 null);
         repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_1);//付款成功
         return payResponse;
@@ -1079,9 +1103,16 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         List<Object[]> list  = seatOrderLogRepository.getwarningOrderUsers();
         for (int j = 0; list != null && j < list.size(); j++) {
             if (list.get(j)[0]!=null){
-                SellerInfo sellerInfo = userRepository.findOne(list.get(j)[0].toString());
-                sendMessage(sellerInfo.getOpenid(),"orderWarningStatus",getwarningOrderTemplateData(list.get(j)[1].toString(),
-                        list.get(j)[2].toString(),list.get(j)[3].toString(),list.get(j)[4].toString(),list.get(j)[5].toString()),
+                String createUser = list.get(j)[0].toString();
+                String fromStation = list.get(j)[1].toString();
+                String toStation = list.get(j)[2].toString();
+                String updateTime = list.get(j)[3].toString();
+                String toDateTime = list.get(j)[4].toString();
+                String name = list.get(j)[5].toString();
+
+                SellerInfo sellerInfo = userRepository.findOne(createUser);
+                sendMessage(createUser,"orderWarningStatus",
+                        getwarningOrderTemplateData(fromStation,toStation,updateTime,toDateTime,name),
                         null);
 
                  List<Object[]> listUser = seatOrderLogRepository.addBlacklist(sellerInfo.getMobile());
@@ -1103,8 +1134,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         List<SeatOrderDO> list = seatOrderRepository.findByRouteIdAndBizDateAndBizTimeAndState(route,bizDate,bizTime,ORDER_STATE_1);
         for (int i = 0; i < list.size(); i++) {
             SeatOrderDO sod = list.get(i);
-            SellerInfo sellerInfo = userRepository.findOne(sod.getCreateUser());
-            sendMessage(sellerInfo.getOpenid(),"orderWanStatus",getWandianTemplateData(sod,carNum,wtime),
+            sendMessage(sod.getCreateUser(),"orderWanStatus",getWandianTemplateData(sod,carNum,wtime),
                     null);
         }
     }

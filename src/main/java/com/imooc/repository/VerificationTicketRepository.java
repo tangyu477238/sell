@@ -2,7 +2,9 @@ package com.imooc.repository;
 
 import com.imooc.dataobject.VerificationTicketDO;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,7 +23,25 @@ public interface VerificationTicketRepository extends JpaRepository<Verification
             +" WHERE holiday = ?1 and biz_date<=CURDATE() ", nativeQuery = true)
     String getCalendar(String holiday);
 
+    @Modifying
+    @Transactional
+    @Query(value = "update biz_sellday set days = ?1  ",nativeQuery = true)
+    int updateSellday(Integer days);
 
+    @Query(value = "select " +
+            "l.route_id,l.biz_date,l.biz_time,l.from_station,l.to_station,l.info,l.user_mobile,l.user_name ,MAX(l.update_time) as update_time,str_to_date(CONCAT(l.biz_date,l.biz_time,':00'), '%Y-%m-%d %H:%i:%s') as totime" +
+            " from biz_seat_order_log l" +
+            " left join biz_seat_order s on s.order_no = l.order_no " +
+            " where  s.order_no is null  and l.update_time > date_sub(str_to_date(CONCAT(l.biz_date,l.biz_time,':00'), '%Y-%m-%d %H:%i:%s'),interval 2 MINUTE)" +
+            " and l.user_mobile =?1 " +
+            " group by l.route_id,l.biz_date,l.biz_time,l.info,l.user_mobile,l.user_name ,l.from_station,l.to_station" +
+            " order by l.biz_date desc,l.biz_time desc ",nativeQuery = true)
+    List<Object[]>  black(String mobile);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update biz_blacklist set openid = id ,mobile = concat(mobile,'x') where mobile =?1 ",nativeQuery = true)
+    int updateBlack(String mobile);
 }
 
 

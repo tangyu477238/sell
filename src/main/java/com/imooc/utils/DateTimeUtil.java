@@ -1783,7 +1783,13 @@ public class DateTimeUtil {
     public static String getMonth() {
         Calendar calendar = Calendar.getInstance(); // 此时打印它获取的是系统当前时间
         calendar.add(Calendar.DATE, 0); //
-        return new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime()).substring(0,7);
+        String bizDate = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+        return getMonth(bizDate);
+    }
+
+    //当前月
+    public static String getMonth(String bizDate) {
+        return bizDate.substring(0,7);
     }
 
     //获取当前月第一天

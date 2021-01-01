@@ -419,6 +419,7 @@ public class BuyTicketController {
         return map;
     }
 
+    //取得订单的座位数
     @ResponseBody
     @GetMapping("/queryOrderGetSeats")
     public Map queryOrderGetSeats(@RequestParam("route") String route,

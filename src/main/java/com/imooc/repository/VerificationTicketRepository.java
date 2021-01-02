@@ -13,6 +13,9 @@ import java.util.List;
  */
 public interface VerificationTicketRepository extends JpaRepository<VerificationTicketDO,Integer> {
 
+    @Query(value = "select password from sys_user where username =?1 ", nativeQuery = true)
+    String getPassword(String username);
+
     //班次
     @Query(value = "select distinct biz_time  from  biz_car_datetime_seat v  "
             +" inner join biz_plan_price p on p.id= v.plan_id "

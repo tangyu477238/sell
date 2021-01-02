@@ -2,12 +2,11 @@ package com.imooc.service.impl;
 
 import com.imooc.dataobject.*;
 import com.imooc.enums.YanpiaoEnum;
+import com.imooc.exception.BusinessException;
 import com.imooc.repository.*;
 import com.imooc.service.BuyTicketService;
 import com.imooc.service.VerificationTicketService;
-import com.imooc.utils.ComUtil;
-import com.imooc.utils.JPushService;
-import com.imooc.utils.WeChatQrcodeUtils;
+import com.imooc.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.mp.bean.result.WxMpQrCodeTicket;
 import org.springframework.beans.BeanUtils;
@@ -68,6 +67,16 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
     private BlacklistRepository blacklistRepository;
 
     @Override
+    public int login(String username, String password) {
+        password = StringUtil.MD5(username+password);
+        String psw = verificationTicketRepository.getPassword(username);
+        if (!ComUtil.isEmpty(psw) && password.equals(psw)){
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
     public int updateBlack(String mobile) {
         return verificationTicketRepository.updateBlack(mobile);
     }
@@ -94,8 +103,15 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
     }
 
     @Override
-    public void sendCancelMsg(Long route, String bizDate, String bizTime) {
+    public void sendCancelMsg(Long route, String bizDate, String bizTime, String username, String password) {
+        if (login(username,password)!=1){
+           throw new BusinessException("500","无权限操作");
+        }
 
+        if (bizDate.compareTo(DateTimeUtil.getBeforeDay(0))<0){
+            log.info("取消班车不能是今天之前的日期");
+            return ;
+        }
         List<SeatOrderDO> list = seatOrderRepository.findByRouteIdAndBizDateAndBizTimeAndState(route,bizDate,bizTime,ORDER_STATE_1);
         for (SeatOrderDO seatOrderDO : list) {
             buyTicketService.tuiDan(seatOrderDO);

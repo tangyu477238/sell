@@ -24,6 +24,18 @@ public class VerificationTicketController {
     @Autowired
     private VerificationTicketService verificationTicketService;
 
+    //登录
+    @GetMapping("/login")
+    public ResultVO login(@RequestParam("username") String username,
+                          @RequestParam("password") String password){
+        int flag = verificationTicketService.login(username,password);
+        if (flag==1){
+            return ResultVOUtil.success();
+        } else {
+            return ResultVOUtil.error(500,"用户名或密码错误");
+        }
+    }
+
 
     //去除黑名单
     @GetMapping("/updateBlack")
@@ -62,9 +74,11 @@ public class VerificationTicketController {
     //取消班车通知
     @GetMapping("/sendCancelMsg")
     public ResultVO sendCancelMsg(@RequestParam("route") Long route,
-                                   @RequestParam("bizDate") String bizDate,
-                                   @RequestParam("time") String time){
-        verificationTicketService.sendCancelMsg(route, bizDate, time);
+                                  @RequestParam("bizDate") String bizDate,
+                                  @RequestParam("time") String time,
+                                  @RequestParam("username") String username,
+                                  @RequestParam("password") String password){
+        verificationTicketService.sendCancelMsg(route, bizDate, time, username, password);
         log.info("sendCancelMsg......." );
         return ResultVOUtil.success();
     }

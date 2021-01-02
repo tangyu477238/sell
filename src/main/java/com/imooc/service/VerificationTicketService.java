@@ -35,7 +35,7 @@ public interface VerificationTicketService {
 
     void sendWandianMsg(Long route, String bizDate, String bizTime, String wtime);
 
-    void sendCancelMsg(Long route, String bizDate, String bizTime);
+    void sendCancelMsg(Long route, String bizDate, String bizTime,String username,String password);
 
     int updateSellday(Integer days);
 
@@ -44,5 +44,8 @@ public interface VerificationTicketService {
     Map black(String mobile);
 
     int updateBlack(String mobile);
+
+    int login(String username,String password);
+
 
 }

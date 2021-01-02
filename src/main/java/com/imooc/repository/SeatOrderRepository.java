@@ -19,7 +19,7 @@ public interface SeatOrderRepository extends JpaRepository<SeatOrderDO, Long> {
 
     SeatOrderDO findByIdAndStateAndCreateUser(Long id,Integer state,String createUser);
 
-    @Query(value = "select * from biz_seat_order where state= 1 and create_user=?1 and biz_date >=?2 ", nativeQuery = true)
+    @Query(value = "select * from biz_seat_order where state= 1 and create_user=?1 and biz_date >=?2 order by biz_date desc", nativeQuery = true)
     List<SeatOrderDO> findSeatOrderByUser(String uid,String month);
 
     List<SeatOrderDO> findByStateAndCreateUserOrderByIdDesc(int state, String uid);

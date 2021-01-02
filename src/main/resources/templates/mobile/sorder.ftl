@@ -38,7 +38,7 @@
         <#list mtulist as pl>
             <tr class="oddrowcolor">
             <td colspan=1>${pl.ptypeName}<br>(${pl.month})</td>
-            <td colspan=1>已用${pl.useNum}次/共${pl.totalNum}次</td>
+            <td colspan=1>剩余${pl.totalNum-pl.useNum}次/共${pl.totalNum}次</td>
             <td colspan=1>${pl.price}</td>
             <td colspan=1>${pl.createTime}</td>
             </tr>

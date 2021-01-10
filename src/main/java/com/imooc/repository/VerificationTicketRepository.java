@@ -45,6 +45,11 @@ public interface VerificationTicketRepository extends JpaRepository<Verification
     @Transactional
     @Query(value = "update biz_blacklist set openid = id ,mobile = concat(mobile,'x') where mobile =?1 ",nativeQuery = true)
     int updateBlack(String mobile);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update biz_car_datetime_seat set seat_Type = 0 where route_id =?1 and biz_date =?2 and biz_time =?3 ",nativeQuery = true)
+    int lockAll(Long route, String bizDate, String bizTime);
 }
 
 

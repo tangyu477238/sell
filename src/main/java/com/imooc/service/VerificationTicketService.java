@@ -37,6 +37,10 @@ public interface VerificationTicketService {
 
     void sendCancelMsg(Long route, String bizDate, String bizTime,String username,String password);
 
+    void lockAll(Long route, String bizDate, String bizTime,String username,String password);
+
+    void tuidan(Long orderId,String uid,String username,String password);
+
     int updateSellday(Integer days);
 
     Map blacklist();

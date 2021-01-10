@@ -87,7 +87,11 @@ public class JianyiController {
 
         SeatOrderDO seatOrderDO = seatOrderRepository.getOrderBySeat(info,routeId,bizDate,bizTime);
         String url = "/ticket/queryOrder?uid="+seatOrderDO.getCreateUser()+"&orderId="+seatOrderDO.getId();
-        return ResultVOUtil.success(url);
+        Map map = new HashMap();
+        map.put("url",url);
+        map.put("orderId",seatOrderDO.getId());
+        map.put("uid",seatOrderDO.getCreateUser());
+        return ResultVOUtil.success(map);
 
     }
 

@@ -69,8 +69,27 @@ public class VerificationTicketController {
         log.info("updateSellday......." );
         return ResultVOUtil.success();
     }
-
-
+    //退单
+    @GetMapping("/tuidan")
+    public ResultVO tuidan(@RequestParam("orderId") Long orderId,
+                                  @RequestParam("uid") String uid,
+                                  @RequestParam("username") String username,
+                                  @RequestParam("password") String password){
+        verificationTicketService.tuidan(orderId, uid, username, password);
+        log.info("tuidan......." );
+        return ResultVOUtil.success();
+    }
+    //锁定全部班车
+    @GetMapping("/lockAll")
+    public ResultVO lockAll(@RequestParam("route") Long route,
+                                  @RequestParam("bizDate") String bizDate,
+                                  @RequestParam("time") String time,
+                                  @RequestParam("username") String username,
+                                  @RequestParam("password") String password){
+        verificationTicketService.lockAll(route, bizDate, time, username, password);
+        log.info("lockAll......." );
+        return ResultVOUtil.success();
+    }
     //取消班车通知
     @GetMapping("/sendCancelMsg")
     public ResultVO sendCancelMsg(@RequestParam("route") Long route,

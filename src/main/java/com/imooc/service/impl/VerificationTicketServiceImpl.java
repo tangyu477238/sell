@@ -103,6 +103,27 @@ public class VerificationTicketServiceImpl implements VerificationTicketService 
     }
 
     @Override
+    public void tuidan(Long orderId, String uid, String username, String password) {
+        if (login(username,password)!=1){
+            throw new BusinessException("500","无权限操作");
+        }
+        SeatOrderDO seatOrderDO = seatOrderRepository.findByIdAndStateAndCreateUser(orderId,ORDER_STATE_1,uid);
+        buyTicketService.tuiDan(seatOrderDO);
+    }
+
+    @Override
+    public void lockAll(Long route, String bizDate, String bizTime, String username, String password) {
+        if (login(username,password)!=1){
+            throw new BusinessException("500","无权限操作");
+        }
+
+        if (bizDate.compareTo(DateTimeUtil.getBeforeDay(0))<0){
+            log.info("取消班车不能是今天之前的日期");
+            return ;
+        }
+        verificationTicketRepository.lockAll(route,bizDate,bizTime);
+    }
+    @Override
     public void sendCancelMsg(Long route, String bizDate, String bizTime, String username, String password) {
         if (login(username,password)!=1){
            throw new BusinessException("500","无权限操作");

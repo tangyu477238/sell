@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+    <head>
+        <title>座位图</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="css/fonts/font-awesome.min.css">
+        <link rel="stylesheet" href="css/ui-box.css">
+        <link rel="stylesheet" href="css/ui-base.css">
+        <link rel="stylesheet" href="css/ui-color.css">
+        <link rel="stylesheet" href="css/appcan.icon.css">
+        <link rel="stylesheet" href="css/appcan.control.css">
+        <link rel="stylesheet" href="select/css/select.css?v=4">
+    </head>
+	<body class="bc-bg1" ontouchstart >
+        <div  tabindex="0" data-control="PAGE" id="Page">
+            <!--
+			<div class="uh bc-head " data-control="HEADER" >
+                <div class="ub">
+                    <div class="nav-btn" id="nav-left">
+                        <div class="ub-img1 icon-left ulev2">
+                        </div>
+                    </div>
+                    <h1 class="ut ub-f1 ulev-3 ut-s tx-c bc-text-head" tabindex="0">座位图</h1>
+                    <div class="nav-btn" id="nav-right">
+                        <div class="ub-img1 icon-refresh ulev2"></div>
+                    </div>
+                </div>
+            </div>
+            -->
+            
+            
+            <div class="" data-control="CONTENT" id="ScrollContent">
+                <div class="scrollbox">
+
+                    <div class="ub ub-ver ub-f1" >
+
+                        <div mvvm-scope=""  class="bc-bg">
+                            <div class="ub ub-ac  b-gra-a6 bc-bg1">
+                                <div class="ulev-app2 t-bla-28 uinn-16" style="border-color: rgb(33, 141, 213);">
+                                    <span data-bind="text:sort">乘车线路</span>
+                                </div>
+                            </div>
+                            <div class="uinn-a7">
+                                <div id="route">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div mvvm-scope="" class="bc-bg">
+                            <div class="ub ub-ac  b-gra-a6 bc-bg1">
+                                <div class="ulev-app2 t-bla-28 uinn-16" style="border-color: rgb(33, 141, 213);">
+                                    <span data-bind="text:sort">乘车日期</span>
+                                </div>
+                            </div>
+
+                            <div class="uinn-a7 bc-bg">
+                                <div id = "date">
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div mvvm-scope="" class="bc-bg ">
+                            <div class="ub ub-ac b-gra-a6  bc-bg1">
+                                <div class="ulev-app2 t-bla-28 uinn-16"
+                                style="border-color: rgb(33, 141, 213);">
+                                    <span data-bind="text:sort">乘车班次</span>
+                                </div>
+                            </div>
+                            <div class="uinn-a7">
+                                <div id="time">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div mvvm-scope="" class="bc-bg ">
+                            <div class="ub ub-ac b-gra-a6  bc-bg1">
+                                <div class="ulev-app2 t-bla-28 uinn-16" style="border-color: rgb(33, 141, 213);">
+                                    <span data-bind="text:sort">上车地点</span>
+                                </div>
+                            </div>
+                            <div class="uinn-a7">
+                                <div id="routeStation"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="uf ub ub-f1" data-control="FOOTER" id="Footer" onclick="history()">
+                <div class="Button_footer button ub ub-ac bc-text-head ub-pc umar-a2 ub-f1" style="margin: 0.8em;">
+                                                    查询
+                </div>
+            </div>
+        </div>
+        <script src="js/appcan.js"></script>
+        <script src="js/appcan.control.js"></script>
+        <!-- <script src="js/appcan.scrollbox.js"></script>
+        <script src="js/template.import.js"></script>
+		<script src="js/appcan.listview.js"></script>
+		<script src="js/appcan.optionList.js"></script>
+		<script src="js/appcan.slider.js"></script>
+		<script src="js/appcan.tab.js"></script>
+		<script src="js/appcan.treeview.js"></script> -->
+		
+		 <script src="js/jqMobi.js"></script>
+        <script src="js/util.js"></script>
+        <script src="js/config.js"></script>
+		
+        <script src="select/js/select.js"></script>
+        
+    </body>
+</html>

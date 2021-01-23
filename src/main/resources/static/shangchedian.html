@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+    <head>
+        <title>上车地点&地图导航</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="/sell/css/fonts/font-awesome.min.css">
+        <link rel="stylesheet" href="/sell/css/ui-box.css">
+        <link rel="stylesheet" href="/sell/css/ui-base.css">
+        <link rel="stylesheet" href="/sell/css/ui-color.css">
+        <link rel="stylesheet" href="/sell/css/appcan.icon.css">
+        <link rel="stylesheet" href="/sell/css/appcan.control.css">
+        <link rel="stylesheet" href="/sell/select/css/select.css?v=4">
+    </head>
+	<body class="bc-bg1" ontouchstart >
+        <div  tabindex="0" data-control="PAGE" id="Page">
+            <!--
+			<div class="uh bc-head " data-control="HEADER" >
+                <div class="ub">
+                    <div class="nav-btn" id="nav-left">
+                        <div class="ub-img1 icon-left ulev2">
+                        </div>
+                    </div>
+                    <h1 class="ut ub-f1 ulev-3 ut-s tx-c bc-text-head" tabindex="0">座位图</h1>
+                    <div class="nav-btn" id="nav-right">
+                        <div class="ub-img1 icon-refresh ulev2"></div>
+                    </div>
+                </div>
+            </div>
+            -->
+            
+            
+            <div class="" data-control="CONTENT" id="ScrollContent" style="padding-top:0em">
+                <div class="scrollbox">
+
+                    <div class="ub ub-ver ub-f1" >
+
+                        
+
+                        
+
+                        <div mvvm-scope="" class="bc-bg ">
+                            <!-- <div class="ub ub-ac b-gra-a6  bc-bg1">
+                                <div class="ulev-app2 t-bla-28 uinn-16" style="border-color: rgb(33, 141, 213);">
+                                    <span data-bind="text:sort">上车地点&地图导航</span>
+                                </div>
+                            </div> -->
+                            <div class="uinn-a7">
+                                <div id="routeStation"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+        <script src="/sell/js/appcan.js"></script>
+        <script src="/sell/js/appcan.control.js"></script>
+        <!-- <script src="js/appcan.scrollbox.js"></script>
+        <script src="js/template.import.js"></script>
+		<script src="js/appcan.listview.js"></script>
+		<script src="js/appcan.optionList.js"></script>
+		<script src="js/appcan.slider.js"></script>
+		<script src="js/appcan.tab.js"></script>
+		<script src="js/appcan.treeview.js"></script> -->
+		
+		 <script src="/sell/js/jqMobi.js"></script>
+        <script src="/sell/js/util.js"></script>
+        <script src="/sell/js/config.js"></script>
+		
+        <script type="text/javascript">
+            var routeArray = new Array();
+            var dateArray = new Array();
+            var timeArray = new Array();
+            var stationArray = new Array();
+            
+            var route=''; //传值  
+            var date=''; //传值  
+            var time=''; //传值
+            var routeStation=''; //传值
+            
+            var routeObj;
+            
+            var stationObj = new Object();
+            stationObj.id = 0;
+            stationObj.name = '幸福誉第一期';
+            stationArray.push(stationObj);
+            var routestr = '<div id="routeStation'+stationObj.id+'" class="ubb-01 ulev-app2 t-gra-63 swidth" onclick="setStation('+stationObj.id+')">'+stationObj.name+'</div>';
+                
+            stationObj = new Object();    
+            stationObj.id = 1;
+            stationObj.name = '幸福誉第三期';
+            stationArray.push(stationObj);
+            routestr = routestr + '<div id="routeStation'+stationObj.id+'" class="ubb-01 ulev-app2 t-gra-63 swidth" onclick="setStation('+stationObj.id+')">'+stationObj.name+'</div>';
+               
+            stationObj = new Object();   
+            stationObj.id = 2;
+            stationObj.name = '绿地城';
+            stationArray.push(stationObj);
+            routestr = routestr + '<div id="routeStation'+stationObj.id+'" class="ubb-01 ulev-app2 t-gra-63 swidth" onclick="setStation('+stationObj.id+')">'+stationObj.name+'</div>';
+            
+            stationObj = new Object();   
+            stationObj.id = 3;
+            stationObj.name = '宏发';
+            stationArray.push(stationObj);
+            routestr = routestr + '<div id="routeStation'+stationObj.id+'" class="ubb-01 ulev-app2 t-gra-63 swidth" onclick="setStation('+stationObj.id+')">'+stationObj.name+'</div>';
+            
+            
+            $("#routeStation").html(routestr);
+            
+            
+            function setStation(id){
+                if(id==0){
+                    location.href='http://gzjhqc.vip/sell/jianyi/location?station=gps_yiqi';
+                }else if(id==1){
+                    location.href='http://gzjhqc.vip/sell/jianyi/location?station=gps_sanqi';
+                }else if(id==2){
+                    location.href='http://gzjhqc.vip/sell/jianyi/location?station=gps_lvdicheng';
+                }else if(id==3){
+                    location.href='http://gzjhqc.vip/sell/jianyi/location?station=gps_hongfa';
+                }
+            }    
+            
+        </script>
+
+    </body>
+</html>

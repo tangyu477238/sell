@@ -65,6 +65,10 @@
 .sc-border-tab {
     border-color: #00A1EA;
 }
+.bc-border-login {
+    border-color: #F8F8F8;
+}
+
 /*****************************************/
 /*基础按钮颜色*/
 .bc-btn {

@@ -4,6 +4,7 @@ import com.imooc.dataobject.PayLogDO;
 import com.imooc.repository.PayLogRepository;
 import com.imooc.repository.SeatOrderLogRepository;
 import com.imooc.service.BuyTicketService;
+import com.imooc.service.SeatYudingOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -25,7 +26,7 @@ public class ScheduleTask {
     private PayLogRepository payLogRepository;
 
     @Autowired
-    private SeatOrderLogRepository seatOrderLogRepository;
+    private SeatYudingOrderService seatYudingOrderService;
 
     @Scheduled(cron = "${task.schedule.delOrder}")
     public void marketingActivity() throws Exception {
@@ -52,5 +53,17 @@ public class ScheduleTask {
         }
 
     }
+
+    @Scheduled(cron = "${task.schedule.yuding}")
+    public void addOrder(){
+        log.info("----------预约出票---------------");
+        if(seatYudingOrderService != null){
+            seatYudingOrderService.addOrder();
+            log.info("----------执行预约出票释放任务---------------");
+        }
+
+    }
+
+
 
 }

@@ -3,12 +3,15 @@ package com.imooc.service;
 import com.imooc.dataobject.SeatOrderDO;
 import com.lly835.bestpay.model.PayResponse;
 import com.lly835.bestpay.model.RefundResponse;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by SqMax on 2018/3/17.
+ *
  */
 public interface BuyTicketService {
 
@@ -68,4 +71,6 @@ public interface BuyTicketService {
     void sendWandianMsg(Long route, String bizDate, String bizTime, String carNum, String wtime);
 
     void getwarningOrderUsers();
+
+    void sendBuyMessage(SeatOrderDO seatOrderDO);
 }

@@ -31,6 +31,7 @@ import java.text.ParseException;
 import java.util.*;
 
 /**
+ *
  * @Auther: Administrator
  * @Date: 2018\12\18 0018 23:45
  * @Description:
@@ -126,6 +127,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
     @Autowired
     private BlacklistRepository blacklistRepository;
+
+    @Autowired
+    private SeatYudingOrderRepository seatYudingOrderRepository;
+
+
 
     @Override
     public void tuiDan(SeatOrderDO seatOrderDO) {
@@ -480,16 +486,20 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         createOrderQrcode(sod); //生成二维码
 
-        //显示详情
-        sendMessage(sod.getCreateUser(),"orderStatus",getOrderTemplateData(sod)
-                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+sod.getId()+"&uid="+sod.getCreateUser());
-//        //显示二维码
-//        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
-//                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
+        sendBuyMessage(sod);
 
 
     }
 
+    @Override
+    public void sendBuyMessage(SeatOrderDO seatOrderDO) {
+        //显示详情
+        sendMessage(seatOrderDO.getCreateUser(),"orderStatus",getOrderTemplateData(seatOrderDO)
+                ,projectUrlConfig.getWechatMpAuthorize()+"/sell/ticket/queryOrder?orderId="+seatOrderDO.getId()+"&uid="+seatOrderDO.getCreateUser());
+//        //显示二维码
+//        sendMessage(sellerInfo.getOpenid(),"orderStatus",getOrderTemplateData(sod)
+//                ,projectUrlConfig.getWechatMpAuthorize()+"/qrcode/"+sellerInfo.getSellerId()+"_"+sod.getId()+".jpg");
+     }
 
     private void checkMonthTicket(SeatOrderDO sod){
 
@@ -656,9 +666,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         SeatOrderDO sod2 = seatOrderRepository.findByOrderNo(payResponse.getOrderId());
         if(sod2!=null && sod2.getState()==ORDER_STATE_1) {
             log.info("---------开始发送购买成功通知---------"+payResponse.getOrderId());
-            //显示订单详情
-            sendMessage(sod.getCreateUser(), "orderStatus", getOrderTemplateData(sod)
-                    , projectUrlConfig.getWechatMpAuthorize() + "/sell/ticket/queryOrder?orderId=" + sod.getId() + "&uid=" + sod.getCreateUser());
+
+            sendBuyMessage(sod);
+
             repository.addPayLogs(payResponse.getOrderId(), new BigDecimal(payResponse.getOrderAmount()), new Date(), ORDER_STATE_1);//付款成功
         } else {
             log.info("---------购买失败，订单已不存在---------"+payResponse.getOrderId());
@@ -871,6 +881,9 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
         List<SeatOrderDO> sodlist = seatOrderRepository.findSeatOrderByUser(uid,DateTimeUtil.getMonth());
         map.put("sodlist",sodlist);
+
+        List<SeatYudingOrderDO> ydlist = seatYudingOrderRepository.listYudingOrder(uid);
+        map.put("ydlist",ydlist);
 
         return map;
     }

@@ -14,6 +14,7 @@ import java.util.Locale;
  */
 public class DateTimeUtil {
     /**
+     *
      *  G    Era    标志符            Text    公元
      y    年                    Year    1996; 96
      M    年中的月份                Month    July; Jul; 07
@@ -1771,7 +1772,7 @@ public class DateTimeUtil {
     /**
      * 获取当前时间的前一天时间
      *
-     * @param dayNum
+     * @param dayNum(传-1)
      * @return
      */
     public static String getBeforeDay(int dayNum) {
@@ -1803,7 +1804,15 @@ public class DateTimeUtil {
 
         return first;
     }
-
+    ///获取当前月最后一天 date
+    public static String getLastDayOfMonth(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int last = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        cal.set(Calendar.DAY_OF_MONTH, last);
+        Date lastDate = cal.getTime();
+        return formatDateTimetoString(lastDate,DateTimeUtil.FMT_yyyyMMdd);
+    }
 
     ///获取当前月最后一天 date
     public static Date getMonthOfLastDayDate(int monthNum) {
@@ -1840,7 +1849,7 @@ public class DateTimeUtil {
 
     public static void main (String str []){
 //        System.out.println(DateTimeUtil.getMonthOfFistDay(2).substring(5,10));
-//        System.out.println(DateTimeUtil.getMonthOfLastDay(2).substring(5,10));
+        System.out.println(DateTimeUtil.getLastDayOfMonth(DateTimeUtil.addDays(new Date(),8)));
 //        System.out.println(DateTimeUtil.getSecondsOfTwoDate(new Date(),DateTimeUtil.addHours(new Date(),1)));
 
 //        SimpleDateFormat formater = new SimpleDateFormat("H:mm");

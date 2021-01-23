@@ -205,9 +205,8 @@ public class BuyTicketController {
 
     @GetMapping("/getskb")
     public String getskb(){
-        log.info("进入我的积分方法.......");
-
-        return "/shikebiao.html" ;
+        log.info("wx_shikebiao.......");
+        return "/wx_shikebiao.html" ;
 
     }
 

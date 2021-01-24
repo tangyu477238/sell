@@ -48,6 +48,41 @@
 
 </div>
 
+<div style="font: 14px; color: #3445a1;font-weight:600; padding: 15px 0; background: #e6fcf0; width: 100%">
+    <div class="orderList-tab">预约记录(仅显示当月之后数据)</div>
+</div>
+
+
+<div >
+
+    <table style="width:100%" class="altrowstable" id="yuepiao">
+        <thead class="evenrowcolor">
+        <th style="width:23%;">有效区间</th>
+        <th style="width:23%;">出发/到达</th>
+        <th style="width:17%;">类型</th>
+        <th style="width:17%;">班次</th>
+        <th style="width:20%;">预约天数</th>
+
+<#--        <th style="width:23%;">有效区间</th>-->
+<#--        <th style="width:23%;">出发/到达</th>-->
+<#--        <th style="width:13%;">类型</th>-->
+<#--        <th style="width:12%;">班次</th>-->
+<#--        <th style="width:29%;">预约次数</th>-->
+        </thead>
+        <tbody>
+        <#list ydlist as yd>
+            <tr class="oddrowcolor">
+                <td colspan=1>${yd.bizDate}<br>${yd.endDate}</td>
+                <td colspan=1>${yd.fromStation}<br>${yd.toStation}</td>
+                <td colspan=1> <#if yd.workday =="0">节假日</#if><#if yd.workday =="1">工作日</#if></td>
+                <td colspan=1>${yd.bizTime}</td>
+                <td colspan=1>${yd.num}</td>
+            </tr>
+        </#list>
+        </tbody>
+    </table>
+
+</div>
 
 
 

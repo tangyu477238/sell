@@ -13,7 +13,7 @@ var holiday = 1;
 
 var ydsl=0;
 var sysl=0;
-
+var uid;
 (function($) {
     appcan.button("#nav-left", "btn-act",
     function() {});
@@ -23,8 +23,7 @@ var sysl=0;
     function() {});
     
     appcan.ready(function() {
-        
-        
+        uid = getQueryVariable("uid");
         date = formatDate(new Date().getTime());
         var datestr ='<div id ="date1" class="ubb-01 ulev-app2 t-gra-63 swidth3" onclick="setHoliday(1)">工作日</div>'
         +'<div id ="date0" class="ubb-01 ulev-app2 t-gra-63 swidth3" onclick="setHoliday(0)">周末/节假日</div>';
@@ -63,6 +62,17 @@ var sysl=0;
 
 })($);
 
+//JS获取url参数
+function getQueryVariable(variable)
+{
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i=0;i<vars.length;i++) {
+        var pair = vars[i].split("=");
+        if(pair[0] == variable){return pair[1];}
+    }
+    return(false);
+}
 
 function setRoute(routeId) {
     route = routeId;
@@ -96,15 +106,17 @@ function getBanci() {
     $("#routeStation").html('');
     time = '';
     routeStation = '';
-    
-    
+
+    if (uid=='') {
+        alert("数据异常！");
+        return ;
+    }
     for (var i=0; i < routeArray.length; i++) {
         removeBorderCss($("#route"+routeArray[i].id));
     }
     addBorderCss($("#route"+route));
-    
-    
-    var url = mesPath+'/seatYudingOrder/shikebiao?route='+route+'&holiday='+holiday+'&uid=opiQiuKBtqGU6pf67fpGOHDBefXk';
+
+    var url = mesPath+'/seatYudingOrder/shikebiao?route='+route+'&holiday='+holiday+'&uid='+uid;
     uexWindow.toast('1','5',"数据加载中...",'');
     reqAJAX(url,function(res){   
         //alert(res)
@@ -120,12 +132,16 @@ function getBanci() {
         var timeObj;
         
         var timestr = '';
+        var ii = 0;
         for (var i=0; i < arrs.length; i++) {
-            timeObj = new Object();
-            timeObj.id = i;
-            timeObj.name = arrs[i];
-            timeArray.push(timeObj);
-            timestr = timestr+'<div id="time'+timeObj.id+'" class="ubb-01 ulev-app2 t-gra-63 swidth20" onclick="setTime('+timeObj.id+')">'+timeObj.name+'</div>';
+            if (route == 2 && (arrs[i]=='07:00'||arrs[i]=='07:40')){
+                timeObj = new Object();
+                timeObj.id = ii;
+                timeObj.name = arrs[i];
+                timeArray.push(timeObj);
+                timestr = timestr+'<div id="time'+timeObj.id+'" class="ubb-01 ulev-app2 t-gra-63 swidth20" onclick="setTime('+timeObj.id+')">'+timeObj.name+'</div>';
+                ii++;
+           }
         };
         $("#time").html(timestr);
         
@@ -165,27 +181,31 @@ function yuding() {
         alert("请选择班次！");
         return ;
     }
-    
+    if (uid=='') {
+        alert("数据异常！");
+        return ;
+    }
     if(sysl<ydsl){
         alert("月票不足");
         return ;
     }
-  
-    
-    var url = mesPath+'/seatYudingOrder/yudingOrder?route='+route+'&workday='+holiday+'&time='+time+'&uid=opiQiuKBtqGU6pf67fpGOHDBefXk';
-    uexWindow.toast('1','5',"数据加载中...",'');
-    reqAJAX(url,function(res){ 
-        uexWindow.closeToast();
-        var tmp=getType(res)=='string'&&isDefine(res)?JSON.parse(res):res; 
-        if(tmp.code!=0){
-            alert(tmp.msg)
-            return;
-        }
-        alert("预定成功");
-        
-        getBanci();
-    })
-     
+    var msg = "您确定要继续操作吗？";
+    if (confirm(msg)==true) {
+
+        var url = mesPath + '/seatYudingOrder/yudingOrder?route=' + route + '&workday=' + holiday + '&time=' + time + '&uid=' + uid;
+        uexWindow.toast('1', '5', "数据加载中...", '');
+        reqAJAX(url, function (res) {
+            uexWindow.closeToast();
+            var tmp = getType(res) == 'string' && isDefine(res) ? JSON.parse(res) : res;
+            if (tmp.code != 0) {
+                alert(tmp.msg)
+                return;
+            }
+            alert("预定成功");
+
+            getBanci();
+        })
+    }
 }
     
    

@@ -194,7 +194,13 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
 
     @Override
     public void yudingOrder(String uid, String workday, String route, String time) {
-
+        boolean flag = true;
+        if ("2".equals(route) && (time.equals("07:00")||time.equals("07:40"))){
+            flag =false;
+        }
+        if (flag){
+            throw new SellException(500, "非法订单！");
+        }
         SellerInfo sellerInfo = userRepository.findOne(uid);
         RouteDO routeDO = routeRepository.getOne(new Long(route));
         SeatYudingOrderDO seatYudingOrderDO = new SeatYudingOrderDO();

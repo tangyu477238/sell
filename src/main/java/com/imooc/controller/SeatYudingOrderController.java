@@ -62,7 +62,7 @@ public class SeatYudingOrderController {
     public String wx_yuding(@RequestParam("uid") String uid,
                             Map<String,Object> map){
         log.info("wx_yuding.......");
-        return "/wx_yuding.html" ;
+        return "/wx_yuding.html?uid="+uid ;
 
     }
 

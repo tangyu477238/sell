@@ -43,12 +43,13 @@ public class SellerAuthorizeAspect {
 
 
 
-    @Pointcut("(execution(public * com.imooc.controller.Seller*.*(..))"
-            +"|| execution(public * com.imooc.controller.Buy*.*(..)))"
+    @Pointcut("(execution(public * com.imooc.controller.Seller*.*(..))" //拦截Seller*,Buy*,Seat*开头的controller
+            +"|| execution(public * com.imooc.controller.Buy*.*(..))"
+            +"|| execution(public * com.imooc.controller.Seat*.*(..)))" //3个括号表示拦截结束
             +"&& !execution(public * com.imooc.controller.Buy*.notify*(..))"
-            +"&& !execution(public * com.imooc.controller.VerificationTicket*.*(..))" //验票
             +"&& !execution(public * com.imooc.controller.Buy*.queryOrder*(..))"
             +"&& !execution(public * com.imooc.controller.Buy*.getskb*(..))"
+            +"&& !execution(public * com.imooc.controller.VerificationTicket*.*(..))" //验票
             +"&& !execution(public * com.imooc.controller.SellerUserController.*(..))"
 
             )

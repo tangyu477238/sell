@@ -160,6 +160,10 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
                 sod.setOrderId(so.getId());
                 seatOrderItemRepository.save(sod); //占票
 
+                seatYudingOrderDO.setUseNum(seatYudingOrderDO.getUseNum().add(new BigDecimal(1))); //完成出票+1
+                seatYudingOrderRepository.save(seatYudingOrderDO);
+
+
                 //发送通知
                 buyTicketService.sendBuyMessage(so);
 

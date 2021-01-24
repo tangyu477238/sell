@@ -87,18 +87,8 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
 
 
     private void getOrderInfo(SeatOrderDO so){
-        List<Object[]> objs = buyTicketRepository.getPlanPrice(String.valueOf(so.getRouteId()),
-                so.getBizDate(), so.getBizTime());
-        if (ComUtil.isEmpty(objs) || objs.get(0) == null){
-            throw new SellException(500,"网络加载失败，请重新操作！");
-        }
-        so.setFromStation(objs.get(0)[0].toString()); //出发站
-        so.setToStation(objs.get(0)[1].toString()); //到达站
-        so.setPrice(new BigDecimal(objs.get(0)[2].toString())); //价格
-        so.setPlanId(new Long(objs.get(0)[3].toString())); //公式id
-        so.setLp(objs.get(0)[4].toString());
-        so.setAmout(so.getPrice().multiply(so.getNum()));
 
+        so.setAmout(so.getPrice().multiply(so.getNum()));
         so.setCkstate(0);
         so.setState(1);//付款
         so.setRemark("预约出票");
@@ -122,27 +112,46 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
 
     @Override
     public void addOrder() {
+        List<Object[]> paramslist = buyTicketRepository.getDayTimeFlag();
+        int days = Integer.parseInt(paramslist.get(0)[0].toString()); //天数
+        String bizDate = DateTimeUtil.getBeforeDay(days-1);
 
-        List<SeatYudingOrderDO> list = seatYudingOrderRepository.listSeatYuding();
+        List<SeatYudingOrderDO> list = seatYudingOrderRepository.listSeatYuding(bizDate);
         for (SeatYudingOrderDO seatYudingOrderDO : list){
             SeatOrderDO so = new SeatOrderDO();
-            so.setBizDate(seatYudingOrderDO.getBizDate());
+            so.setBizDate(bizDate);
             so.setBizTime(seatYudingOrderDO.getBizTime());
             so.setRouteId(seatYudingOrderDO.getRouteId());
+            so.setCreateUser(seatYudingOrderDO.getCreateUser()); //创建人
+
+            RouteDO routeDO = routeRepository.findOne(so.getRouteId());
+            so.setLp(routeDO.getLp());
+            so.setFromStation(routeDO.getFromStation()); //出发站
+            so.setToStation(routeDO.getToStation()); //到达站
+
+            List<Object[]> objs = seatYudingOrderRepository.getPlanPrice(String.valueOf(so.getRouteId()),
+                    so.getBizDate(), so.getBizTime());
+            if (ComUtil.isEmpty(objs) || objs.get(0) == null){
+                //班次可能已经取消，出票失败通知
+                buyTicketService.sendPiaoFailMessage(so);
+                continue;
+            }
+            so.setPlanId(new Long(objs.get(0)[0].toString())); //公式id
+            so.setPrice(new BigDecimal(objs.get(0)[1].toString())); //价格
+            so.setNum(new BigDecimal(1));
+
+            getOrderInfo(so); //设置订单基础信息
 
             List<Object[]> seatlist = seatYudingOrderRepository.getSeatInfo(so.getRouteId(), so.getBizDate(), so.getBizTime());
             if (seatlist.isEmpty()){
-                throw new BusinessException("500", "座位已被其他人预定！");
+                //出票失败通知
+                buyTicketService.sendPiaoFailMessage(so);
+                continue;
             }
             SeatOrderItemDO sod = new SeatOrderItemDO();
             sod.setSeatId(Long.parseLong(seatlist.get(0)[0].toString()));//座位id
 
             so.setInfo(seatlist.get(0)[1].toString());//座位
-            so.setNum(new BigDecimal(1));
-            so.setCreateUser(seatYudingOrderDO.getCreateUser()); //创建人
-
-            getOrderInfo(so); //设置订单基础信息
-
             try {
 
                 so = seatOrderRepository.save(so);
@@ -151,21 +160,20 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
                 sod.setOrderId(so.getId());
                 seatOrderItemRepository.save(sod); //占票
 
-
-
                 //发送通知
                 buyTicketService.sendBuyMessage(so);
 
+                buyTicketRepository.addOrderLogs(so.getOrderNo(),so.getBizDate(),so.getBizTime(),so.getPlanId(),so.getInfo()
+                        ,so.getPrice(),so.getNum(),so.getAmout(),so.getCreateTime(),so.getUpdateTime()
+                        ,so.getCreateUser(),so.getState(),so.getRemark(),so.getFromStation()
+                        ,so.getToStation(),so.getUserName(),so.getUserMobile()
+                        ,so.getRouteStation(),so.getCkstate(),so.getRouteId());
 
             }catch (Exception e){
                 throw new BusinessException("500", "座位已被其他人预定！");
             }
 
-            buyTicketRepository.addOrderLogs(so.getOrderNo(),so.getBizDate(),so.getBizTime(),so.getPlanId(),so.getInfo()
-                    ,so.getPrice(),so.getNum(),so.getAmout(),so.getCreateTime(),so.getUpdateTime()
-                    ,so.getCreateUser(),so.getState(),so.getRemark(),so.getFromStation()
-                    ,so.getToStation(),so.getUserName(),so.getUserMobile()
-                    ,so.getRouteStation(),so.getCkstate(),so.getRouteId());
+
 
 
         }

@@ -73,4 +73,7 @@ public interface BuyTicketService {
     void getwarningOrderUsers();
 
     void sendBuyMessage(SeatOrderDO seatOrderDO);
+
+    void sendPiaoFailMessage(SeatOrderDO seatOrderDO);
+
 }

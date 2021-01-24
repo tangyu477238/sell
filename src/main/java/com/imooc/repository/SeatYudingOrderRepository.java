@@ -24,11 +24,11 @@ public interface SeatYudingOrderRepository extends JpaRepository<SeatYudingOrder
 
     @Query(value = "select yy.*"
             + " from biz_seat_yuding_order yy "
-            + " inner join biz_calendar c on c.biz_date = CURDATE() and yy.workday = c.holiday "
-            + " left join biz_seat_order s on s.biz_date = CURDATE() and s.biz_time = yy.biz_time and s.route_id = yy.route_id"
+            + " inner join biz_calendar c on c.biz_date =?1 and yy.workday = c.holiday "
+            + " left join biz_seat_order s on s.biz_date =?1 and s.biz_time = yy.biz_time and s.route_id = yy.route_id"
             + " and s.state = 1 and s.remark='预约出票' and yy.create_user = s.create_user"
-            + " where yy.biz_date like '2021-01%' and yy.biz_date<=CURDATE()  and yy.state = 1 and s.create_user is null ", nativeQuery = true)
-    List<SeatYudingOrderDO> listSeatYuding();
+            + " where yy.biz_date like '2021-01%' and yy.biz_date<=?1  and yy.state = 1 and s.create_user is null ", nativeQuery = true)
+    List<SeatYudingOrderDO> listSeatYuding(String bizDate);
 
 
 
@@ -40,4 +40,7 @@ public interface SeatYudingOrderRepository extends JpaRepository<SeatYudingOrder
 
     @Query(value = "SELECT *  from biz_seat_yuding_order where end_date>=CURDATE() and create_user=?1 order by id desc", nativeQuery = true)
     List<SeatYudingOrderDO> listYudingOrder(String uid);
+
+    @Query(value = "select DISTINCT plan_id,price from biz_car_datetime_seat where  route_id =?1  and biz_date = ?2 and biz_time = ?3 ", nativeQuery = true)
+    List<Object[]> getPlanPrice(String route, String bizDate, String bizTime);
 }

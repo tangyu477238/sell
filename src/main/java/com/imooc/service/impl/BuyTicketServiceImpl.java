@@ -492,6 +492,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
     @Override
+    public void sendPiaoFailMessage(SeatOrderDO seatOrderDO) {
+        sendMessage(seatOrderDO.getCreateUser(), "orderTuiStatus", getOrderYudingTemplateData(seatOrderDO), null);
+    }
+
+    @Override
     public void sendBuyMessage(SeatOrderDO seatOrderDO) {
         //显示详情
         sendMessage(seatOrderDO.getCreateUser(),"orderStatus",getOrderTemplateData(seatOrderDO)
@@ -624,6 +629,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             repository.addPayLogs(payResponse.getOrderId(),new BigDecimal(payResponse.getOrderAmount()),new Date(),ORDER_STATE_2);
 
             SeatOrderLogDO logDO = seatOrderLogRepository.findByOrderNo(payResponse.getOrderId());
+            ///////////////////////////////////////////////////////
             sendMessage(logDO.getCreateUser(), "orderTuiStatus", getOrderTuiTemplateData(logDO), null);
 
             //refund(payResponse.getOrderId(), payResponse.getOrderAmount()); //退款
@@ -688,9 +694,20 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         return data;
     }
 
+    private List<WxMpTemplateData> getOrderYudingTemplateData(SeatOrderDO sod){
+        //订单已支付超时，出票失败
+        List<WxMpTemplateData> data= Arrays.asList(
+                new WxMpTemplateData("first","您好，您的预约出票服务，自动出票失败了！"),
+                new WxMpTemplateData("keyword1",sod.getFromStation()+"-"+sod.getToStation(),"#B5B5B5"),
+                new WxMpTemplateData("keyword2",sod.getBizDate()+" "+sod.getBizTime(),"#B5B5B5"),
+                new WxMpTemplateData("keyword3",sod.getOrderNo(),"#B5B5B5"),
+                new WxMpTemplateData("remark","退款将在3个工作日内按原路返回。\r\n若需购票请重新下单。\r\n如需帮助请致电"+ORDER_link_TEL+"。","#173177"));
+
+        return data;
+    }
 
     private List<WxMpTemplateData> getOrderTuiTemplateData(SeatOrderLogDO sod){
-        //发送出票失败通知
+        //订单已支付超时，出票失败
         List<WxMpTemplateData> data= Arrays.asList(
                 new WxMpTemplateData("first","您好，您的订单已支付超时，出票失败了！"),
                 new WxMpTemplateData("keyword1",sod.getFromStation()+"-"+sod.getToStation(),"#B5B5B5"),

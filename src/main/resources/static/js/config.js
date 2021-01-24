@@ -1,6 +1,6 @@
 //var configIp="192.168.16.12";
 //var configPort="8090";
-var configIp="huocheyun.xicp.net";
+var configIp="gzjhqc.vip";
 var configPort="80";
 var configApp="/sell";
 var mesPath="http://"+configIp+":"+configPort+configApp;

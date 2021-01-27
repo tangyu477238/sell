@@ -65,12 +65,15 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
         Map<String,Object> map = new HashMap<>();
         map.put("timelist",verificationTicketRepository.getTime(route,bizDate));
 
-        String startDate = getBizDate(1);
+        String currdate = getBizDate(1);//取得最早的一天
+        String startDate = seatYudingOrderRepository.getStartDate(holiday,currdate); //取得第一天
         map.put("startDate",startDate);
-        map.put("endDate",getBizDate(2));
         //预定开始日期
         String month = DateTimeUtil.getMonth(startDate);
-        List<BigInteger> dayNum = seatYudingOrderRepository.getWorkNum(holiday, startDate, month); //预定数量
+        String endDate = seatYudingOrderRepository.getLastDate(holiday,startDate,month);
+        map.put("endDate", endDate);
+
+        List<BigInteger> dayNum = seatYudingOrderRepository.getWorkNum(holiday, startDate, endDate); //预定数量
         map.put("ydsl",new BigDecimal(dayNum.get(0).toString())); //预定数量
 
         RouteDO routeDO = routeRepository.getOne(new Long(route));
@@ -161,8 +164,10 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
                 seatOrderItemRepository.save(sod); //占票
 
                 seatYudingOrderDO.setUseNum(seatYudingOrderDO.getUseNum().add(new BigDecimal(1))); //完成出票+1
+                if (seatYudingOrderDO.getNum().compareTo(seatYudingOrderDO.getUseNum())==0){
+                    seatYudingOrderDO.setState(0);
+                }
                 seatYudingOrderRepository.save(seatYudingOrderDO);
-
 
                 //发送通知
                 buyTicketService.sendBuyMessage(so);
@@ -206,6 +211,32 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
 
     @Override
     public void yudingOrder(String uid, String workday, String route, String time) {
+//        String startDate = getBizDate(1);
+//        String endDate = getBizDate(2);
+
+        String currdate = getBizDate(1);//取得最早的一天
+        String startDate = seatYudingOrderRepository.getStartDate(workday,currdate); //取得第一天
+        //预定开始日期
+        String month = DateTimeUtil.getMonth(startDate);
+        String endDate = seatYudingOrderRepository.getLastDate(workday,startDate,month);
+
+        yudingOrder(uid, workday, route, time, startDate, endDate);
+    }
+
+    @Override
+    public void yudingOrder(String uid, String route, String time, String bizDate, Integer dayNum) {
+        List<Object[]> paramslist = buyTicketRepository.getDayTimeFlag();
+        int days = Integer.parseInt(paramslist.get(0)[0].toString()); //天数
+        String currdate = DateTimeUtil.getBeforeDay(days); //取得最早的一天
+        String workday = seatYudingOrderRepository.getHoliday(bizDate);
+        String startDate = seatYudingOrderRepository.getStartDate(workday,currdate); //取得第一天
+        String endDate = seatYudingOrderRepository.getEndDateNum(workday,startDate,dayNum);
+
+        yudingOrder(uid, workday, route, time, startDate, endDate);
+    }
+
+    @Override
+    public void yudingOrder(String uid, String workday, String route, String time, String startDate, String endDate) {
         boolean flag = true;
         if ("2".equals(route) && (time.equals("07:00")||time.equals("07:40"))){
             flag =false;
@@ -213,6 +244,11 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
         if (flag){
             throw new SellException(500, "非法订单！");
         }
+
+        if (!DateTimeUtil.getMonth(startDate).equals(DateTimeUtil.getMonth(endDate))) {
+            throw new SellException(500, "预定的”有效区间“不能跨月！");
+        }
+
         SellerInfo sellerInfo = userRepository.findOne(uid);
         RouteDO routeDO = routeRepository.getOne(new Long(route));
         SeatYudingOrderDO seatYudingOrderDO = new SeatYudingOrderDO();
@@ -226,16 +262,17 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
         seatYudingOrderDO.setCreateUser(sellerInfo.getSellerId());
         seatYudingOrderDO.setUserMobile(sellerInfo.getMobile());
 
-        seatYudingOrderDO.setBizDate(getBizDate(1)); //预定开始日期
+        seatYudingOrderDO.setBizDate(startDate); //预定开始日期
         String month = DateTimeUtil.getMonth(seatYudingOrderDO.getBizDate());
-        seatYudingOrderDO.setEndDate(getBizDate(2));
+        seatYudingOrderDO.setEndDate(endDate);
 
         List<SeatYudingOrderDO> list = seatYudingOrderRepository.listYuding(workday,route,month,uid);
         if (!ComUtil.isEmpty(list)) {
             throw new SellException(500, "每月同线路只能预定一个班次！");
         }
 
-        List<BigInteger> dayNum = seatYudingOrderRepository.getWorkNum(seatYudingOrderDO.getWorkday(), seatYudingOrderDO.getBizDate(), month); //预定数量
+        List<BigInteger> dayNum = seatYudingOrderRepository.getWorkNum(seatYudingOrderDO.getWorkday(),
+                seatYudingOrderDO.getBizDate(), seatYudingOrderDO.getEndDate()); //预定数量
         seatYudingOrderDO.setNum(new BigDecimal(dayNum.get(0).toString())); //预定数量
         if (seatYudingOrderDO.getNum().doubleValue() < 1) {
             throw new SellException(500, "非法订单！");

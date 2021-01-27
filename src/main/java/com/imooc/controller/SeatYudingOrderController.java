@@ -1,6 +1,8 @@
 package com.imooc.controller;
 
 import com.imooc.VO.ResultVO;
+import com.imooc.dataobject.SeatOrderDO;
+import com.imooc.repository.SeatOrderRepository;
 import com.imooc.service.SeatYudingOrderService;
 import com.imooc.utils.ResultVOUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,20 @@ public class SeatYudingOrderController {
     @Autowired
     private SeatYudingOrderService seatYudingOrderService;
 
+    @Autowired
+    private SeatOrderRepository seatOrderRepository;
+
+    //试用预定信息
+    @ResponseBody
+    @GetMapping("/testYuding")
+    public ResultVO testYuding(@RequestParam("uid") String uid,
+                               @RequestParam("orderId") Long orderId){
+        SeatOrderDO seatOrderDO = seatOrderRepository.findOne(orderId);
+        seatYudingOrderService.yudingOrder(uid,
+                seatOrderDO.getRouteId().toString(),seatOrderDO.getBizTime(),seatOrderDO.getBizDate(),3);
+        log.info("testYuding.......");
+        return ResultVOUtil.success();
+    }
 
     //提交预定信息
     @ResponseBody

@@ -32,8 +32,9 @@ public class SeatYudingOrderController {
     @ResponseBody
     @GetMapping("/testYuding")
     public ResultVO testYuding(@RequestParam("uid") String uid,
-                               @RequestParam("orderId") Long orderId){
-        SeatOrderDO seatOrderDO = seatOrderRepository.findOne(orderId);
+                               @RequestParam("orderId") String orderId){
+        orderId = orderId.replace(",","");
+        SeatOrderDO seatOrderDO = seatOrderRepository.findOne(new Long(orderId));
         seatYudingOrderService.yudingOrder(uid,
                 seatOrderDO.getRouteId().toString(),seatOrderDO.getBizTime(),seatOrderDO.getBizDate(),3);
         log.info("testYuding.......");

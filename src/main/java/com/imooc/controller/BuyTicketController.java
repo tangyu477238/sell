@@ -205,11 +205,17 @@ public class BuyTicketController {
 
     @GetMapping("/getskb")
     public String getskb(){
-        log.info("wx_shikebiao.......");
+        log.info("getskb----------wx_shikebiao.......");
         return "/wx_shikebiao.html" ;
 
     }
 
+    @GetMapping("/getskbscd")
+    public String getskbscd(){
+        log.info("getskbscd----------shangchedian.......");
+        return "/shangchedian.html" ;
+
+    }
 
     //取消订单
     @ResponseBody

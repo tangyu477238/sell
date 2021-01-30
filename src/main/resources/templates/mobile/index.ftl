@@ -147,7 +147,7 @@
 
 
             <div id="aaaa" style="text-align: right;min-height: 2em;margin-top: 0.3em;">
-                <a href="javascript:location.href='http://gzjhqc.vip/sell/shangchedian.html'">上车点位置&地图导航</a>
+                <a href="javascript:location.href='/sell/ticket/getskbscd'">上车点位置&地图导航</a>
             </div>
             <div id="aaaa" style="text-align: right;min-height: 2em;margin-top: 0.3em;">
                 <a href="javascript:location.href='/sell/seatYudingOrder/yudingguize?uid=${uid}'">每天购票太麻烦?</a>

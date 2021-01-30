@@ -65,7 +65,9 @@
         已选定：</font></font><span id="checked"></span>
     </div>
 
-
+    <div id="aaaa" style="text-align: right;min-height: 2em;margin-top: 0.3em;margin-right: 1em;">
+        <a href="javascript:location.href='/sell/seatYudingOrder/yudingguize?uid=${uid}'">没座了?购票麻烦?试试提前出票</a>
+    </div>
     <div class="footer">
         <form id = "form" name="form" action="/sell/ticket/cord"  method="get">
             <input type="hidden" id="seat" name="seat">

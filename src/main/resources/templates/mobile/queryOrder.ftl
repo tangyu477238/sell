@@ -111,7 +111,7 @@
 
 </form>
 <div class="content">
-    <div class="main">
+    <div class="main" style="margin-bottom: 3em;">
         <div style="width: 100%;height: 20em;margin-bottom: 20px; text-align: center;">
             <img id="imageId" src="${qrcode}" style="height: 20em;">
         </div>
@@ -164,8 +164,9 @@
         </div>
 
 
-        <#--短信通知-->
-        <#--<input type="text" class="phone" value="13552379492" name="mobile" id="phonenum" placeholder="手机号">-->
+        <div id="aaaa" style="text-align: right;min-height: 2em;margin-top: 0.3em;margin-right: 1em;margin-bottom: 1.5em;">
+            <a href="javascript:location.href='/sell/seatYudingOrder/yudingguize?uid=${sod.createUser}'">每天购票烦?试试自动出票</a>
+        </div>
 
 
     </div>

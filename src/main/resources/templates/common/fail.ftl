@@ -73,7 +73,7 @@
 <div class="content">
     <img src="/sell/img/manzuo.png">
     <h3>${msg}</h3>
-    <span>抱歉，操作失败啦</span>
+    <span>抱歉，操作失败啦，联系客服：13922253183（微信同号）</span>
 </div>
 <#--<div class="footer">-->
     <#--<a class="choise" href="javascript:history.go(-1)">关闭窗口</a>-->

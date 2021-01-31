@@ -11,7 +11,7 @@
                     <div class="alert alert-dismissable alert-danger">
                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                         <h4>
-                            错误!
+                            错误!联系客服：13922253183（微信同号）
                         </h4> <strong>${msg}</strong>
                     </div>
                 </div>

@@ -64,4 +64,7 @@ public interface SeatYudingOrderRepository extends JpaRepository<SeatYudingOrder
             + " WHERE holiday = ?1 and biz_date>=?2 and LEFT(biz_date,7)=?3 ) t ", nativeQuery = true)
     String getLastDate(String holiday, String bizDate, String month);
 
+    @Query(value = "select create_user from biz_seat_order where biz_date > ?1 group by create_user ", nativeQuery = true)
+    List<String> listLastOrderCreateUser(String bizDate);
+
 }

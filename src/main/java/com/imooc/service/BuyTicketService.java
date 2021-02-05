@@ -76,4 +76,6 @@ public interface BuyTicketService {
 
     void sendPiaoFailMessage(SeatOrderDO seatOrderDO);
 
+    void sendBiancheMessage(String uid,String first,String yuanyin,String content,String url);
+
 }

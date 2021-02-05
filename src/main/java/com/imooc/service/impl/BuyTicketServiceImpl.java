@@ -151,6 +151,11 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         sendMessage(seatOrderDO.getCreateUser(), "orderCancelStatus", getOrderCancelTemplateData(seatOrderDO), null);
     }
 
+    @Override
+    public void sendBiancheMessage(String uid,String first,String yuanyin,String content,String url) {
+        sendMessage(uid, "orderBianStatus", getBianChelTemplateData(first,yuanyin,content), url);
+    }
+
 
 
     @Override
@@ -681,6 +686,17 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             repository.addPayLogs(payResponse.getOrderId(), new BigDecimal(payResponse.getOrderAmount()), new Date(), ORDER_STATE_2);//需退款
         }
         return payResponse;
+    }
+
+    private List<WxMpTemplateData> getBianChelTemplateData(String first,String yuanyin,String content){
+        //变更班车
+        List<WxMpTemplateData> data= Arrays.asList(
+                new WxMpTemplateData("first",first),
+                new WxMpTemplateData("keyword1",yuanyin,"#FF0000"),
+                new WxMpTemplateData("keyword2",content,"#FF0000"),
+                new WxMpTemplateData("remark","给您带来的不便，敬请谅解。\r\n如需帮助请致电"+ORDER_link_TEL+"。","#173177"));
+
+        return data;
     }
 
     private List<WxMpTemplateData> getOrderCancelTemplateData(SeatOrderDO sod){

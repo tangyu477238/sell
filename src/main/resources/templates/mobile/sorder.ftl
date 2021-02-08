@@ -96,22 +96,41 @@
 
     <table style="width:100%" class="altrowstable" id="alternatecolor">
         <thead class="evenrowcolor">
-            <th style="width:25%;">乘车日期/时间</th>
-            <th style="width:30%;">出发/到达</th>
-            <th style="width:25%;">司机验票图</th>
-            <th style="width:20%;">详情</th>
+            <th style="width:22%;">乘车日期/时间</th>
+            <th style="width:20%;">出发/到达</th>
+            <th style="width:25%;">座位</th>
+            <th style="width:14%;">详情</th>
+            <th style="width:19%;">预约出票</th>
         </thead>
         <tbody>
         <#list sodlist as sod>
         <tr class="oddrowcolor">
             <td colspan=1 onclick="openLocation('${sod.id}')">${sod.bizDate}<br>${sod.bizTime}</td>
-            <td colspan=1>${sod.fromStation}-->${sod.toStation}</td>
+            <td colspan=1>${sod.fromStation}<br>${sod.toStation}</td>
             <td colspan=1>
-                <a style="text-decoration: none; color:#333333;" href="javascript:location.href='http://gzjhqc.vip/sell/order_seat.html?seachRouteId=${sod.routeId}&seachDate=${sod.bizDate}&seachTime=${sod.bizTime}&seatInfo=${sod.info}'">${sod.info}</a>
+                <#if sod.remark =="预约出票">
+                    <font color="red">${sod.info}</font>
+                 </#if>
+                <#if sod.remark =="月票抵扣">
+                    ${sod.info}
+                </#if>
+                <#if sod.remark =="微信支付">
+                    <font color="#1e90ff">${sod.info}</font>
+                </#if>
             </td>
             <td colspan=1>
-                <a style="font-size:12pt;text-decoration: none; " href="javascript:location.href='/sell/ticket/queryOrder?orderId=${sod.id}&uid=${uid}'">查看 </a>
+                <a style="font-size:12pt;text-decoration: none;color:#333333 " href="javascript:location.href='/sell/ticket/queryOrder?orderId=${sod.id}&uid=${uid}'">查看 </a>
             </td>
+            <td colspan=1>
+                <#if sod.bizDate =="2021-01-27"||sod.bizDate =="2021-01-28"||sod.bizDate =="2021-01-29">
+                    <#if sod.bizTime =="07:00"||sod.bizTime =="07:40">
+                        <#if sod.remark =="月票抵扣"||sod.remark =="预约出票">
+                            <a style="font-size:12pt;text-decoration: none; "  href="###" onclick="yuding('${sod.bizTime}','${sod.id}','${uid}');">试用</a>
+                        </#if>
+                    </#if>
+                </#if>
+            </td>
+
         </tr>
 
         <#--<tr >-->
@@ -146,6 +165,26 @@ function altRows(id){
 }
 
 
+function yuding(time,sid,uid){
+    var msg = "确认申请后，\r\n将会有3次（"+time+"）自动出票体验，还请注意不要重复买票哦！！！";
+    if (confirm(msg)==true) {
+        $.ajax({
+            "url": "/sell/seatYudingOrder/testYuding?orderId="+sid ,
+            "data": "uid="+uid,
+            "dataType": "json",
+            "type": "GET",
+            "success": function(data) {
+                if (data.code!=0){
+                    alert(data.msg)
+                } else {
+                    alert("提交成功")
+                }
+
+            }
+        })
+
+    }
+}
 
 function select(){
     location.href='http://gzjhqc.vip/sell/select.html'

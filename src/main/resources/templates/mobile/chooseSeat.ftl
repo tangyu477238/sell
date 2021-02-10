@@ -17,8 +17,11 @@
                 alert('请选择座位');
                 return ;
             }
-            var form = document.getElementById("form");
-            form.submit();
+            var msg = "车票一经售出是不支持退票的，\r\n您仍然确定购买吗？";
+            if (confirm(msg)==true) {
+                var form = document.getElementById("form");
+                form.submit();
+            }
         }
     </script>
     <link type="text/css" rel="stylesheet" charset="UTF-8" href="/sell/css/translateelement.css">

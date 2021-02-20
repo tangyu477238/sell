@@ -28,6 +28,30 @@ public class SeatYudingOrderController {
     @Autowired
     private SeatOrderRepository seatOrderRepository;
 
+
+    //评价
+    @ResponseBody
+    @GetMapping("/pingjia")
+    public ResultVO pingjia(@RequestParam("uid") String uid,
+                            @RequestParam("orderId") String orderId,
+                            @RequestParam("fuwu") Integer fuwu,
+                            @RequestParam("content") String content) throws Exception{
+        seatYudingOrderService.pingjia(uid, orderId.replace(",",""),content,fuwu);
+        log.info("pingjia.......");
+        return ResultVOUtil.success();
+    }
+
+    //试用预定信息
+    @ResponseBody
+    @GetMapping("/sendMsgBanci")
+    public ResultVO sendMsgBanci(){
+        seatYudingOrderService.sendMsgBanci("尊敬的业主您好，\r\n2021-02-22起恢复琶洲线路班车，为缓解出行压力，紧急增加幸福誉至宏发07:05班车！",
+                "恢复琶洲线路,增幸福誉至宏发07:05班车","以系统放票为准",null);
+        log.info("sendMsgBanci.......");
+        return ResultVOUtil.success();
+    }
+
+
     //试用预定信息
     @ResponseBody
     @GetMapping("/testYuding")

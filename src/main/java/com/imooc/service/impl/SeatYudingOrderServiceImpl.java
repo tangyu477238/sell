@@ -58,6 +58,37 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
     @Autowired
     private BuyTicketService buyTicketService;
 
+    @Autowired
+    private SeatOrderPingjiaRepository seatOrderPingjiaRepository;
+
+
+    @Override
+    public void pingjia(String uid, String orderId, String content, Integer fuwu) throws Exception {
+
+
+        SeatOrderPingjiaDO seatOrderPingjiaDO = new SeatOrderPingjiaDO();
+        seatOrderPingjiaDO.setContent(content);
+        seatOrderPingjiaDO.setOrderId(new Long(orderId));
+        seatOrderPingjiaDO.setFuwu(fuwu);
+        if(!ComUtil.isEmpty(seatOrderPingjiaRepository.findByOrderId(seatOrderPingjiaDO.getOrderId()))){
+            throw new Exception("不可重复评价！");
+        }
+        seatOrderPingjiaRepository.save(seatOrderPingjiaDO);
+        SeatOrderDO seatOrderDO = seatOrderRepository.findOne(seatOrderPingjiaDO.getOrderId());
+        seatOrderDO.setCkstate(1);
+        seatOrderRepository.save(seatOrderDO);
+    }
+
+    @Override
+    public void sendMsgBanci(String first,String yuanyin,String content,String url) {
+        List<String> list  = seatYudingOrderRepository.listLastOrderCreateUser(DateTimeUtil.getMonthOfFistDay(-1));
+        log.info("-------开始推送----班车变更通知--"+list.size());
+        for (String uid : list){
+            log.info("--uid---"+uid);
+            buyTicketService.sendBiancheMessage(uid,first,yuanyin,content,url);
+        }
+
+    }
 
     @Override
     public Map<String, Object> shikebiao(String route, String holiday, String uid) {

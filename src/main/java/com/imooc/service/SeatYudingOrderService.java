@@ -16,4 +16,7 @@ public interface SeatYudingOrderService {
 
     Map<String,Object> shikebiao(String route, String holiday, String uid);
 
+    void sendMsgBanci(String first,String yuanyin,String content,String url);
+
+    void pingjia(String uid,String orderId,String content,Integer fuwu) throws Exception;
 }

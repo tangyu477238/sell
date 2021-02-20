@@ -67,4 +67,23 @@ public interface SeatYudingOrderRepository extends JpaRepository<SeatYudingOrder
     @Query(value = "select create_user from biz_seat_order where biz_date > ?1 group by create_user ", nativeQuery = true)
     List<String> listLastOrderCreateUser(String bizDate);
 
+
+    @Query(value = "select"
+            + " CONCAT(t.route_id,t.biz_date,t.biz_time) as rdt,"
+            + " case when (t.zuo-IFNULL(t1.num,0)) < 1 then '售完' when t.zuo-IFNULL(t1.num,0)<15 then '少量'  else '' end as mzl"
+            + " from ("
+            + " select"
+            + " s.route_id,s.biz_date,s.biz_time,SUM(s.seat_type) as zuo"
+            + " from biz_car_datetime_seat s"
+            + " where s.route_id =?1 and s.biz_date =?2   "
+            + " group by s.route_id,s.biz_date,s.biz_time"
+            + " ) t"
+            + " left join ("
+            + " select"
+            + " route_id,biz_date,biz_time,IFNULL(SUM(num),0) as num"
+            + " from biz_seat_order s"
+            + " where s.route_id =?1 and s.biz_date =?2  "
+            + " group by s.biz_date,s.biz_time,s.route_id"
+            + " ) t1 on t.biz_date=t1.biz_date  and t.biz_time = t1.biz_time and t.route_id = t1.route_id", nativeQuery = true)
+    List<Object[]> getMzl(Long route, String bizDate);
 }

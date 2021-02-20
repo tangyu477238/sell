@@ -922,11 +922,16 @@ public class BuyTicketServiceImpl implements BuyTicketService {
     }
 
     @Override
-    public String queryBanci(String route, String time) {
+    public String queryBanci(String route, String bizDate) {
 
-        List<String> timelist = repository.getBuyTime(route,time);
+        List<String> timelist = repository.getBuyTime(route,bizDate);
 
-        return getSelectStr(timelist,time);
+        List<Object[]> list = seatYudingOrderRepository.getMzl(new Long(route), bizDate);
+        Map<String,String> map = new HashMap();
+        list.forEach(objects -> {
+            map.put(objects[0].toString(),objects[1].toString());
+        });
+        return getSelectStr(map, timelist, bizDate, route);
     }
 
     //补票班次
@@ -955,7 +960,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
 
-    private String getSelectStr(List<String> timelist, String time) {
+    private String getSelectStr(Map<String,String> map,List<String> timelist, String bizDate,String route) {
         String str = "";
         if(ComUtil.isEmpty(timelist)  || timelist.get(0)==null || "null".equals(timelist.get(0)) ){
             str = "<option value=\"\">今天已经没有班车了，请选择明天的车。</option>";
@@ -967,18 +972,18 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             String buybeforeticket1 = list.get(0)[5].toString();
 
             for (String timestr : timelist){
-                if (DateTimeUtil.getBeforeDay(days-1).equals(time)){ //选的日期是最后一天
-                    log.info("--------"+DateTimeUtil.getHoursOfDay(new Date())+"----------"+time+"----------"+timestr);
+                if (DateTimeUtil.getBeforeDay(days-1).equals(bizDate)){ //选的日期是最后一天
+                    log.info("--------"+DateTimeUtil.getHoursOfDay(new Date())+"----------"+bizDate+"----------"+timestr);
                     if(DateTimeUtil.getHoursOfDay(new Date())>=houre3){
-                        str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+                        str = getOption(str, map, bizDate, route, timestr);
                     } else if(DateTimeUtil.getHoursOfDay(new Date())>=houre2 && timestr.compareTo("08:01")<0){
-                        str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+                        str = getOption(str, map, bizDate, route, timestr);
                     } else if(DateTimeUtil.getHoursOfDay(new Date())>=buytime1 && timestr.compareTo(buybeforeticket1)<0){
-                        str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+                        str = getOption(str, map, bizDate, route, timestr);
                     }
 
                 } else {
-                    str = str + "<option value='" + timestr + "'>" + timestr + "</option>";
+                    str = getOption(str, map, bizDate, route, timestr);
                 }
             }
         }
@@ -986,7 +991,10 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         return "<select id='moment' name='moment' class='address'>" + str + "</select>";
     }
 
-
+    private String getOption(String str, Map<String,String> map, String bizDate,String route,String timestr){
+        String czl = map .get(route+bizDate+timestr);
+        return  str +"<option value='" + timestr + "'>" + timestr + (ComUtil.isEmpty(czl) ? "" : "("+czl+")")+ "</option>";
+    }
 
     @Override
     public void saveInfo(String name, String phone, String uid,String verify) {

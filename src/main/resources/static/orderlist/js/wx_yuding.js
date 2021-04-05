@@ -10,6 +10,7 @@ var routeStation=''; //传值
 
 var routeObj;
 var holiday = 1;
+var dateType = 0;
 
 var ydsl=0;
 var sysl=0;
@@ -30,6 +31,7 @@ var uid;
         $("#date").html(datestr);
         
         setHoliday(1);//设置默认值
+        setDateType(0);
         
         uexWindow.toast('1','5',"数据加载中...",'');
         var url = mesPath+'/verification/cktikcetCzyNew?uid=1';
@@ -74,6 +76,18 @@ function getQueryVariable(variable)
     return(false);
 }
 
+
+function setDateType (flag) {
+    if(flag==0){
+        addBorderCss($("#dateType0"));
+        removeBorderCss($("#dateType1"));
+    }else {
+        addBorderCss($("#dateType1"));
+        removeBorderCss($("#dateType0"));
+    }
+    dateType = flag;
+    getBanci();
+}   
 function setRoute(routeId) {
     route = routeId;
     getBanci();
@@ -116,7 +130,7 @@ function getBanci() {
     }
     addBorderCss($("#route"+route));
 
-    var url = mesPath+'/seatYudingOrder/shikebiao?route='+route+'&holiday='+holiday+'&uid='+uid;
+    var url = mesPath+'/seatYudingOrder/shikebiao?route='+route+'&dateType='+dateType+'&holiday='+holiday+'&uid='+uid;
     uexWindow.toast('1','5',"数据加载中...",'');
     reqAJAX(url,function(res){   
         //alert(res)
@@ -134,7 +148,7 @@ function getBanci() {
         var timestr = '';
         var ii = 0;
         for (var i=0; i < arrs.length; i++) {
-            if (route == 2 && (arrs[i]=='07:00'||arrs[i]=='07:40')){
+            if (route == 2 && (arrs[i]=='07:00')){
                 timeObj = new Object();
                 timeObj.id = ii;
                 timeObj.name = arrs[i];
@@ -192,7 +206,7 @@ function yuding() {
     var msg = "您确定要继续操作吗？";
     if (confirm(msg)==true) {
 
-        var url = mesPath + '/seatYudingOrder/yudingOrder?route=' + route + '&workday=' + holiday + '&time=' + time + '&uid=' + uid;
+        var url = mesPath + '/seatYudingOrder/yudingOrder?route=' + route + '&dateType='+dateType+'&workday=' + holiday + '&time=' + time + '&uid=' + uid;
         uexWindow.toast('1', '5', "数据加载中...", '');
         reqAJAX(url, function (res) {
             uexWindow.closeToast();

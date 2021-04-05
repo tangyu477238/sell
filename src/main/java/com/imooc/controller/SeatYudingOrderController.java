@@ -71,9 +71,10 @@ public class SeatYudingOrderController {
     public ResultVO yudingOrder(@RequestParam("uid") String uid,
                                 @RequestParam("workday") String workday,
                                 @RequestParam("route") String route,
-                                @RequestParam("time") String time){
+                                @RequestParam("time") String time,
+                                String dateType){
 
-        seatYudingOrderService.yudingOrder(uid,workday,route,time);
+        seatYudingOrderService.yudingOrder(uid,workday,route,time,dateType);
         log.info("yudingOrder.......");
         return ResultVOUtil.success();
     }
@@ -84,8 +85,9 @@ public class SeatYudingOrderController {
     @GetMapping("/shikebiao")
     public Map<String,Object> shikebiao(@RequestParam("uid") String uid,
                                         @RequestParam() String route,
-                                        @RequestParam() String holiday){
-        return seatYudingOrderService.shikebiao(route,holiday,uid);
+                                        @RequestParam() String holiday,
+                                        String dateType){
+        return seatYudingOrderService.shikebiao(route,holiday,uid,dateType);
     }
 
 

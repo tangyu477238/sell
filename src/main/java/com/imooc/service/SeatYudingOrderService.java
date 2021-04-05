@@ -9,12 +9,12 @@ import java.util.Map;
 public interface SeatYudingOrderService {
 
 
-    void yudingOrder(String uid, String workday, String route, String time);
+    void yudingOrder(String uid, String workday, String route, String time,String dateType);
     void yudingOrder(String uid, String workday, String route, String time,String startDate,String endDate);
     void yudingOrder(String uid, String route, String time, String bizDate, Integer dayNum);
     void addOrder();
 
-    Map<String,Object> shikebiao(String route, String holiday, String uid);
+    Map<String,Object> shikebiao(String route, String holiday, String uid,String dateType);
 
     void sendMsgBanci(String first,String yuanyin,String content,String url);
 

@@ -1,6 +1,7 @@
 package com.imooc.service.impl;
 
 import com.imooc.dataobject.*;
+import com.imooc.enums.DateTypeEnum;
 import com.imooc.exception.BusinessException;
 import com.imooc.exception.SellException;
 import com.imooc.repository.*;
@@ -13,13 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -91,7 +88,7 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
     }
 
     @Override
-    public Map<String, Object> shikebiao(String route, String holiday, String uid) {
+    public Map<String, Object> shikebiao(String route, String holiday, String uid,String dateType) {
         String bizDate = verificationTicketRepository.getCalendar(holiday);
         Map<String,Object> map = new HashMap<>();
         map.put("timelist",verificationTicketRepository.getTime(route,bizDate));
@@ -101,7 +98,7 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
         map.put("startDate",startDate);
         //预定开始日期
         String month = DateTimeUtil.getMonth(startDate);
-        String endDate = seatYudingOrderRepository.getLastDate(holiday,startDate,month);
+        String endDate = seatYudingOrderRepository.getLastDate(holiday,startDate,month, DateTypeEnum.getNumByCode(dateType));
         map.put("endDate", endDate);
 
         List<BigInteger> dayNum = seatYudingOrderRepository.getWorkNum(holiday, startDate, endDate); //预定数量
@@ -151,6 +148,7 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
         String bizDate = DateTimeUtil.getBeforeDay(days-1);
 
         List<SeatYudingOrderDO> list = seatYudingOrderRepository.listSeatYuding(bizDate);
+        Collections.shuffle(list);
         for (SeatYudingOrderDO seatYudingOrderDO : list){
             SeatOrderDO so = new SeatOrderDO();
             so.setBizDate(bizDate);
@@ -241,7 +239,7 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
     }
 
     @Override
-    public void yudingOrder(String uid, String workday, String route, String time) {
+    public void yudingOrder(String uid, String workday, String route, String time,String dateType) {
 //        String startDate = getBizDate(1);
 //        String endDate = getBizDate(2);
 
@@ -249,7 +247,7 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
         String startDate = seatYudingOrderRepository.getStartDate(workday,currdate); //取得第一天
         //预定开始日期
         String month = DateTimeUtil.getMonth(startDate);
-        String endDate = seatYudingOrderRepository.getLastDate(workday,startDate,month);
+        String endDate = seatYudingOrderRepository.getLastDate(workday,startDate,month,DateTypeEnum.getNumByCode(dateType));
 
         yudingOrder(uid, workday, route, time, startDate, endDate);
     }
@@ -268,13 +266,11 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
 
     @Override
     public void yudingOrder(String uid, String workday, String route, String time, String startDate, String endDate) {
-        boolean flag = true;
-        if ("2".equals(route) && (time.equals("07:00")||time.equals("07:40"))){
-            flag =false;
+        String times = "07:00";
+        if (time.indexOf(times)<0){
+            throw new SellException(500, "目前仅开放"+times+"班次预订！");
         }
-        if (flag){
-            throw new SellException(500, "非法订单！");
-        }
+
 
         if (!DateTimeUtil.getMonth(startDate).equals(DateTimeUtil.getMonth(endDate))) {
             throw new SellException(500, "预定的”有效区间“不能跨月！");

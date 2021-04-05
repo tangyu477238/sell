@@ -38,8 +38,9 @@
             <br/>&nbsp;&nbsp;
             <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7.预约服务一旦提交成功，系统就会按照预约规则每天计算出票，不支持半途中止或退出，顾此服务适用解决每月固定时间出行的业主。
             <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8.预约服务订购会消耗积分,试运行期间一直免费,直至系统稳定，在试运行期间有可能发生的系统不稳定，如出票失败，月票未退还，座位重复等等问题，带来的不便还请谅解。
-            <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9.目前仅开放幸福誉至宏发(07:00,07:40)班次预约。
+            <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9.目前仅开放幸福誉至宏发(07:00)班次预约。
             <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10.如需帮助，请联系服务热线（13922253183微信同号）反馈。
+			<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11.按周预约出票规则与按月预约出票规则保持一致。
             <br/>
             <br/>
 

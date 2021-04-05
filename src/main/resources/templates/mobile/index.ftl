@@ -154,23 +154,19 @@
                 <a href="javascript:location.href='/sell/ticket/getskbscd'">上车点位置&地图导航</a>
             </div>
             <div id="aaaa" style="text-align: right;min-height: 2em;margin-top: 0.3em;">
-                <a href="javascript:location.href='/sell/seatYudingOrder/yudingguize?uid=${uid}'">每天购票太麻烦?</a>
+                <a href="javascript:location.href='/sell/seatYudingOrder/yudingguize?uid=${uid}'">按周预约出票?</a>
             </div>
             <div class="button" style="background-color: ${lpColor};margin-top: 0.3em;">
                 <input type="submit" name="submit" style=" background:none; border:none; color:#fff; width:100%; height:100%;" value="下一步"></div>
             <div style="color:red; padding:10px;font-size: 15px;">
                 温馨提示：
                 <br/>
-                <br/>春节假期班次已经放出，春节后所有班次逐步恢复！
-                <br/>
-                <br/>新增同和线路（春节后恢复）！
-                <br/>同和至幸福誉方向上车点:梅花园地铁站A口（18：20），京溪南方医院地铁站D口，同和镇政府公交站！
-                <br/>新增琶洲线路（春节后恢复）！
-                <br/>琶洲至幸福誉方向上车点:磨碟沙地铁站B口（18：20），琶洲会展中心地铁站C口，天河软件园公交站，科韵路涵天戴斯酒店！
-                <br/>
+                <br/>>>>预约出票增加按周预约！
+				<br/>
                 <br/>根据交通法规要求，一人一座，儿童也需购票！
                 <br/>班次如购买错误，系统无法实现退票，请您注意选择正确的班次！
                 <br/>过期车票一律作废，逃票、套票弄虚做假者我司将其列入黑名单。
+				<br/>如需帮助，请联系服务热线（13922253183微信同号）反馈
                 <br/>
                 <br/>珠江新城专线不支持月票购票！
                 <br/>珠江新城至幸福誉方向上车点时间:猎德(18:20)，珠江新城(18:25)，谭村(18:35)！

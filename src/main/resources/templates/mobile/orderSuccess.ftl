@@ -131,7 +131,7 @@
 <div class="main">
     <img src="/sell/img/success.png">
     <h4>支付成功，但不一定出票成功！</h4>
-    <span>本次订票信息已经发送您的手机,请注意查收</span>
+    <h4>请在“我的订单”中查看,核实购票信息！！！！</h4>
     <#--<p> 购票类型：订座票</p>-->
     <p>订单号：${orderNo}</p>
     <#--<p></p>-->
@@ -143,9 +143,9 @@
     <#--<a href="javascript:location.reload();">再次发送</a>-->
     <br>
     <div class="clear"></div>
-    <span>1.完成订票后，您将收到微信提示，包括本次购票信息</span>
+    <span style="color: red">1.因微信公众号下线模板消息功能(2021-04-30)，购票成功，请在“我的订单”中查看购票信息！！！！</span>
     <br>
-    <span>2.如果没有收到微信提示，请点开我的订单，可找到购票信息！</span>
+    <span style="color: red"></span>
 </div>
 <div class="shuoming">
     <h3>乘车说明</h3>

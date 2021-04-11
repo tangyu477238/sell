@@ -199,9 +199,11 @@
         </div>
         <script>$('.main').css('height', $('.main_info').height() + 60);</script>
         <div class="read">
-            <span>1.请仔细核对订单信息，车票一旦售出，无法退换</span>
+            <span>1.因微信公众号下线模板消息功能(2021-04-30)，购票成功将无法收到购票消息，请在“我的订单”中查看购票信息！！！</span>
             <br>
-            <span>2.请您在5分钟内完成支付;如果尚未完成支付，您选择的座位将被取消</span>
+            <span>2.请仔细核对订单信息，车票一旦售出，无法退换</span>
+            <br>
+            <span>3.请您在2分钟内完成支付;如果尚未完成支付，您选择的座位将被取消</span>
         </div>
         <#--短信通知-->
         <#--<input type="text" class="phone" value="13552379492" name="mobile" id="phonenum" placeholder="手机号">-->
@@ -285,7 +287,7 @@ function jfzf() {
             //var str2 = JSON.stringify(res);
             if (res.msg=='成功') {
                 alert('恭喜您，购票成功!');
-                WeixinJSBridge.invoke('closeWindow',{},function(res){});
+                location.href='/sell/ticket/queryMonthTicket?uid='+ uid;
             } else {
                 alert('支付失败:' + res.msg);
             }

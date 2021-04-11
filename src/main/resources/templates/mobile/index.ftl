@@ -153,7 +153,7 @@
             <div id="aaaa" style="text-align: right;min-height: 2em;margin-top: 0.3em;">
                 <a href="javascript:location.href='/sell/ticket/getskbscd'">上车点位置&地图导航</a>
             </div>
-            <div id="aaaa" style="text-align: right;min-height: 2em;margin-top: 0.3em;">
+            <div id="bbbb" style="text-align: right;min-height: 2em;margin-top: 0.3em;">
                 <a href="javascript:location.href='/sell/seatYudingOrder/yudingguize?uid=${uid}'">按周预约出票?</a>
             </div>
             <div class="button" style="background-color: ${lpColor};margin-top: 0.3em;">

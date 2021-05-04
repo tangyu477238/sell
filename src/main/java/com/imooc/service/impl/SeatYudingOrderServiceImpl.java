@@ -266,8 +266,10 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
 
     @Override
     public void yudingOrder(String uid, String workday, String route, String time, String startDate, String endDate) {
-        String times = "07:00";
-        if (time.indexOf(times)<0){
+
+        List<String> yudingTimes =  seatYudingOrderRepository.getYudingTimes();
+        String times = yudingTimes.get(0); //times
+        if (!ComUtil.isEmpty(times) && times.indexOf(time)<0){
             throw new SellException(500, "目前仅开放"+times+"班次预订！");
         }
 

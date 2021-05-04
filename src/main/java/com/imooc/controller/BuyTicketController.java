@@ -178,7 +178,7 @@ public class BuyTicketController {
         log.info(orderId+"-------------payOrder......."+uid);
         map = buyTicketService.payOrder(orderId,uid);
         map.put("uid",uid);
-        map.put("returnUrl","/sell/ticket/orderSuccess?orderNo=" + map.get("orderNo"));
+        map.put("returnUrl","/sell/ticket/queryMonthTicket?uid=" + uid);
         return new ModelAndView("pay/create",map);
 
     }
@@ -344,7 +344,7 @@ public class BuyTicketController {
         map = buyTicketService.payMonthTick(id,uid,month_val);
         map.put("uid",uid);
 
-        map.put("returnUrl","/sell/ticket/orderMonthSuccess");
+        map.put("returnUrl","/sell/ticket/queryMonthTicket?uid=" + uid);
         return new ModelAndView("pay/create",map);
     }
 

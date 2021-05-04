@@ -147,8 +147,9 @@ function getBanci() {
         
         var timestr = '';
         var ii = 0;
+        var ttimes = '06:20,06:45,06:55,07:00';
         for (var i=0; i < arrs.length; i++) {
-            if (route == 2 && (arrs[i]=='07:00')){
+            if (ttimes.indexOf(arrs[i])>-1){
                 timeObj = new Object();
                 timeObj.id = ii;
                 timeObj.name = arrs[i];

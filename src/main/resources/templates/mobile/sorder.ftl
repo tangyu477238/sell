@@ -10,6 +10,7 @@
     <link href="/sell/css/orderList.css" rel="stylesheet">
     <script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <script src="/sell/js/jquery-1.7.2.min.js"></script>
+    <script src="/sell/js/storage.js"></script>
 </head>
 <body>
 <!--     <div class="header"><a href="#"><img src="images/go_back.png"></a><div class="header-word"><p>我的订单</p></div>
@@ -100,12 +101,12 @@
             <th style="width:20%;">出发/到达</th>
             <th style="width:25%;">座位</th>
             <th style="width:14%;">详情</th>
-            <th style="width:19%;">预约出票</th>
+            <th style="width:19%;">服务评分</th>
         </thead>
         <tbody>
         <#list sodlist as sod>
         <tr class="oddrowcolor">
-            <td colspan=1 onclick="openLocation('${sod.id}')">${sod.bizDate}<br>${sod.bizTime}</td>
+            <td colspan=1 >${sod.bizDate}<br>${sod.bizTime}</td>
             <td colspan=1>${sod.fromStation}<br>${sod.toStation}</td>
             <td colspan=1>
                 <#if sod.remark =="预约出票">
@@ -122,13 +123,10 @@
                 <a style="font-size:12pt;text-decoration: none;color:#333333 " href="javascript:location.href='/sell/ticket/queryOrder?orderId=${sod.id}&uid=${uid}'">查看 </a>
             </td>
             <td colspan=1>
-                <#if sod.bizDate =="2021-01-27"||sod.bizDate =="2021-01-28"||sod.bizDate =="2021-01-29">
-                    <#if sod.bizTime =="07:00"||sod.bizTime =="07:40">
-                        <#if sod.remark =="月票抵扣"||sod.remark =="预约出票">
-                            <a style="font-size:12pt;text-decoration: none; "  href="###" onclick="yuding('${sod.bizTime}','${sod.id}','${uid}');">试用</a>
-                        </#if>
-                    </#if>
+                <#if sod.ckstate == 0 >
+                    <a style="font-size:12pt;text-decoration: none; "  href="###" onclick="pingjia('${sod.bizTime}','${sod.id}','${uid}');">评价</a>
                 </#if>
+
             </td>
 
         </tr>
@@ -164,6 +162,13 @@ function altRows(id){
     }
 }
 
+
+
+function pingjia(time,sid,uid){
+    setstorage("sid", sid);
+    setstorage("uid", uid);
+    location.href='/sell/wx_pingjia.html'
+}
 
 function yuding(time,sid,uid){
     var msg = "确认申请后，\r\n将会有3次（"+time+"）自动出票体验，还请注意不要重复买票哦！！！";

@@ -77,7 +77,7 @@
         }
 
         .read span {
-            font-size: 10px;
+            font-size: 12px;
             color: red;
         }
 
@@ -234,11 +234,17 @@
         </div>
         <script>$('.main').css('height', $('.main_info').height() + 60);</script>
         <div class="read">
-            <span>1.因微信公众号下线模板消息功能(2021-04-30)，购票成功将无法收到购票消息，请在“我的订单”中查看购票信息！！！</span>
+<#--            <span>尊敬的业主您好，</span>-->
+<#--            <br>-->
+<#--            <span>2021-05-04起解锁7点之前的所有班车预约出票，还在为每天抢票头疼的业主，预约起来吧！</span>-->
+<#--            <br>-->
+<#--            <br>-->
+
+            <span >1.购票成功，请在“我的订单”中查看购票信息！！！</span>
             <br>
-            <span>2.请仔细核对订单信息，车票一旦售出，无法退换</span>
+            <span >2.请仔细核对订单信息，车票一旦售出，无法退换</span>
             <br>
-            <span>3.请您在2分钟内完成支付;如果尚未完成支付，您选择的座位将被取消</span>
+            <span >3.请您在2分钟内完成支付;如果尚未完成支付，您选择的座位将被取消</span>
         </div>
         <#--短信通知-->
         <#--<input type="text" class="phone" value="13552379492" name="mobile" id="phonenum" placeholder="手机号">-->
@@ -338,7 +344,7 @@
                 window.is__jfzf = false;
                 //var str2 = JSON.stringify(res);
                 if (res.msg=='成功') {
-                    alert('恭喜您，购票成功!');
+                    alert('恭喜您，购票成功!\n\r2021-05-04起解锁7点之前的所有班车预约出票，还在为每天抢票头疼的业主，赶紧预约起来吧！');
                     //WeixinJSBridge.invoke('closeWindow',{},function(res){});
                     location.href='/sell/ticket/queryMonthTicket?uid='+ uid;
                 } else {

@@ -56,8 +56,8 @@
                     // });
 
                     wx.openLocation({
-                        latitude: '23.329074862052238',
-                        longitude: '113.53080282877812',
+                        latitude:  Number('23.329074862052238'),
+                        longitude:  Number('113.53080282877812'),
                         name: '上车点：幸福誉三期', // 位置名
                         address: '广东省广州市萝岗区Y079' // 地址详情说明
                     });

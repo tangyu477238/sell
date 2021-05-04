@@ -56,8 +56,8 @@
                     // });
 
                     wx.openLocation({
-                        latitude: '23.132287',
-                        longitude: '113.331769',
+                        latitude:  Number('23.132287'),
+                        longitude:  Number('113.331769'),
                         name: '上车点：宏发', // 位置名
                         address: '广东省广州市天河区宏发大厦西门美宜佳门口' // 地址详情说明
                     });

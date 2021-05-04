@@ -56,8 +56,8 @@
                     // });
 
                     wx.openLocation({
-                        latitude: '23.323951869700238',
-                        longitude: '113.550872139738',
+                        latitude: Number('23.323951869700238'),
+                        longitude: Number('113.550872139738'),
                         name: '上车点：绿地城', // 位置名
                         address: '广东省广州市萝岗区S378(九龙大道)' // 地址详情说明
                     });

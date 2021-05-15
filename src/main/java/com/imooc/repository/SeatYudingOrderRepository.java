@@ -2,7 +2,9 @@ package com.imooc.repository;
 
 import com.imooc.dataobject.SeatYudingOrderDO;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -90,4 +92,9 @@ public interface SeatYudingOrderRepository extends JpaRepository<SeatYudingOrder
             + " group by s.biz_date,s.biz_time,s.route_id"
             + " ) t1 on t.biz_date=t1.biz_date  and t.biz_time = t1.biz_time and t.route_id = t1.route_id", nativeQuery = true)
     List<Object[]> getMzl(Long route, String bizDate);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update biz_seat_order set ckstate = 1  where ckstate =0 and biz_date<date_format(now(),'%Y-%m-%d')",nativeQuery = true)
+    int updatePingJia();
 }

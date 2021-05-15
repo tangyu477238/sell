@@ -2,7 +2,7 @@ package com.imooc.config;
 
 import com.imooc.dataobject.PayLogDO;
 import com.imooc.repository.PayLogRepository;
-import com.imooc.repository.SeatOrderLogRepository;
+import com.imooc.repository.SeatYudingOrderRepository;
 import com.imooc.service.BuyTicketService;
 import com.imooc.service.SeatYudingOrderService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +27,10 @@ public class ScheduleTask {
 
     @Autowired
     private SeatYudingOrderService seatYudingOrderService;
+
+    @Autowired
+    private SeatYudingOrderRepository seatYudingOrderRepository;
+
 
     @Scheduled(cron = "${task.schedule.delOrder}")
     public void marketingActivity() throws Exception {
@@ -64,6 +68,15 @@ public class ScheduleTask {
 
     }
 
+    @Scheduled(cron = "0 0 22 * * ?") //每天10点
+    public void updatePingJia(){
+        log.info("----------更新评价信息---------------");
+        if(seatYudingOrderRepository != null){
+            seatYudingOrderRepository.updatePingJia();
+            log.info("----------更新评价信息---------------");
+        }
+
+    }
 
 
 }

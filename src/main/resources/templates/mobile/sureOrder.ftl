@@ -344,7 +344,7 @@
                 window.is__jfzf = false;
                 //var str2 = JSON.stringify(res);
                 if (res.msg=='成功') {
-                    alert('恭喜您，购票成功!\n\r2021-05-04起解锁7点之前的所有班车预约出票，还在为每天抢票头疼的业主，赶紧预约起来吧！');
+                    alert('恭喜您，购票成功!\n\r鉴于越来越多的业主们使用了预约功能，也达到了安全稳定运行的预期，即日起预约出票功能《正式上线》，之前尚不可预约的业主们，都赶紧预约起来吧！');
                     //WeixinJSBridge.invoke('closeWindow',{},function(res){});
                     location.href='/sell/ticket/queryMonthTicket?uid='+ uid;
                 } else {

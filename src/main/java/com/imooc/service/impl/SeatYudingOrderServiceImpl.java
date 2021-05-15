@@ -267,12 +267,15 @@ public class SeatYudingOrderServiceImpl implements SeatYudingOrderService {
     @Override
     public void yudingOrder(String uid, String workday, String route, String time, String startDate, String endDate) {
 
-        List<String> yudingTimes =  seatYudingOrderRepository.getYudingTimes();
-        String times = yudingTimes.get(0); //times
-        if (!ComUtil.isEmpty(times) && times.indexOf(time)<0){
+        List<Object[]> yudingTimes =  seatYudingOrderRepository.getYudingTimes();
+        Object routes = yudingTimes.get(0)[1]; //routes
+        if (!ComUtil.isEmpty(routes) && !Arrays.asList(routes.toString().split(",")).contains(route)){
+            throw new SellException(500, "目前未开放此线路预订！");
+        }
+        Object times = yudingTimes.get(0)[0]; //times
+        if (!ComUtil.isEmpty(times) && !Arrays.asList(times.toString().split(",")).contains(time)){
             throw new SellException(500, "目前仅开放"+times+"班次预订！");
         }
-
 
         if (!DateTimeUtil.getMonth(startDate).equals(DateTimeUtil.getMonth(endDate))) {
             throw new SellException(500, "预定的”有效区间“不能跨月！");

@@ -13,8 +13,8 @@ import java.util.List;
  */
 public interface SeatYudingOrderRepository extends JpaRepository<SeatYudingOrderDO, Long> {
 
-    @Query(value = "select biz_time from biz_seat_yuding ", nativeQuery = true)
-    List<String> getYudingTimes();
+    @Query(value = "select biz_time,route_id from biz_seat_yuding ", nativeQuery = true)
+    List<Object[]> getYudingTimes();
 
 
     @Query(value = "select * from biz_seat_yuding_order where state = 1 and workday =?1 and route_id =?2 and LEFT(biz_date,7)=?3 and create_user =?4 ", nativeQuery = true)

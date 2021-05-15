@@ -607,7 +607,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
             qrcodeColorDO.setCreateTime(new Date());
             qrcodeColorRepository.save(qrcodeColorDO);
         }
-        QRCodeUtil.encode(sod.getCreateUser()+"_"+sod.getId(),QRCODE_PATH,qrcodeColorDO.getQrcode());
+        //QRCodeUtil.encode(sod.getCreateUser()+"_"+sod.getId(),QRCODE_PATH,qrcodeColorDO.getQrcode());
     }
 
     @Override

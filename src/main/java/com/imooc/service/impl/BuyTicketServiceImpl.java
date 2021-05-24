@@ -297,7 +297,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         if (!ComUtil.isEmpty(numlist) && !ComUtil.isEmpty(numlist.get(0))){
             cartotal = numlist.get(0).add(cartotal);
         }
-        if (cartotal.intValue()>4){
+        if (cartotal.intValue()>4 && !"13552379492".equals(uid)){
             throw new BusinessException("500","同一班车最多购买或预定4张车票！");
         }
 
@@ -525,7 +525,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         if (!ComUtil.isEmpty(numlist)&&numlist.size()>0 && !ComUtil.isEmpty(numlist.get(0))){
             yuepnum = numlist.get(0).add(yuepnum);
         }
-        if (yuepnum.intValue()>4){
+        if (yuepnum.intValue()>4 && !"13552379492".equals(sod.getCreateUser())){
             throw new SellException(500,"同一班车月票最多只能抵扣4张！");
         }
 

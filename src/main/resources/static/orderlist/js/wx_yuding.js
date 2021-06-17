@@ -148,15 +148,22 @@ function getBanci() {
         var timestr = '';
         var ii = 0;
         var ttimes = '06:20,06:45,06:55,07:00';
+
+        var ttroute=[1, 2];
         for (var i=0; i < arrs.length; i++) {
-            if (ttimes.indexOf(arrs[i])>-1){
-                timeObj = new Object();
-                timeObj.id = ii;
-                timeObj.name = arrs[i];
-                timeArray.push(timeObj);
-                timestr = timestr+'<div id="time'+timeObj.id+'" class="ubb-01 ulev-app2 t-gra-63 swidth20" onclick="setTime('+timeObj.id+')">'+timeObj.name+'</div>';
-                ii++;
-           }
+            if (ttroute.indexOf(route)==-1){
+                continue;
+            }
+            //if (ttimes.indexOf(arrs[i])==-1){
+              //  continue;
+            //}
+            timeObj = new Object();
+            timeObj.id = ii;
+            timeObj.name = arrs[i];
+            timeArray.push(timeObj);
+            timestr = timestr+'<div id="time'+timeObj.id+'" class="ubb-01 ulev-app2 t-gra-63 swidth20" onclick="setTime('+timeObj.id+')">'+timeObj.name+'</div>';
+            ii++;
+
         };
         $("#time").html(timestr);
         

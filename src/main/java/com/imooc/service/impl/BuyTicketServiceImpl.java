@@ -217,7 +217,7 @@ public class BuyTicketServiceImpl implements BuyTicketService {
 
 
 
-        List daylist = new ArrayList();
+        List<String> daylist = new ArrayList();
         List<Object[]> list = repository.getDayTimeFlag();
         int days = Integer.parseInt(list.get(0)[0].toString());
         int flag = Integer.parseInt(list.get(0)[1].toString());
@@ -232,6 +232,12 @@ public class BuyTicketServiceImpl implements BuyTicketService {
         }
         map.put("daysDate",DateTimeUtil.getBeforeDay(days-1));
         map.put("daylist",daylist);
+        //转星期
+        List<String> weeklist = new ArrayList();
+        for (String date : daylist){
+            weeklist.add(DateTimeUtil.dateToWeek(date));
+        }
+        map.put("weeklist",weeklist);
         return map;
     }
 

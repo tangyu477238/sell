@@ -134,7 +134,11 @@
             </select>
             <select name="time" id="time" class="address">
                 <#list daylist as day>
-                    <option value="${day}">${day}</option>
+                    <#list weeklist as week>
+                        <#if week_index=day_index>
+                            <option value="${day}">${day}(${week})</option>
+                        </#if>
+                    </#list>
                 </#list>
             </select>
 

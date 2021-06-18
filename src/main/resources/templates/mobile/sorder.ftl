@@ -89,7 +89,7 @@
 
 
 <div style="font: 14px; color: #3445a1;font-weight:600; padding: 15px 0; background: #e6fcf0;">
-    <div class="orderList-tab">次票消费记录(仅显示当月之后数据)</div>
+    <div class="orderList-tab">次票记录(仅显示当月)<a style="font-size:12pt;text-decoration: none;color:orangered " href="javascript:location.href='/sell/ticket/getskbscd'"> >>>>查看上车点</a></div>
 </div>
 
 <div >
@@ -124,7 +124,7 @@
             </td>
             <td colspan=1>
                 <#if sod.ckstate == 0 >
-                    <a style="font-size:12pt;text-decoration: none; "  href="###" onclick="pingjia('${sod.bizTime}','${sod.id}','${uid}');">评价</a>
+                    <a style="font-size:12pt;text-decoration: none;color:#333333 "  href="###" onclick="pingjia('${sod.bizTime}','${sod.id}','${uid}');">评价</a>
                 </#if>
 
             </td>

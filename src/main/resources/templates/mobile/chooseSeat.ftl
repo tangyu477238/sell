@@ -49,7 +49,7 @@
             padding-left: 15px;
             width: 228px;
             height: 454px;
-            background: url('/sell/img/xuanzuo.png') no-repeat scroll 0px 0px transparent;
+            background: url('/sell/img/xuanzuo.png?v=1') no-repeat scroll 0px 0px transparent;
         }
 
         .dfdsfs table {
